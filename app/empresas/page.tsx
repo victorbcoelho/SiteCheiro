@@ -93,7 +93,7 @@ export default function EmpresasPage() {
         </div>
       </section>
 
-      <section className="section-padding bg-sand/40">
+      <section className="section-padding bg-white">
         <div className="container-page">
           <h2 className="font-serif text-3xl md:text-5xl text-center mb-12">
             Sopre.me vs. empresas tradicionais

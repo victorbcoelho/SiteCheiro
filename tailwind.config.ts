@@ -8,8 +8,8 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        offwhite: '#F9F6F2',
-        sage: '#8A9E7B',
+        offwhite: '#FFFFFF',
+        rust: '#B95C42',
         ink: '#1A1A1A',
         sand: '#E8DDD0',
       },

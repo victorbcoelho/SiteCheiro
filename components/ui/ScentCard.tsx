@@ -17,7 +17,7 @@ export default function ScentCard({ scent }: { scent: Scent }) {
       transition={{ duration: 0.5 }}
       className="group rounded-2xl bg-white border border-sand/70 p-8 hover:shadow-lg hover:-translate-y-1 transition-all duration-300"
     >
-      <div className="mb-4 h-12 w-12 rounded-full bg-sand flex items-center justify-center text-sage group-hover:bg-sage group-hover:text-white transition-colors">
+      <div className="mb-4 h-12 w-12 rounded-full bg-sand flex items-center justify-center text-rust group-hover:bg-rust group-hover:text-white transition-colors">
         <svg
           xmlns="http://www.w3.org/2000/svg"
           viewBox="0 0 24 24"
@@ -34,7 +34,7 @@ export default function ScentCard({ scent }: { scent: Scent }) {
           <path strokeLinecap="round" strokeLinejoin="round" d="M5 13h14l-1.5 8h-11L5 13z" />
         </svg>
       </div>
-      <p className="text-xs uppercase tracking-widest text-sage font-medium mb-2">
+      <p className="text-xs uppercase tracking-widest text-rust font-medium mb-2">
         {scent.family}
       </p>
       <h3 className="font-serif text-xl mb-2">{scent.name}</h3>

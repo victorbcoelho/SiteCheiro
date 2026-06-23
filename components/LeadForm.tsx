@@ -75,7 +75,7 @@ export default function LeadForm({
     }
   };
 
-  const inputClasses = `w-full rounded-xl border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-sage transition-colors ${
+  const inputClasses = `w-full rounded-xl border px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-rust transition-colors ${
     dark
       ? 'bg-white/10 border-white/20 text-white placeholder:text-white/50'
       : 'bg-white border-sand text-ink placeholder:text-ink/40'
@@ -87,7 +87,7 @@ export default function LeadForm({
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
         className={`rounded-2xl p-8 text-center ${
-          dark ? 'bg-white/10 text-white' : 'bg-sage/10 text-ink'
+          dark ? 'bg-white/10 text-white' : 'bg-rust/10 text-ink'
         }`}
       >
         <p className="font-serif text-2xl mb-2">Perfeito! Você está na lista.</p>

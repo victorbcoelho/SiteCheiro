@@ -27,7 +27,7 @@ export default function PlanCard({ plan }: { plan: Plan }) {
       }`}
     >
       {plan.highlighted && (
-        <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-sage text-white text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">
+        <span className="absolute -top-4 left-1/2 -translate-x-1/2 bg-rust text-white text-xs uppercase tracking-widest px-4 py-1.5 rounded-full">
           Mais popular
         </span>
       )}
@@ -53,7 +53,7 @@ export default function PlanCard({ plan }: { plan: Plan }) {
           <li key={feature} className="flex items-start gap-3 text-sm">
             <span
               className={`mt-1 h-1.5 w-1.5 rounded-full shrink-0 ${
-                plan.highlighted ? 'bg-sage' : 'bg-sage'
+                plan.highlighted ? 'bg-rust' : 'bg-rust'
               }`}
             />
             <span className={plan.highlighted ? 'text-white/85' : 'text-ink/80'}>

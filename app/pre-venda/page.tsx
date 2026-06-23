@@ -61,7 +61,7 @@ export default function PreVendaPage() {
           {guarantees.map((item) => (
             <span
               key={item}
-              className="inline-flex items-center gap-2 rounded-full bg-sage/10 text-sage px-4 py-2 text-xs font-medium"
+              className="inline-flex items-center gap-2 rounded-full bg-rust/10 text-rust px-4 py-2 text-xs font-medium"
             >
               {item}
             </span>

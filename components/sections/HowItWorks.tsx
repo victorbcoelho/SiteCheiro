@@ -22,7 +22,7 @@ const steps = [
 
 export default function HowItWorks() {
   return (
-    <section id="como-funciona" className="section-padding bg-sand/40">
+    <section id="como-funciona" className="section-padding bg-white">
       <div className="container-page">
         <h2 className="font-serif text-3xl md:text-5xl text-center mb-16">
           Simples assim
@@ -38,7 +38,7 @@ export default function HowItWorks() {
               transition={{ duration: 0.5, delay: index * 0.12 }}
               className="text-center"
             >
-              <p className="font-serif text-5xl text-sage mb-4">{step.number}</p>
+              <p className="font-serif text-5xl text-rust mb-4">{step.number}</p>
               <h3 className="font-serif text-xl mb-3">{step.title}</h3>
               <p className="text-sm text-ink/60 max-w-xs mx-auto leading-relaxed">
                 {step.description}

@@ -1,4 +1,5 @@
 import Hero from '@/components/sections/Hero';
+import VideoCarousel from '@/components/sections/VideoCarousel';
 import Problem from '@/components/sections/Problem';
 import Solution from '@/components/sections/Solution';
 import HowItWorks from '@/components/sections/HowItWorks';
@@ -12,6 +13,7 @@ export default function Home() {
   return (
     <>
       <Hero />
+      <VideoCarousel />
       <Problem />
       <Solution />
       <HowItWorks />

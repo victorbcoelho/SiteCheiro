@@ -21,7 +21,7 @@ export default function CompareTable() {
           {rows.map((row, i) => (
             <tr key={row.label} className={i % 2 === 0 ? 'bg-white' : 'bg-offwhite'}>
               <td className="p-4 text-sm font-medium text-ink/70">{row.label}</td>
-              <td className="p-4 text-sm font-medium text-sage">{row.sopre}</td>
+              <td className="p-4 text-sm font-medium text-rust">{row.sopre}</td>
               <td className="p-4 text-sm text-ink/60">{row.tradicional}</td>
             </tr>
           ))}

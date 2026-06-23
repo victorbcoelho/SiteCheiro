@@ -23,9 +23,9 @@ export default function CounterBadge({ className = '' }: { className?: string })
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.4 }}
-      className={`inline-flex items-center gap-2 rounded-full bg-sage/15 text-sage px-4 py-2 text-sm font-medium ${className}`}
+      className={`inline-flex items-center gap-2 rounded-full bg-rust/15 text-rust px-4 py-2 text-sm font-medium ${className}`}
     >
-      <span className="h-2 w-2 rounded-full bg-sage animate-pulse" />
+      <span className="h-2 w-2 rounded-full bg-rust animate-pulse" />
       Já são {count} pessoas na lista
     </motion.div>
   );

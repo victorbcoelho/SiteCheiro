@@ -12,7 +12,7 @@ const features = [
 
 export default function AppShowcase() {
   return (
-    <section className="section-padding bg-sand/40">
+    <section className="section-padding bg-white">
       <div className="container-page grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <motion.div
           initial={{ opacity: 0, y: 24 }}
@@ -43,7 +43,7 @@ export default function AppShowcase() {
                 transition={{ duration: 0.4, delay: index * 0.1 }}
                 className="flex items-start gap-4"
               >
-                <span className="mt-1 h-7 w-7 rounded-full bg-sage text-white flex items-center justify-center text-xs shrink-0">
+                <span className="mt-1 h-7 w-7 rounded-full bg-rust text-white flex items-center justify-center text-xs shrink-0">
                   {index + 1}
                 </span>
                 <span className="text-ink/80">{feature}</span>
