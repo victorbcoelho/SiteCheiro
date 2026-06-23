@@ -1,0 +1,23 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /leads/{leadId} {
+      // Aggregate count queries (used for the public "X pessoas na lista" counter)
+      // require list permission; individual documents are never read by the client.
+      allow list: if true;
+      allow get: if false;
+      allow create: if request.resource.data.keys().hasAll(['nome', 'email', 'whatsapp', 'plano', 'origem'])
+        && request.resource.data.nome is string
+        && request.resource.data.email is string;
+      allow update, delete: if false;
+    }
+
+    match /leads_b2b/{leadId} {
+      allow create: if request.resource.data.keys().hasAll(['nome', 'empresa', 'segmento', 'pontos', 'whatsapp', 'email'])
+        && request.resource.data.nome is string
+        && request.resource.data.email is string;
+      allow read, update, delete: if false;
+    }
+  }
+}

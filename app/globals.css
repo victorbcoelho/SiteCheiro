@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #F9F6F2;
+  color: #1A1A1A;
+}
+
+.container-page {
+  @apply mx-auto w-full max-w-7xl px-6 md:px-10;
+}
+
+.section-padding {
+  @apply py-16 md:py-24;
+}

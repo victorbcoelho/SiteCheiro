@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+  <rect width="1200" height="630" fill="#1A1A1A"/>
+  <path d="M600 160c40 60 90 130 90 210a90 90 0 11-180 0c0-80 50-150 90-210z" fill="#8A9E7B"/>
+  <text x="600" y="520" font-family="Georgia, serif" font-size="64" fill="#FFFFFF" text-anchor="middle">sopre.me</text>
+</svg>
