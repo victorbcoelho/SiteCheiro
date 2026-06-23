@@ -1,37 +1,5 @@
-import ScentCard, { Scent } from '@/components/ui/ScentCard';
-
-const scents: Scent[] = [
-  {
-    name: 'Brisa Cítrica',
-    family: 'Cítrico / Energizante',
-    description: 'Notas de laranja e limão siciliano para começar o dia desperto.',
-  },
-  {
-    name: 'Madeira Nobre',
-    family: 'Amadeirado / Sofisticado',
-    description: 'Cedro e sândalo em equilíbrio. Presença discreta e elegante.',
-  },
-  {
-    name: 'Lavanda Suave',
-    family: 'Floral / Relaxante',
-    description: 'Clássico calmante, perfeito para o quarto à noite.',
-  },
-  {
-    name: 'Chá Verde',
-    family: 'Verde / Refrescante',
-    description: 'Leveza e frescor para ambientes de trabalho e estudo.',
-  },
-  {
-    name: 'Baunilha & Âmbar',
-    family: 'Oriental / Acolhedor',
-    description: 'Quentinho e envolvente, como uma casa que recebe bem.',
-  },
-  {
-    name: 'Hotel 5 Estrelas',
-    family: 'Chypre / Sofisticado',
-    description: 'O aroma de recepção de hotel de luxo, agora na sua sala.',
-  },
-];
+import ScentCard from '@/components/ui/ScentCard';
+import { scents } from '@/lib/products';
 
 export default function Scents() {
   return (

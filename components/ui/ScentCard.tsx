@@ -1,12 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-
-export interface Scent {
-  name: string;
-  family: string;
-  description: string;
-}
+import type { Scent } from '@/lib/products';
 
 export default function ScentCard({ scent }: { scent: Scent }) {
   return (

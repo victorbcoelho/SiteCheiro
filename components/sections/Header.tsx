@@ -8,6 +8,7 @@ const navLinks = [
   { label: 'Como funciona', href: '/#como-funciona' },
   { label: 'Planos', href: '/#planos' },
   { label: 'Fragrâncias', href: '/#fragrancias' },
+  { label: 'Monte o seu', href: '/#monte' },
   { label: 'Para Empresas', href: '/empresas' },
   { label: 'FAQ', href: '/#faq' },
 ];
