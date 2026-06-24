@@ -21,25 +21,25 @@ const SITE_URL = 'https://sopre.me';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Sopre.me — Difusor de aroma inteligente por assinatura',
-    template: '%s | Sopre.me',
+    default: 'Sinesia — Som + Aroma. O primeiro ecossistema multissensorial.',
+    template: '%s | Sinesia',
   },
   description:
-    'O difusor inteligente que programa, alterna entre 2 aromas e repõe automaticamente. Tudo pelo app. Garanta sua vaga no pré-lançamento da Sopre.me.',
+    'O primeiro sistema integrado de áudio e aroma do mundo. Encaixe seu cartucho magnético, dê o play no app e redesenhe a atmosfera do seu ambiente.',
   keywords: [
-    'difusor de aroma',
-    'difusor inteligente',
-    'aromatizador de ambiente',
-    'assinatura de aroma',
-    'home fragrance',
-    'sopre.me',
+    'difusor de aroma inteligente',
+    'sistema de aroma e som',
+    'ecossistema multissensorial',
+    'automação residencial aroma',
+    'home fragrance premium',
+    'sinesia',
   ],
   openGraph: {
-    title: 'Sopre.me — Sua casa sempre cheirosa. Sem você lembrar de nada.',
+    title: 'Sinesia — Transforme sua casa em um santuário de luxo.',
     description:
-      'O difusor inteligente que programa, alterna entre 2 aromas e repõe automaticamente.',
+      'O primeiro sistema integrado de áudio e aroma do mundo. Cartucho magnético, controle pelo app.',
     url: SITE_URL,
-    siteName: 'Sopre.me',
+    siteName: 'Sinesia',
     locale: 'pt_BR',
     type: 'website',
     images: [
@@ -53,9 +53,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sopre.me — Sua casa sempre cheirosa. Sem você lembrar de nada.',
+    title: 'Sinesia — Transforme sua casa em um santuário de luxo.',
     description:
-      'O difusor inteligente que programa, alterna entre 2 aromas e repõe automaticamente.',
+      'O primeiro sistema integrado de áudio e aroma do mundo. Cartucho magnético, controle pelo app.',
     images: ['/og-image.svg'],
   },
   icons: {

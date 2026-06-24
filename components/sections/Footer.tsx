@@ -1,12 +1,11 @@
 import Link from 'next/link';
 
 const footerLinks = [
-  { label: 'Como funciona', href: '/#como-funciona' },
-  { label: 'Planos', href: '/#planos' },
+  { label: 'Starter Kit', href: '/#starter-kit' },
+  { label: 'Tecnologia', href: '/#como-funciona' },
   { label: 'Fragrâncias', href: '/#fragrancias' },
   { label: 'Para Empresas', href: '/empresas' },
-  { label: 'FAQ', href: '/#faq' },
-  { label: 'Contato', href: 'mailto:oi@sopre.me' },
+  { label: 'Contato', href: 'mailto:oi@sinesia.com.br' },
 ];
 
 export default function Footer() {
@@ -14,10 +13,10 @@ export default function Footer() {
     <footer className="bg-ink text-white">
       <div className="container-page py-16 grid grid-cols-1 md:grid-cols-3 gap-10">
         <div>
-          <p className="font-serif text-2xl mb-4">sopre.me</p>
+          <p className="font-serif text-2xl mb-4">Sinesia</p>
           <p className="text-sm text-white/60 max-w-xs">
-            O difusor inteligente que cuida do cheiro da sua casa para você não
-            precisar.
+            O primeiro ecossistema multissensorial que une Som + Aroma em um
+            único dispositivo de encaixe magnético.
           </p>
         </div>
 
@@ -28,7 +27,7 @@ export default function Footer() {
           <ul className="space-y-2">
             {footerLinks.map((link) => (
               <li key={link.label}>
-                <Link href={link.href} className="text-sm text-white/70 hover:text-white">
+                <Link href={link.href} className="text-sm text-white/70 hover:text-white transition-colors duration-300">
                   {link.label}
                 </Link>
               </li>
@@ -43,30 +42,30 @@ export default function Footer() {
           <ul className="space-y-2">
             <li>
               <a
-                href="https://instagram.com/sopre.me"
+                href="https://instagram.com/sinesia.oficial"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-white/70 hover:text-white"
+                className="text-sm text-white/70 hover:text-white transition-colors duration-300"
               >
                 Instagram
               </a>
             </li>
             <li>
               <a
-                href="https://tiktok.com/@sopre.me"
+                href="https://tiktok.com/@sinesia.oficial"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-sm text-white/70 hover:text-white"
+                className="text-sm text-white/70 hover:text-white transition-colors duration-300"
               >
                 TikTok
               </a>
             </li>
             <li>
               <a
-                href="mailto:oi@sopre.me"
-                className="text-sm text-white/70 hover:text-white"
+                href="mailto:oi@sinesia.com.br"
+                className="text-sm text-white/70 hover:text-white transition-colors duration-300"
               >
-                oi@sopre.me
+                oi@sinesia.com.br
               </a>
             </li>
           </ul>
@@ -75,7 +74,7 @@ export default function Footer() {
 
       <div className="border-t border-white/10">
         <div className="container-page py-6 text-xs text-white/40">
-          © 2026 Sopre.me — Todos os direitos reservados
+          © 2026 Sinesia — Todos os direitos reservados
         </div>
       </div>
     </footer>

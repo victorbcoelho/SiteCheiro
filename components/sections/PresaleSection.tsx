@@ -7,11 +7,11 @@ export default function PresaleSection() {
       <div className="container-page grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
         <div>
           <h2 className="font-serif text-3xl md:text-5xl mb-4">
-            Pré-lançamento — Seja um dos primeiros
+            Primeira leva — Seja um dos fundadores
           </h2>
           <p className="text-white/70 mb-8 max-w-md">
-            Estamos chegando. Garanta sua vaga na primeira leva com desconto de
-            fundador.
+            Garanta o Starter Kit com desconto de fundador. Sem cobrança agora.
+            Aparelho incluso para quem entrar antes do lançamento.
           </p>
           <CounterBadge />
         </div>

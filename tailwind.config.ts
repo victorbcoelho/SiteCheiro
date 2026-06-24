@@ -8,9 +8,10 @@ const config: Config = {
   theme: {
     extend: {
       colors: {
-        offwhite: '#FFFFFF',
+        offwhite: '#FBFBFA',
         rust: '#B95C42',
-        ink: '#1A1A1A',
+        rustDark: '#8A4132',
+        ink: '#2B2B2B',
         sand: '#E8DDD0',
       },
       fontFamily: {

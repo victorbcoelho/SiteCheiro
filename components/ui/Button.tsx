@@ -24,8 +24,10 @@ interface ButtonAsButton
 }
 
 const variantClasses: Record<Variant, string> = {
-  primary: 'bg-rust text-white hover:bg-ink border border-rust hover:border-ink',
-  secondary: 'bg-rust text-white hover:bg-ink border border-rust hover:border-ink',
+  primary:
+    'bg-rust text-white hover:bg-rustDark border border-rust hover:border-rustDark',
+  secondary:
+    'bg-rust text-white hover:bg-rustDark border border-rust hover:border-rustDark',
   outline:
     'bg-transparent text-rust border border-rust hover:bg-ink hover:text-white hover:border-ink',
 };

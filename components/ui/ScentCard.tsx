@@ -33,7 +33,7 @@ export default function ScentCard({ scent }: { scent: Scent }) {
         {scent.family}
       </p>
       <h3 className="font-serif text-xl mb-2">{scent.name}</h3>
-      <p className="text-sm text-ink/70 leading-relaxed">{scent.description}</p>
+      <p className="text-sm text-ink/70 leading-relaxed">{scent.notes}</p>
     </motion.div>
   );
 }
