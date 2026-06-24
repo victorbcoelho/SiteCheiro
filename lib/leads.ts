@@ -6,13 +6,13 @@ import {
 } from 'firebase/firestore';
 import { db } from './firebase';
 
-export type LeadCollection = 'leads' | 'leads_b2b';
+export type LeadCollection = 'leads' | 'leads_b2b' | 'leads_b2c';
 
 export interface LeadPayload {
   nome: string;
   email: string;
-  whatsapp: string;
-  plano: string;
+  whatsapp?: string;
+  plano?: string;
   origem: string;
 }
 
@@ -21,34 +21,30 @@ export interface LeadB2BPayload {
   empresa: string;
   segmento: string;
   pontos: string;
-  whatsapp: string;
+  whatsapp?: string;
   email: string;
   origem: string;
 }
 
-function saveToLocalStorage(
-  collectionName: LeadCollection,
-  data: LeadPayload | LeadB2BPayload
-) {
+export type LeadData = Record<string, unknown>;
+
+function saveToLocalStorage(collectionName: LeadCollection, data: LeadData) {
   try {
-    const key = `sopreme_leads_${collectionName}`;
+    const key = `sinesia_leads_${collectionName}`;
     const existing = JSON.parse(localStorage.getItem(key) || '[]');
     existing.push({ ...data, timestamp: new Date().toISOString() });
     localStorage.setItem(key, JSON.stringify(existing));
     console.warn(
-      '[Sopre.me] Firebase não configurado. Lead salvo localmente no navegador.',
+      '[Sinesia] Firebase não configurado. Lead salvo localmente no navegador.',
       '\nPara exportar: localStorage.getItem("' + key + '")',
       data
     );
   } catch {
-    console.error('[Sopre.me] Falha ao salvar lead localmente.', data);
+    console.error('[Sinesia] Falha ao salvar lead localmente.', data);
   }
 }
 
-export async function submitLead(
-  collectionName: LeadCollection,
-  data: LeadPayload | LeadB2BPayload
-) {
+export async function submitLead(collectionName: LeadCollection, data: LeadData) {
   if (!db) {
     if (typeof window !== 'undefined') {
       saveToLocalStorage(collectionName, data);

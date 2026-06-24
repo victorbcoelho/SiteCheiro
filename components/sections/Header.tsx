@@ -5,9 +5,9 @@ import Link from 'next/link';
 import Button from '@/components/ui/Button';
 
 const navLinks = [
-  { label: 'Starter Kit', href: '/#starter-kit' },
-  { label: 'Tecnologia', href: '/#como-funciona' },
+  { label: 'Como funciona', href: '/#como-funciona' },
   { label: 'Fragrâncias', href: '/#fragrancias' },
+  { label: 'Tecnologia', href: '/#tecnologia' },
   { label: 'Para Empresas', href: '/empresas' },
 ];
 
@@ -34,8 +34,8 @@ export default function Header() {
         </nav>
 
         <div className="hidden md:block">
-          <Button href="/pre-venda" size="md">
-            Garantir Starter Kit
+          <Button href="/starter-kit" size="md">
+            Montar meu kit
           </Button>
         </div>
 
@@ -62,8 +62,8 @@ export default function Header() {
               {link.label}
             </Link>
           ))}
-          <Button href="/pre-venda" size="md" className="w-full">
-            Garantir Starter Kit
+          <Button href="/starter-kit" size="md" className="w-full">
+            Montar meu kit
           </Button>
         </div>
       )}

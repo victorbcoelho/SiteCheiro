@@ -1,4 +1,4 @@
-type AnalyticsEvent = 'lead_captured' | 'cta_clicked' | 'page_viewed';
+type AnalyticsEvent = 'lead_captured' | 'cta_clicked' | 'page_viewed' | 'wizard_step';
 
 declare global {
   interface Window {

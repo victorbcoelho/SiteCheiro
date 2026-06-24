@@ -1,7 +1,8 @@
 import Hero from '@/components/sections/Hero';
-import StarterKit from '@/components/sections/StarterKit';
+import HowToUse from '@/components/sections/HowToUse';
+import SafetySection from '@/components/sections/SafetySection';
+import FragranceGrid from '@/components/sections/FragranceGrid';
 import TechFeatures from '@/components/sections/TechFeatures';
-import ScentCarousel from '@/components/sections/ScentCarousel';
 import PresaleSection from '@/components/sections/PresaleSection';
 import FAQSection from '@/components/sections/FAQSection';
 
@@ -9,9 +10,10 @@ export default function Home() {
   return (
     <>
       <Hero />
-      <StarterKit />
+      <HowToUse />
+      <SafetySection />
+      <FragranceGrid />
       <TechFeatures />
-      <ScentCarousel />
       <PresaleSection />
       <FAQSection />
     </>
