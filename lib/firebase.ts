@@ -1,6 +1,5 @@
 import { initializeApp, getApps, getApp, FirebaseOptions } from 'firebase/app';
 import { getFirestore } from 'firebase/firestore';
-import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 
 const firebaseConfig: FirebaseOptions = {
   apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -9,19 +8,14 @@ const firebaseConfig: FirebaseOptions = {
   storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
   messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
   appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-export const app = getApps().length ? getApp() : initializeApp(firebaseConfig);
-export const db = getFirestore(app);
+const isConfigured = Boolean(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
 
-let analyticsInstance: Analytics | null = null;
+export const app = isConfigured
+  ? getApps().length
+    ? getApp()
+    : initializeApp(firebaseConfig)
+  : null;
 
-export async function getAnalyticsInstance(): Promise<Analytics | null> {
-  if (typeof window === 'undefined') return null;
-  if (analyticsInstance) return analyticsInstance;
-  const supported = await isSupported().catch(() => false);
-  if (!supported) return null;
-  analyticsInstance = getAnalytics(app);
-  return analyticsInstance;
-}
+export const db = isConfigured && app ? getFirestore(app) : null;

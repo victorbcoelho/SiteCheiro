@@ -26,10 +26,36 @@ export interface LeadB2BPayload {
   origem: string;
 }
 
+function saveToLocalStorage(
+  collectionName: LeadCollection,
+  data: LeadPayload | LeadB2BPayload
+) {
+  try {
+    const key = `sopreme_leads_${collectionName}`;
+    const existing = JSON.parse(localStorage.getItem(key) || '[]');
+    existing.push({ ...data, timestamp: new Date().toISOString() });
+    localStorage.setItem(key, JSON.stringify(existing));
+    console.warn(
+      '[Sopre.me] Firebase não configurado. Lead salvo localmente no navegador.',
+      '\nPara exportar: localStorage.getItem("' + key + '")',
+      data
+    );
+  } catch {
+    console.error('[Sopre.me] Falha ao salvar lead localmente.', data);
+  }
+}
+
 export async function submitLead(
   collectionName: LeadCollection,
   data: LeadPayload | LeadB2BPayload
 ) {
+  if (!db) {
+    if (typeof window !== 'undefined') {
+      saveToLocalStorage(collectionName, data);
+    }
+    return;
+  }
+
   await addDoc(collection(db, collectionName), {
     ...data,
     timestamp: serverTimestamp(),
@@ -39,6 +65,7 @@ export async function submitLead(
 const BASE_LEAD_COUNT = 47;
 
 export async function getLeadCount(): Promise<number> {
+  if (!db) return BASE_LEAD_COUNT;
   try {
     const snapshot = await getCountFromServer(collection(db, 'leads'));
     return BASE_LEAD_COUNT + snapshot.data().count;

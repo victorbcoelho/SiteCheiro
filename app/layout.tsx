@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Inter, Playfair_Display } from 'next/font/google';
+import Script from 'next/script';
 import './globals.css';
 import SiteChrome from '@/components/sections/SiteChrome';
 
@@ -67,13 +68,30 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const gaId = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID;
   const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${playfair.variable}`}>
       <body className="font-sans antialiased bg-offwhite text-ink">
         <SiteChrome>{children}</SiteChrome>
-        {metaPixelId ? (
+
+        {gaId && (
+          <>
+            <Script
+              src={`https://www.googletagmanager.com/gtag/js?id=${gaId}`}
+              strategy="afterInteractive"
+            />
+            <Script id="ga4-init" strategy="afterInteractive">{`
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', '${gaId}');
+            `}</Script>
+          </>
+        )}
+
+        {metaPixelId && (
           <>
             <script
               // eslint-disable-next-line react/no-danger
@@ -93,7 +111,7 @@ export default function RootLayout({
               }}
             />
           </>
-        ) : null}
+        )}
       </body>
     </html>
   );
