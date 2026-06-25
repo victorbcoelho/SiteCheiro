@@ -86,6 +86,21 @@ export default function HowToUse() {
             </motion.div>
           ))}
         </div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 16 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5, delay: 0.3 }}
+          className="text-center mt-14"
+        >
+          <Link
+            href="/starter-kit"
+            className="inline-block bg-rust hover:bg-rustDark text-white rounded-full px-10 py-4 text-sm font-medium transition-colors duration-300"
+          >
+            Quero começar
+          </Link>
+        </motion.div>
       </div>
     </section>
   );

@@ -96,7 +96,7 @@ export const scents: Scent[] = [
   },
 ];
 
-export type DiffuserModelId = 'round' | 'tower';
+export type DiffuserModelId = 'room' | 'tower' | 'car';
 
 export interface DiffuserModel {
   id: DiffuserModelId;
@@ -110,18 +110,19 @@ export interface DiffuserModel {
 
 export const diffuserModels: DiffuserModel[] = [
   {
-    id: 'round',
-    name: 'Sinesia Home',
+    id: 'room',
+    name: 'Sinesia Room',
     subtitle: 'Difusor compacto',
     price: 299,
     hasSound: false,
-    idealFor: 'Quartos, banheiros, home office e espaços pequenos',
+    idealFor: 'Quartos, banheiros, home office, cozinhas, corredores e espaços pequenos',
     features: [
-      'Cobre até 30 m²',
-      'Silencioso (0 dB)',
+      'Cobre até 20 m²',
+      'Silencioso',
       'Controle de intensidade pelo app',
       'Alternância entre 2 fragrâncias',
       'Design minimalista de encaixe magnético',
+      'Luz de led embutida',
     ],
   },
   {
@@ -130,13 +131,29 @@ export const diffuserModels: DiffuserModel[] = [
     subtitle: 'Difusor com caixa de som integrada',
     price: 499,
     hasSound: true,
-    idealFor: 'Salas grandes, ambientes de entretenimento e home cinema',
+    idealFor: 'Salas grandes, ambientes com grande vão',
     features: [
-      'Cobre até 60 m²',
+      'Cobre até 40 m²',
       'Alto-falante de 360° integrado',
       'Sincronia som + aroma via app',
       'Bluetooth para suas playlists',
+      'Luz de led embutida',
       'Alternância entre 2 fragrâncias',
+    ],
+  },
+  {
+    id: 'car',
+    name: 'Sinesia Car',
+    subtitle: 'Difusor veicular',
+    price: 149,
+    hasSound: false,
+    idealFor: 'Para aromatização em movimento',
+    features: [
+      'Liga e desliga automaticamente',
+      'Bateria recarregável',
+      'Controle manual e pelo app',
+      'Ajuste de intensidade pelo app',
+      'Rastreamento de uso de essência',
     ],
   },
 ];

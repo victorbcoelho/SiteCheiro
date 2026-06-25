@@ -7,11 +7,6 @@ const items: FAQItem[] = [
       'Sim. O Sinesia possui alto-falante integrado que reproduz playlists e frequências sonoras via app. Você controla volume e intensidade do aroma de forma independente.',
   },
   {
-    question: 'Como funciona o cartucho magnético?',
-    answer:
-      'Basta encaixar o cartucho no aparelho — o clique magnético é instantâneo. O app reconhece automaticamente a essência conectada e sugere frequências sonoras compatíveis.',
-  },
-  {
     question: 'Quanto tempo dura cada cartucho?',
     answer:
       'Cada cartucho dura entre 30 e 45 dias em uso moderado (8h/dia). O app monitora o nível e avisa antes de acabar.',

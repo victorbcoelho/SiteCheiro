@@ -7,67 +7,165 @@ import { scents, diffuserModels, type DiffuserModelId } from '@/lib/products';
 import { trackEvent } from '@/lib/analytics';
 import { submitLead } from '@/lib/leads';
 
-type Step = 'room' | 'mood' | 'sound' | 'summary';
+type Step = 'room' | 'mood' | 'scents' | 'summary';
 
 interface WizardState {
   roomId: string | null;
   moodId: string | null;
   selectedScentIds: string[];
-  wantsSound: boolean | null;
   diffuserModelId: DiffuserModelId;
 }
 
-const ANNUAL_PRICE: Record<DiffuserModelId, number> = { round: 98, tower: 149 };
+interface B2BContext {
+  ambientes?: string;
+  segmento?: string;
+  objetivo?: string;
+}
 
-function LeadModal({ plan, onClose }: { plan: string; onClose: () => void }) {
+interface CartSelection {
+  planLabel: string;
+  planPrice: string;
+}
+
+const ANNUAL_PRICE: Record<DiffuserModelId, number> = { room: 98, tower: 149, car: 49 };
+
+// Simple SVG room illustrations
+const RoomIcon = ({ roomId }: { roomId: string }) => {
+  const icons: Record<string, React.ReactNode> = {
+    'sala-grande': (
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-12 w-12 text-ink/40">
+        <rect x="4" y="28" width="40" height="12" rx="2" />
+        <path d="M8 28V22a4 4 0 014-4h24a4 4 0 014 4v6" />
+        <path d="M4 34h4M40 34h4" />
+        <rect x="18" y="20" width="12" height="8" />
+      </svg>
+    ),
+    'sala-pequena': (
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-12 w-12 text-ink/40">
+        <rect x="8" y="30" width="32" height="10" rx="2" />
+        <path d="M12 30V26a3 3 0 013-3h18a3 3 0 013 3v4" />
+        <path d="M8 36h4M36 36h4" />
+      </svg>
+    ),
+    quarto: (
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-12 w-12 text-ink/40">
+        <rect x="4" y="28" width="40" height="12" rx="2" />
+        <path d="M4 34V22a2 2 0 012-2h36a2 2 0 012 2v12" />
+        <path d="M4 28h40" />
+        <rect x="14" y="22" width="8" height="6" rx="1" />
+        <rect x="26" y="22" width="8" height="6" rx="1" />
+        <circle cx="12" cy="18" r="3" />
+        <circle cx="36" cy="18" r="3" />
+      </svg>
+    ),
+    banheiro: (
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-12 w-12 text-ink/40">
+        <path d="M10 32a6 6 0 0112 0v4H10v-4Z" />
+        <rect x="10" y="36" width="12" height="4" rx="1" />
+        <path d="M28 14v18" />
+        <path d="M24 14h8v4l-2 1" />
+        <path d="M28 20c2 0 4 1 4 4" strokeLinecap="round" />
+        <path d="M32 24h4" strokeLinecap="round" />
+      </svg>
+    ),
+    carro: (
+      <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-12 w-12 text-ink/40">
+        <path d="M8 28h32l-4-10H12L8 28Z" />
+        <rect x="4" y="28" width="40" height="8" rx="2" />
+        <circle cx="14" cy="38" r="4" />
+        <circle cx="34" cy="38" r="4" />
+        <path d="M14 22h20" strokeLinecap="round" />
+      </svg>
+    ),
+  };
+  return <>{icons[roomId] ?? null}</>;
+};
+
+// Pre-launch modal
+function PreLaunchModal({
+  cartSelection,
+  diffuserName,
+  scentNames,
+  b2bContext,
+  onClose,
+}: {
+  cartSelection: CartSelection;
+  diffuserName: string;
+  scentNames: string[];
+  b2bContext?: B2BContext;
+  onClose: () => void;
+}) {
   const [email, setEmail] = useState('');
-  const [name, setName] = useState('');
+  const [nome, setNome] = useState('');
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    await submitLead('leads_b2c', { nome: name, email, plano: plan, origem: 'starter-kit-wizard' });
-    trackEvent('lead_captured', { plan, origem: 'starter-kit-wizard' });
+    await submitLead('leads_b2c', {
+      nome,
+      email,
+      plano: cartSelection.planLabel,
+      difusor: diffuserName,
+      fragrancias: scentNames.join(', '),
+      origem: b2bContext ? 'empresas-wizard' : 'starter-kit-wizard',
+      ...b2bContext,
+    });
+    trackEvent('lead_captured', {
+      plano: cartSelection.planLabel,
+      origem: b2bContext ? 'empresas-wizard' : 'starter-kit-wizard',
+    });
     setSubmitted(true);
     setLoading(false);
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/60 backdrop-blur-sm p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 backdrop-blur-sm p-4">
       <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        initial={{ opacity: 0, scale: 0.95, y: 16 }}
+        animate={{ opacity: 1, scale: 1, y: 0 }}
         className="bg-white rounded-3xl p-8 max-w-md w-full shadow-2xl"
       >
         {submitted ? (
           <div className="text-center py-4">
             <div className="text-5xl mb-4">🎉</div>
-            <h3 className="font-serif text-2xl text-ink mb-2">Kit reservado!</h3>
-            <p className="text-ink/60 text-sm mb-6">
-              Entraremos em contato em breve com as instruções para finalizar seu pedido.
+            <h3 className="font-serif text-2xl text-ink mb-3">Você está na lista!</h3>
+            <p className="text-ink/60 text-sm leading-relaxed mb-6">
+              Quando começarmos a operação, você será um dos primeiros a saber — com{' '}
+              <strong className="text-rust">30% de desconto</strong> garantido no seu kit.
             </p>
             <button
               onClick={onClose}
-              className="bg-rust hover:bg-rustDark text-white rounded-xl px-8 py-3 font-medium transition-colors duration-300"
+              className="bg-rust hover:bg-rustDark text-white rounded-xl px-8 py-3 font-medium transition-colors duration-300 text-sm"
             >
-              Fechar
+              Entendido!
             </button>
           </div>
         ) : (
           <>
-            <h3 className="font-serif text-2xl text-ink mb-1">Quase lá!</h3>
-            <p className="text-ink/60 text-sm mb-6">
-              Informe seus dados para reservar seu kit no plano{' '}
-              <strong className="text-ink">{plan}</strong>.
+            <div className="inline-block bg-rust/10 text-rust text-xs uppercase tracking-widest rounded-full px-3 py-1 mb-4">
+              Pré-lançamento
+            </div>
+            <h3 className="font-serif text-2xl text-ink mb-2">
+              Nada será cobrado agora.
+            </h3>
+            <p className="text-ink/60 text-sm leading-relaxed mb-6">
+              Estamos em fase de pré-lançamento. Deixe seu e-mail e avisaremos assim que abrirmos —
+              com <strong className="text-ink">30% de desconto</strong> no valor do kit selecionado.
             </p>
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+            <div className="bg-sand/30 rounded-xl p-4 mb-6 text-sm">
+              <p className="text-ink/50 text-xs uppercase tracking-wider mb-2">Seu kit reservado</p>
+              <p className="text-ink font-medium">{cartSelection.planLabel}</p>
+              <p className="text-ink/60">{diffuserName} + {scentNames.join(' + ')}</p>
+              <p className="text-rust font-serif text-lg mt-1">{cartSelection.planPrice}</p>
+            </div>
+            <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input
                 type="text"
                 placeholder="Seu nome"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
+                value={nome}
+                onChange={(e) => setNome(e.target.value)}
                 required
                 className="border border-sand rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rust transition-colors"
               />
@@ -82,16 +180,16 @@ function LeadModal({ plan, onClose }: { plan: string; onClose: () => void }) {
               <button
                 type="submit"
                 disabled={loading}
-                className="bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-3.5 font-medium transition-colors duration-300"
+                className="bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-3.5 font-medium transition-colors duration-300 text-sm"
               >
-                {loading ? 'Reservando...' : 'Reservar meu kit'}
+                {loading ? 'Salvando...' : 'Garantir meu desconto de 30%'}
               </button>
               <button
                 type="button"
                 onClick={onClose}
-                className="text-xs text-ink/40 hover:text-ink/60 text-center transition-colors"
+                className="text-xs text-ink/35 hover:text-ink/55 text-center transition-colors py-1"
               >
-                Cancelar
+                Fechar
               </button>
             </form>
           </>
@@ -101,23 +199,101 @@ function LeadModal({ plan, onClose }: { plan: string; onClose: () => void }) {
   );
 }
 
-const STEPS: Step[] = ['room', 'mood', 'sound', 'summary'];
+// Cart modal
+function CartModal({
+  diffuserName,
+  scentNames,
+  planLabel,
+  planPrice,
+  onCheckout,
+  onClose,
+}: {
+  diffuserName: string;
+  scentNames: string[];
+  planLabel: string;
+  planPrice: string;
+  onCheckout: () => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-ink/60 backdrop-blur-sm p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 40 }}
+        className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl"
+      >
+        <div className="flex items-center justify-between mb-6">
+          <h3 className="font-serif text-xl text-ink">Seu carrinho</h3>
+          <button
+            onClick={onClose}
+            className="text-ink/30 hover:text-ink/60 text-xl transition-colors"
+            aria-label="Fechar"
+          >
+            ×
+          </button>
+        </div>
+        <div className="border border-sand rounded-2xl p-4 mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <span className="text-sm font-medium text-ink">{diffuserName}</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {scentNames.map((name) => (
+              <span
+                key={name}
+                className="text-xs bg-sand/50 text-ink/70 rounded-full px-3 py-1"
+              >
+                {name}
+              </span>
+            ))}
+          </div>
+          <div className="border-t border-sand mt-4 pt-4">
+            <p className="text-xs text-ink/40 uppercase tracking-wider mb-1">{planLabel}</p>
+            <p className="font-serif text-2xl text-rust">{planPrice}</p>
+          </div>
+        </div>
+        <button
+          onClick={onCheckout}
+          className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-4 font-medium transition-colors duration-300 text-sm"
+        >
+          Fazer pagamento
+        </button>
+        <button
+          onClick={onClose}
+          className="w-full text-xs text-ink/35 hover:text-ink/55 mt-3 py-1 transition-colors"
+        >
+          Continuar escolhendo
+        </button>
+      </motion.div>
+    </div>
+  );
+}
 
-export default function StarterKitWizard() {
+const STEPS: Step[] = ['room', 'mood', 'scents', 'summary'];
+
+interface StarterKitWizardProps {
+  b2bContext?: B2BContext;
+  onB2BComplete?: () => void;
+}
+
+export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterKitWizardProps) {
   const [step, setStep] = useState<Step>('room');
   const [state, setState] = useState<WizardState>({
     roomId: null,
     moodId: null,
     selectedScentIds: [],
-    wantsSound: null,
-    diffuserModelId: 'round',
+    diffuserModelId: 'room',
   });
-  const [modalPlan, setModalPlan] = useState<string | null>(null);
+  const [cart, setCart] = useState<CartSelection | null>(null);
+  const [showPreLaunch, setShowPreLaunch] = useState(false);
 
   const stepIndex = STEPS.indexOf(step);
   const recommendedScents = state.moodId ? getRecommendedScents(state.moodId) : [];
   const selectedDiffuser = diffuserModels.find((d) => d.id === state.diffuserModelId)!;
   const annualPrice = ANNUAL_PRICE[state.diffuserModelId];
+  const selectedScentNames = state.selectedScentIds
+    .map((id) => scents.find((s) => s.id === id)?.name)
+    .filter(Boolean) as string[];
 
   const handleRoom = (roomId: string) => {
     const room = roomOptions.find((r) => r.id === roomId)!;
@@ -130,7 +306,7 @@ export default function StarterKitWizard() {
     const moodScents = getRecommendedScents(moodId);
     const preSelected = moodScents.slice(0, 2).map((s) => s.id);
     setState((s) => ({ ...s, moodId, selectedScentIds: preSelected }));
-    setStep('sound');
+    setStep('scents');
     trackEvent('wizard_step', { step: 'mood', moodId });
   };
 
@@ -150,33 +326,21 @@ export default function StarterKitWizard() {
     });
   };
 
-  const handleSound = (wantsSound: boolean) => {
-    setState((s) => ({
-      ...s,
-      wantsSound,
-      diffuserModelId: wantsSound ? 'tower' : s.diffuserModelId,
-    }));
-    setStep('summary');
-    trackEvent('wizard_step', { step: 'sound', wantsSound });
-  };
-
   const goBack = () => {
     const prev = STEPS[stepIndex - 1];
     if (prev) setStep(prev);
   };
 
-  const kitDescription = [
-    selectedDiffuser?.name,
-    ...state.selectedScentIds.map((id) => scents.find((s) => s.id === id)?.name).filter(Boolean),
-  ]
-    .filter(Boolean)
-    .join(' + ');
+  const openCart = (planLabel: string, planPrice: string) => {
+    setCart({ planLabel, planPrice });
+    trackEvent('cta_clicked', { cta: 'wizard_add_to_cart', plan: planLabel });
+  };
 
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-offwhite">
-      {/* Progress */}
+      {/* Progress bar */}
       <div className="sticky top-20 z-40 bg-offwhite/95 backdrop-blur border-b border-sand/40">
-        <div className="container-page py-3 flex items-center gap-4 max-w-2xl mx-auto">
+        <div className="container-page py-3 flex items-center gap-4 max-w-5xl mx-auto">
           {stepIndex > 0 && (
             <button
               onClick={goBack}
@@ -203,7 +367,7 @@ export default function StarterKitWizard() {
 
       <div className="container-page py-10 max-w-2xl mx-auto">
         <AnimatePresence mode="wait">
-          {/* ROOM */}
+          {/* STEP 1: ROOM */}
           {step === 'room' && (
             <motion.div
               key="room"
@@ -223,13 +387,16 @@ export default function StarterKitWizard() {
                   <button
                     key={room.id}
                     onClick={() => handleRoom(room.id)}
-                    className="flex items-center justify-between w-full rounded-2xl border border-sand bg-white hover:border-rust hover:shadow-sm p-5 text-left transition-all duration-200 group"
+                    className="flex items-center gap-4 w-full rounded-2xl border border-sand bg-white hover:border-rust hover:shadow-sm p-4 text-left transition-all duration-200 group"
                   >
-                    <div>
+                    <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-sand/30 shrink-0 group-hover:bg-rust/5 transition-colors">
+                      <RoomIcon roomId={room.id} />
+                    </div>
+                    <div className="flex-1">
                       <p className="font-medium text-ink">{room.label}</p>
                       <p className="text-xs text-ink/40 mt-0.5">{room.sublabel}</p>
                     </div>
-                    <span className="text-ink/20 group-hover:text-rust transition-colors text-lg">
+                    <span className="text-ink/20 group-hover:text-rust transition-colors text-lg shrink-0">
                       →
                     </span>
                   </button>
@@ -238,7 +405,7 @@ export default function StarterKitWizard() {
             </motion.div>
           )}
 
-          {/* MOOD */}
+          {/* STEP 2: MOOD */}
           {step === 'mood' && (
             <motion.div
               key="mood"
@@ -258,9 +425,8 @@ export default function StarterKitWizard() {
                   <button
                     key={mood.id}
                     onClick={() => handleMood(mood.id)}
-                    className="flex items-center gap-3 rounded-2xl border border-sand bg-white hover:border-rust hover:shadow-sm p-4 text-left transition-all duration-200"
+                    className="rounded-2xl border border-sand bg-white hover:border-rust hover:shadow-sm p-4 text-left transition-all duration-200"
                   >
-                    <span className="text-2xl leading-none">{mood.emoji}</span>
                     <span className="text-sm font-medium text-ink leading-tight">{mood.label}</span>
                   </button>
                 ))}
@@ -268,90 +434,100 @@ export default function StarterKitWizard() {
             </motion.div>
           )}
 
-          {/* SOUND */}
-          {step === 'sound' && (
+          {/* STEP 3: SCENTS */}
+          {step === 'scents' && (
             <motion.div
-              key="sound"
+              key="scents"
               initial={{ opacity: 0, x: 32 }}
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -32 }}
               transition={{ duration: 0.3 }}
             >
-              {recommendedScents.length > 0 && (
-                <div className="mb-10">
-                  <p className="text-xs uppercase tracking-widest text-rust mb-4">
-                    Fragrâncias recomendadas para você
-                  </p>
-                  <div className="grid grid-cols-3 gap-3">
-                    {recommendedScents.map((scent) => {
-                      const isSelected = state.selectedScentIds.includes(scent.id);
-                      return (
-                        <button
-                          key={scent.id}
-                          onClick={() => toggleScent(scent.id)}
-                          className={`rounded-2xl p-3 text-left border-2 transition-all duration-200 ${
-                            isSelected
-                              ? 'border-rust bg-rust/5 shadow-sm'
-                              : 'border-sand bg-white hover:border-rust/40'
-                          }`}
-                        >
-                          <div
-                            className="h-10 w-10 rounded-full mb-2 flex items-center justify-center text-white text-sm font-medium"
-                            style={{ backgroundColor: scent.cardColor }}
-                          >
-                            {isSelected ? '✓' : ''}
-                          </div>
-                          <p className="text-xs font-medium text-ink leading-tight">{scent.name}</p>
-                          <p className="text-xs text-ink/40 mt-0.5">{scent.family}</p>
-                        </button>
-                      );
-                    })}
-                  </div>
-                  <p className="text-xs text-ink/40 mt-2">
-                    {state.selectedScentIds.length === 2
-                      ? 'As 2 primeiras estão selecionadas — toque para trocar.'
-                      : 'Selecione até 2 fragrâncias.'}
-                  </p>
-                </div>
-              )}
-
-              <h2 className="font-serif text-2xl md:text-3xl text-ink mb-2">
-                Quer som sincronizado com o aroma?
-              </h2>
-              <p className="text-ink/50 text-sm mb-6">
-                O Sinesia Tower toca músicas que amplificam a sensação da sua fragrância escolhida.
+              <h1 className="font-serif text-3xl md:text-4xl text-ink mb-2">
+                Fragrâncias recomendadas para você
+              </h1>
+              <p className="text-ink/50 text-sm mb-8">
+                As 2 primeiras já estão selecionadas. Toque para trocar.
               </p>
 
-              <div className="flex flex-col gap-4">
-                <button
-                  onClick={() => handleSound(true)}
-                  className="rounded-2xl border-2 border-sand bg-white hover:border-rust hover:shadow-sm p-5 text-left transition-all duration-200 group"
-                >
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="font-serif text-lg text-ink">Sim, quero o Sinesia Tower</p>
-                    <span className="text-xs bg-rust text-white rounded-full px-3 py-1 shrink-0 ml-2">
-                      Completo
-                    </span>
-                  </div>
-                  <p className="text-sm text-ink/50">
-                    Aroma + som sincrônico — cobre até 60 m². R$499 ou incluso no plano anual.
-                  </p>
-                </button>
-
-                <button
-                  onClick={() => handleSound(false)}
-                  className="rounded-2xl border-2 border-sand bg-white hover:border-rust hover:shadow-sm p-5 text-left transition-all duration-200"
-                >
-                  <p className="font-serif text-lg text-ink mb-2">Não, só aroma por enquanto</p>
-                  <p className="text-sm text-ink/50">
-                    Sinesia Home compacto e silencioso — cobre até 30 m². R$299 ou incluso no plano.
-                  </p>
-                </button>
+              <div className="flex flex-col gap-3 mb-8">
+                {recommendedScents.map((scent) => {
+                  const isSelected = state.selectedScentIds.includes(scent.id);
+                  return (
+                    <button
+                      key={scent.id}
+                      onClick={() => toggleScent(scent.id)}
+                      className={`flex items-center gap-4 rounded-2xl border-2 p-4 text-left transition-all duration-200 ${
+                        isSelected
+                          ? 'border-ink bg-ink/3'
+                          : 'border-sand bg-white hover:border-ink/30'
+                      }`}
+                    >
+                      {/* Scent image or color swatch */}
+                      <div
+                        className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center"
+                        style={{ backgroundColor: scent.cardColor }}
+                      >
+                        {scent.image ? (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={scent.image}
+                            alt={scent.name}
+                            className="absolute inset-0 w-full h-full object-contain p-1"
+                          />
+                        ) : (
+                          <svg
+                            viewBox="0 0 40 40"
+                            className="h-8 w-8 text-white/20"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="1.5"
+                          >
+                            <rect x="2" y="2" width="36" height="36" rx="4" />
+                            <path d="M8 8l24 24M32 8L8 32" />
+                          </svg>
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-ink">{scent.name}</p>
+                        <p className="text-xs text-ink/50 mt-0.5">{scent.family}</p>
+                        <p className="text-xs text-ink/40 mt-0.5 truncate">{scent.mood}</p>
+                      </div>
+                      {/* Black checkmark when selected */}
+                      <div
+                        className={`shrink-0 h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                          isSelected ? 'bg-ink border-ink' : 'border-sand'
+                        }`}
+                      >
+                        {isSelected && (
+                          <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3">
+                            <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                          </svg>
+                        )}
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
+
+              <p className="text-xs text-ink/40 mb-6 text-center">
+                {state.selectedScentIds.length} de 2 fragrâncias selecionadas
+              </p>
+
+              <button
+                onClick={() => {
+                  setStep('summary');
+                  trackEvent('wizard_step', { step: 'scents', scents: state.selectedScentIds });
+                }}
+                disabled={state.selectedScentIds.length === 0}
+                className="w-full bg-rust hover:bg-rustDark disabled:opacity-40 text-white rounded-xl py-4 font-medium transition-colors duration-300 text-sm"
+              >
+                Próximo →
+              </button>
             </motion.div>
           )}
 
-          {/* SUMMARY */}
+          {/* STEP 4: SUMMARY — split layout */}
           {step === 'summary' && (
             <motion.div
               key="summary"
@@ -359,124 +535,147 @@ export default function StarterKitWizard() {
               animate={{ opacity: 1, x: 0 }}
               exit={{ opacity: 0, x: -32 }}
               transition={{ duration: 0.3 }}
+              className="max-w-5xl mx-auto"
             >
               <div className="text-center mb-8">
-                <span className="inline-block rounded-full bg-rust/10 text-rust px-4 py-1.5 text-xs uppercase tracking-widest mb-4">
+                <span className="inline-block rounded-full bg-rust/10 text-rust px-4 py-1.5 text-xs uppercase tracking-widest mb-3">
                   Seu kit está pronto
                 </span>
-                <h1 className="font-serif text-3xl md:text-4xl text-ink mb-2">
-                  Escolha como levar
-                </h1>
-                <p className="text-ink/50 text-sm">{kitDescription}</p>
+                <h1 className="font-serif text-3xl md:text-4xl text-ink">Escolha como levar</h1>
               </div>
 
-              <div className="flex flex-col gap-4">
-                {/* Card 1: Annual — most popular */}
-                <div className="rounded-3xl bg-ink text-white p-6 relative overflow-hidden">
-                  <div className="absolute top-0 right-0 bg-rust text-white text-xs px-4 py-2 rounded-bl-2xl font-medium">
-                    Mais popular
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+                {/* LEFT: Cart */}
+                <div className="rounded-3xl bg-white border border-sand p-6">
+                  <h2 className="font-serif text-lg text-ink mb-4">Seu carrinho</h2>
+
+                  {/* Diffuser */}
+                  <div className="flex items-center gap-3 mb-4 p-3 rounded-2xl bg-sand/20">
+                    <div className="w-14 h-14 rounded-xl bg-sand/40 flex items-center justify-center shrink-0">
+                      <svg viewBox="0 0 40 40" className="h-8 w-8 text-ink/25" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <rect x="2" y="2" width="36" height="36" rx="4" />
+                        <path d="M8 8l24 24M32 8L8 32" />
+                      </svg>
+                    </div>
+                    <div>
+                      <p className="font-medium text-sm text-ink">{selectedDiffuser.name}</p>
+                      <p className="text-xs text-ink/50">{selectedDiffuser.subtitle}</p>
+                    </div>
+                    <p className="ml-auto font-serif text-base text-rust shrink-0">
+                      R${selectedDiffuser.price}
+                    </p>
                   </div>
-                  <p className="text-white/50 text-xs uppercase tracking-widest mb-2">
-                    Plano anual
-                  </p>
-                  <h3 className="font-serif text-2xl mb-1">Difusor de graça</h3>
-                  <p className="text-white/60 text-sm mb-5">
-                    Aparelho incluso + 2 fragrâncias/mês
-                  </p>
-                  <div className="flex items-baseline gap-1 mb-0.5">
-                    <span className="font-serif text-5xl">R${annualPrice}</span>
-                    <span className="text-white/50 text-sm">/mês</span>
+
+                  {/* Scents */}
+                  <div className="flex flex-col gap-2">
+                    {state.selectedScentIds.map((id) => {
+                      const scent = scents.find((s) => s.id === id);
+                      if (!scent) return null;
+                      return (
+                        <div key={id} className="flex items-center gap-3 p-3 rounded-xl bg-sand/10">
+                          <div
+                            className="w-10 h-10 rounded-lg shrink-0 relative overflow-hidden flex items-center justify-center"
+                            style={{ backgroundColor: scent.cardColor }}
+                          >
+                            {scent.image && (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={scent.image} alt={scent.name} className="absolute inset-0 w-full h-full object-contain p-1" />
+                            )}
+                          </div>
+                          <div>
+                            <p className="text-sm font-medium text-ink">{scent.name}</p>
+                            <p className="text-xs text-ink/40">{scent.family}</p>
+                          </div>
+                          <p className="ml-auto text-sm text-ink/50 shrink-0">R$39,90/mês</p>
+                        </div>
+                      );
+                    })}
                   </div>
-                  <p className="text-white/35 text-xs mb-6">
-                    Compromisso de 12 meses&nbsp;&nbsp;•&nbsp;&nbsp;Cancele depois
-                  </p>
-                  <ul className="text-sm text-white/75 space-y-1.5 mb-6">
-                    <li>✓ {selectedDiffuser.name} incluso</li>
-                    <li>✓ 2 fragrâncias/mês</li>
-                    <li>✓ App Sinesia completo</li>
-                    <li>✓ Frete grátis nos refis</li>
-                  </ul>
-                  <button
-                    onClick={() => {
-                      trackEvent('cta_clicked', { cta: 'wizard_plan_annual', model: state.diffuserModelId });
-                      setModalPlan(`Plano Anual — ${selectedDiffuser.name}`);
-                    }}
-                    className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-3.5 font-medium transition-colors duration-300"
-                  >
-                    Garantir meu kit
-                  </button>
                 </div>
 
-                {/* Card 2: Flex */}
-                <div className="rounded-3xl bg-white border-2 border-sand p-6">
-                  <p className="text-ink/40 text-xs uppercase tracking-widest mb-2">Flexível</p>
-                  <h3 className="font-serif text-2xl text-ink mb-1">Sem compromisso</h3>
-                  <p className="text-ink/50 text-sm mb-5">Compre o aparelho e assine mês a mês</p>
-                  <div className="flex items-baseline gap-1 mb-0.5">
-                    <span className="font-serif text-4xl text-ink">
-                      R${selectedDiffuser.price}
-                    </span>
-                    <span className="text-ink/40 text-sm">aparelho</span>
+                {/* RIGHT: Plan cards (smaller) */}
+                <div className="flex flex-col gap-3">
+                  {/* Annual */}
+                  <div className="rounded-2xl bg-ink text-white p-5 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 bg-rust text-white text-[10px] px-3 py-1.5 rounded-bl-xl font-medium">
+                      Mais popular
+                    </div>
+                    <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Plano anual</p>
+                    <h3 className="font-serif text-lg mb-0.5">Difusor de graça</h3>
+                    <p className="text-white/50 text-xs mb-3">Aparelho incluso + 2 fragrâncias/mês</p>
+                    <div className="flex items-baseline gap-1 mb-1">
+                      <span className="font-serif text-3xl">R${annualPrice}</span>
+                      <span className="text-white/45 text-xs">/mês · 12 meses</span>
+                    </div>
+                    <ul className="text-xs text-white/65 space-y-1 mb-4">
+                      <li>✓ {selectedDiffuser.name} incluso</li>
+                      <li>✓ 2 fragrâncias/mês</li>
+                      <li>✓ Frete grátis nos refis</li>
+                      <li>✓ Garantia vitalícia</li>
+                    </ul>
+                    <button
+                      onClick={() =>
+                        openCart(
+                          `Plano Anual — ${selectedDiffuser.name}`,
+                          `R$${annualPrice}/mês`
+                        )
+                      }
+                      className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-3 text-sm font-medium transition-colors duration-300"
+                    >
+                      Adicionar ao carrinho
+                    </button>
                   </div>
-                  <p className="text-ink/40 text-xs mb-5">
-                    + R$39,90/fragrância/mês&nbsp;&nbsp;•&nbsp;&nbsp;Cancele quando quiser
-                  </p>
-                  <ul className="text-sm text-ink/60 space-y-1.5 mb-6">
-                    <li>✓ {selectedDiffuser.name}</li>
-                    <li>✓ Fragrâncias a escolher</li>
-                    <li>✓ App Sinesia completo</li>
-                    <li className="text-ink/35">× Frete nos refis não incluso</li>
-                  </ul>
-                  <button
-                    onClick={() => {
-                      trackEvent('cta_clicked', { cta: 'wizard_plan_flex', model: state.diffuserModelId });
-                      setModalPlan(`Plano Flex — ${selectedDiffuser.name}`);
-                    }}
-                    className="w-full border-2 border-rust text-rust hover:bg-rust hover:text-white rounded-xl py-3.5 font-medium transition-colors duration-300"
-                  >
-                    Quero este plano
-                  </button>
-                </div>
 
-                {/* Card 3: One-time */}
-                <div className="rounded-3xl bg-offwhite border border-sand p-6">
-                  <p className="text-ink/40 text-xs uppercase tracking-widest mb-2">Compra única</p>
-                  <h3 className="font-serif text-2xl text-ink mb-1">Avulso</h3>
-                  <p className="text-ink/50 text-sm mb-5">Sem assinatura</p>
-                  <div className="flex items-baseline gap-1 mb-0.5">
-                    <span className="font-serif text-4xl text-ink">
-                      R${selectedDiffuser.price}
-                    </span>
-                    <span className="text-ink/40 text-sm">aparelho</span>
+                  {/* Flex */}
+                  <div className="rounded-2xl bg-white border-2 border-sand p-5">
+                    <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Flexível</p>
+                    <h3 className="font-serif text-lg text-ink mb-0.5">Sem compromisso</h3>
+                    <p className="text-ink/45 text-xs mb-3">Compre o aparelho + assine mês a mês</p>
+                    <div className="flex items-baseline gap-1 mb-1">
+                      <span className="font-serif text-2xl text-ink">R${selectedDiffuser.price}</span>
+                      <span className="text-ink/40 text-xs">aparelho</span>
+                    </div>
+                    <p className="text-ink/40 text-xs mb-4">+ R$39,90/fragrância/mês</p>
+                    <button
+                      onClick={() =>
+                        openCart(
+                          `Plano Flex — ${selectedDiffuser.name}`,
+                          `R$${selectedDiffuser.price} + R$39,90/mês`
+                        )
+                      }
+                      className="w-full border-2 border-rust text-rust hover:bg-rust hover:text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
+                    >
+                      Adicionar ao carrinho
+                    </button>
                   </div>
-                  <p className="text-ink/40 text-xs mb-5">+ R$49,90/fragrância</p>
-                  <ul className="text-sm text-ink/60 space-y-1.5 mb-6">
-                    <li>✓ {selectedDiffuser.name}</li>
-                    <li>✓ Fragrâncias unitárias</li>
-                    <li>✓ App Sinesia completo</li>
-                    <li className="text-ink/35">× Sem refil automático</li>
-                  </ul>
-                  <button
-                    onClick={() => {
-                      trackEvent('cta_clicked', { cta: 'wizard_plan_avulso', model: state.diffuserModelId });
-                      setModalPlan(`Compra Avulsa — ${selectedDiffuser.name}`);
-                    }}
-                    className="w-full border border-sand text-ink/60 hover:border-rust hover:text-rust rounded-xl py-3.5 font-medium transition-colors duration-300"
-                  >
-                    Comprar avulso
-                  </button>
+
+                  {/* One-time */}
+                  <div className="rounded-2xl bg-offwhite border border-sand p-5">
+                    <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Compra única</p>
+                    <h3 className="font-serif text-lg text-ink mb-0.5">Avulso</h3>
+                    <div className="flex items-baseline gap-1 mb-1 mt-2">
+                      <span className="font-serif text-2xl text-ink">R${selectedDiffuser.price}</span>
+                      <span className="text-ink/40 text-xs">aparelho</span>
+                    </div>
+                    <p className="text-ink/40 text-xs mb-4">+ R$49,90/fragrância</p>
+                    <button
+                      onClick={() =>
+                        openCart(
+                          `Compra Avulsa — ${selectedDiffuser.name}`,
+                          `R$${selectedDiffuser.price}`
+                        )
+                      }
+                      className="w-full border border-sand text-ink/60 hover:border-rust hover:text-rust rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
+                    >
+                      Adicionar ao carrinho
+                    </button>
+                  </div>
                 </div>
               </div>
 
               <button
                 onClick={() => {
-                  setState({
-                    roomId: null,
-                    moodId: null,
-                    selectedScentIds: [],
-                    wantsSound: null,
-                    diffuserModelId: 'round',
-                  });
+                  setState({ roomId: null, moodId: null, selectedScentIds: [], diffuserModelId: 'room' });
                   setStep('room');
                 }}
                 className="w-full text-center text-xs text-ink/30 hover:text-ink/50 mt-8 transition-colors"
@@ -488,7 +687,34 @@ export default function StarterKitWizard() {
         </AnimatePresence>
       </div>
 
-      {modalPlan && <LeadModal plan={modalPlan} onClose={() => setModalPlan(null)} />}
+      {/* Cart modal */}
+      <AnimatePresence>
+        {cart && !showPreLaunch && (
+          <CartModal
+            diffuserName={selectedDiffuser.name}
+            scentNames={selectedScentNames}
+            planLabel={cart.planLabel}
+            planPrice={cart.planPrice}
+            onCheckout={() => setShowPreLaunch(true)}
+            onClose={() => setCart(null)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Pre-launch modal */}
+      {cart && showPreLaunch && (
+        <PreLaunchModal
+          cartSelection={cart}
+          diffuserName={selectedDiffuser.name}
+          scentNames={selectedScentNames}
+          b2bContext={b2bContext}
+          onClose={() => {
+            setShowPreLaunch(false);
+            setCart(null);
+            if (onB2BComplete) onB2BComplete();
+          }}
+        />
+      )}
     </div>
   );
 }

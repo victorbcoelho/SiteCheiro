@@ -33,12 +33,13 @@ const appFeatures = [
   },
   {
     number: '03',
-    title: 'Reconhecimento Magnético',
+    title: 'Garantia Vitalícia',
     description:
-      'O app reconhece instantaneamente a essência conectada pelo clique magnético do cartucho. Zero configuração manual.',
+      'Assinantes Sinesia têm garantia vitalícia no aparelho. Se quebrar, trocamos. Sem burocracia, sem custo adicional.',
     icon: (
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-7 w-7">
-        <path strokeLinecap="round" strokeLinejoin="round" d="M9 3H5a2 2 0 00-2 2v4m6-6h10a2 2 0 012 2v4M9 3v18m0 0h10a2 2 0 002-2V9M9 21H5a2 2 0 01-2-2V9m0 0h18" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M12 3L4 6.5V12C4 16.5 7.5 20.5 12 22C16.5 20.5 20 16.5 20 12V6.5L12 3Z" />
+        <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4" />
       </svg>
     ),
   },
@@ -63,12 +64,12 @@ export default function TechFeatures() {
             Escolha o modelo certo
           </h2>
           <p className="text-ink/60 max-w-xl mx-auto text-sm">
-            Dois difusores feitos para ambientes diferentes. Um app para controlar tudo.
+            Três difusores feitos para cada ambiente. Um app para controlar tudo.
           </p>
         </motion.div>
 
-        {/* Diffuser models */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-20">
+        {/* Diffuser model cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-20">
           {diffuserModels.map((model, index) => (
             <motion.div
               key={model.id}
@@ -78,39 +79,37 @@ export default function TechFeatures() {
               transition={{ duration: 0.55, delay: index * 0.1 }}
               className="rounded-3xl bg-white border border-sand overflow-hidden"
             >
-              <div className="aspect-[4/3] w-full">
-                <ImagePlaceholder
-                  className="w-full h-full"
-                  label={`foto ${model.name}`}
-                />
+              <div className="aspect-square w-full">
+                <ImagePlaceholder className="w-full h-full" label={`foto ${model.name}`} />
               </div>
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
                   <div>
-                    <h3 className="font-serif text-2xl text-ink">{model.name}</h3>
+                    <h3 className="font-serif text-xl text-ink">{model.name}</h3>
                     <p className="text-ink/50 text-sm">{model.subtitle}</p>
                   </div>
                   {model.hasSound && (
-                    <span className="text-xs bg-rust/10 text-rust rounded-full px-3 py-1 shrink-0 ml-2">
+                    <span className="text-xs bg-rust/10 text-rust rounded-full px-2.5 py-1 shrink-0 ml-2">
                       Com som
                     </span>
                   )}
                 </div>
-                <p className="font-serif text-3xl text-rust mb-1">R${model.price}</p>
-                <p className="text-xs text-ink/40 mb-5">ou incluso no plano anual</p>
+                <p className="font-serif text-3xl text-rust mb-0.5">R${model.price}</p>
+                <p className="text-xs text-ink/40 mb-4">ou incluso no plano anual de graça</p>
                 <p className="text-xs text-ink/50 mb-4 leading-relaxed">{model.idealFor}</p>
-                <ul className="space-y-2 mb-6">
+                <ul className="space-y-1.5 mb-6">
                   {model.features.map((f) => (
-                    <li key={f} className="flex items-center gap-2 text-sm text-ink/65">
-                      <span className="text-rust text-xs">✓</span> {f}
+                    <li key={f} className="flex items-start gap-2 text-sm text-ink/65">
+                      <span className="text-rust text-xs mt-0.5 shrink-0">✓</span>
+                      {f}
                     </li>
                   ))}
                 </ul>
                 <Link
                   href="/starter-kit"
-                  className="block text-center bg-rust hover:bg-rustDark text-white rounded-xl py-3 text-sm font-medium transition-colors duration-300"
+                  className="block text-center bg-rust hover:bg-rustDark text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
                 >
-                  Montar kit com {model.name.split(' ')[1]}
+                  Montar kit com {model.name}
                 </Link>
               </div>
             </motion.div>
@@ -141,7 +140,7 @@ export default function TechFeatures() {
               className="rounded-2xl border border-sand bg-white p-7 flex flex-col gap-5"
             >
               <div className="flex items-start justify-between">
-                <div className="h-13 w-13 rounded-xl bg-rust/8 text-rust flex items-center justify-center p-3">
+                <div className="h-12 w-12 rounded-xl bg-rust/8 text-rust flex items-center justify-center p-2.5">
                   {feature.icon}
                 </div>
                 <span className="font-serif text-3xl text-sand">{feature.number}</span>

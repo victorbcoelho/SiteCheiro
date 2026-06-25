@@ -5,10 +5,11 @@ import Link from 'next/link';
 import Button from '@/components/ui/Button';
 
 const navLinks = [
-  { label: 'Como funciona', href: '/#como-funciona' },
-  { label: 'Fragrâncias', href: '/#fragrancias' },
+  { label: 'Kit para iniciar', href: '/starter-kit' },
   { label: 'Tecnologia', href: '/#tecnologia' },
+  { label: 'Fragrâncias', href: '/#fragrancias' },
   { label: 'Para Empresas', href: '/empresas' },
+  { label: 'Difusor grátis', href: '/starter-kit' },
 ];
 
 export default function Header() {

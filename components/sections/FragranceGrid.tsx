@@ -25,12 +25,12 @@ export default function FragranceGrid() {
             8 essências premium
           </h2>
           <p className="text-ink/60 max-w-xl mx-auto text-sm">
-            Cada fragrância foi desenvolvida para amplificar um estado emocional específico. Expanda
-            para ler os benefícios de aromaterapia.
+            Cada fragrância foi desenvolvida para amplificar um estado emocional específico.
+            Toque em qualquer essência para ver os benefícios de aromaterapia.
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-5">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4">
           {scents.map((scent, index) => (
             <motion.div
               key={scent.id}
@@ -45,9 +45,9 @@ export default function FragranceGrid() {
                 onClick={() => setExpandedId(expandedId === scent.id ? null : scent.id)}
                 aria-expanded={expandedId === scent.id}
               >
-                {/* Image / color card */}
+                {/* Compact image area */}
                 <div
-                  className="relative aspect-[3/4] w-full flex flex-col justify-end p-3"
+                  className="relative aspect-[1/1] w-full flex flex-col justify-end p-3"
                   style={{ backgroundColor: scent.cardColor }}
                 >
                   {scent.image ? (
@@ -55,13 +55,13 @@ export default function FragranceGrid() {
                     <img
                       src={scent.image}
                       alt={scent.name}
-                      className="absolute inset-0 w-full h-full object-contain p-4"
+                      className="absolute inset-0 w-full h-full object-contain p-3"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">
                       <svg
                         viewBox="0 0 40 40"
-                        className="h-14 w-14 text-white/15"
+                        className="h-10 w-10 text-white/15"
                         fill="none"
                         stroke="currentColor"
                         strokeWidth="1.5"
@@ -75,14 +75,14 @@ export default function FragranceGrid() {
                     <p className="text-white/60 text-[10px] uppercase tracking-wide leading-none mb-0.5">
                       {scent.family}
                     </p>
-                    <h3 className="font-serif text-white text-sm leading-tight">{scent.name}</h3>
                   </div>
                 </div>
 
                 {/* Card bottom */}
-                <div className="bg-white border border-sand border-t-0 rounded-b-2xl px-3 py-2.5 text-left">
-                  <p className="text-[11px] text-ink/50 line-clamp-2 leading-snug">{scent.mood}</p>
-                  <span className="inline-flex items-center gap-1 text-[11px] text-rust font-medium mt-1.5">
+                <div className="bg-white border border-sand border-t-0 rounded-b-2xl px-3 py-3 text-left">
+                  <h3 className="font-serif text-base text-ink leading-tight mb-1">{scent.name}</h3>
+                  <p className="text-xs text-ink/50 leading-snug mb-2">{scent.mood}</p>
+                  <span className="inline-flex items-center gap-1 text-xs text-rust font-semibold">
                     Benefícios
                     <motion.span
                       animate={{ rotate: expandedId === scent.id ? 180 : 0 }}
@@ -105,11 +105,11 @@ export default function FragranceGrid() {
                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                     className="overflow-hidden"
                   >
-                    <div className="bg-sand/25 rounded-2xl mt-2 p-4 border border-sand/60">
-                      <p className="text-[10px] uppercase tracking-widest text-rust/70 mb-2">
-                        Aromaterapia
+                    <div className="bg-sand/25 rounded-2xl mt-2 p-4 border border-sand/50">
+                      <p className="text-[10px] uppercase tracking-widest text-rust mb-2 font-semibold">
+                        Benefícios de aromaterapia
                       </p>
-                      <p className="text-xs text-ink/65 leading-relaxed">{scent.aromatherapy}</p>
+                      <p className="text-sm text-ink/70 leading-relaxed">{scent.aromatherapy}</p>
                       <p className="text-[10px] text-ink/35 mt-3 italic leading-snug">
                         Notas: {scent.notes}
                       </p>
@@ -132,7 +132,7 @@ export default function FragranceGrid() {
             href="/starter-kit"
             className="inline-block bg-rust hover:bg-rustDark text-white rounded-full px-8 py-3.5 text-sm font-medium transition-colors duration-300"
           >
-            Escolher minhas fragrâncias
+            Escolher minhas essências
           </Link>
         </motion.div>
       </div>
