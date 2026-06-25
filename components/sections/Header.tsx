@@ -23,7 +23,7 @@ export default function Header() {
           <img
             src="/images/sinesia-logo.png"
             alt="Sinesia"
-            className="h-12 w-auto"
+            className="h-16 w-auto"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = 'none';
               const fallback = document.getElementById('logo-fallback');

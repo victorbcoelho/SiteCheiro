@@ -689,7 +689,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                       <span className="text-white/40 text-xs">/mês</span>
                     </div>
                     <p className="text-white/35 text-xs mb-4">
-                      Total 12 meses: R${fmtBRL(annualTotal * 12)} · Difusor incluso grátis
+                      Difusor incluso grátis · Cancele após 12 meses
                     </p>
                     <ul className="text-xs text-white/65 space-y-1 mb-4">
                       <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} incluso</li>
@@ -717,11 +717,12 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                     <h3 className="font-serif text-lg text-ink mb-0.5">Assinatura mensal</h3>
                     <div className="flex items-baseline gap-1 mb-0.5 mt-2">
                       <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
-                      <span className="text-ink/40 text-xs">aparelho</span>
+                      <span className="text-ink/40 text-xs">difusor · pagamento único</span>
                     </div>
-                    <p className="text-ink/40 text-xs mb-3">
-                      + R${fmtBRL(scentSubTotal)}/mês em essências ({numScents}× R$39,90)
-                    </p>
+                    <div className="flex items-baseline gap-1 mb-3">
+                      <span className="font-serif text-xl text-ink">R${fmtBRL(scentSubTotal)}</span>
+                      <span className="text-ink/40 text-xs">/mês em essências ({numScents}× R$39,90 · 20% off)</span>
+                    </div>
                     <ul className="text-xs text-ink/60 space-y-1.5 mb-4">
                       <li>✓ Cada fragrância com <strong>20% de desconto</strong></li>
                       <li>✓ Troque as essências a cada pedido</li>
@@ -748,14 +749,12 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                     <h3 className="font-serif text-lg text-ink mb-0.5">Avulso</h3>
                     <div className="flex items-baseline gap-1 mb-0.5 mt-2">
                       <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
-                      <span className="text-ink/40 text-xs">aparelho</span>
+                      <span className="text-ink/40 text-xs">difusor · pagamento único</span>
                     </div>
-                    <p className="text-ink/40 text-xs mb-3">
-                      + R${fmtBRL(scentFullTotal)} em essências ({numScents}× R$49,90)
-                    </p>
-                    <p className="text-xs text-ink/50 mb-3">
-                      Total: <strong>R${fmtBRL(deviceTotal + scentFullTotal)}</strong> · Sem mensalidade
-                    </p>
+                    <div className="flex items-baseline gap-1 mb-3">
+                      <span className="font-serif text-xl text-ink">R${fmtBRL(scentFullTotal)}</span>
+                      <span className="text-ink/40 text-xs">essências ({numScents}× R$49,90 · preço cheio)</span>
+                    </div>
                     <button
                       onClick={() =>
                         openCart(
