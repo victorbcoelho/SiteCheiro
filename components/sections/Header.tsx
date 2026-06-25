@@ -23,9 +23,9 @@ export default function Header() {
           <Image
             src="/images/sinesia-logo.png"
             alt="Sinesia"
-            width={140}
-            height={48}
-            className="h-9 w-auto"
+            width={180}
+            height={60}
+            className="h-11 w-auto"
             onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
           />
           <span className="font-serif text-2xl tracking-tight text-rust sr-only">Sinesia</span>
