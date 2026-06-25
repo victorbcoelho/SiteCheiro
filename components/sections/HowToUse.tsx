@@ -12,6 +12,7 @@ const steps = [
       'Leve em conta o tamanho do ambiente. O Sinesia Room cobre até 20 m². O Sinesia Tower cobre até 40 m².',
     cta: { label: 'Ver modelos', href: '#tecnologia' },
     bg: 'bg-sand/20',
+    image: '/images/sinesia-howto-difusor.jpg',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-20 w-20 text-rust/40">
         <rect x="12" y="24" width="40" height="24" rx="4" />
@@ -28,6 +29,7 @@ const steps = [
       'Ache sua favorita entre as 8 essências premium — cada uma criada para amplificar uma emoção diferente no seu ambiente.',
     cta: { label: 'Ver fragrâncias', href: '#fragrancias' },
     bg: 'bg-rust/5',
+    image: '/images/sinesia-howto-fragrancias.jpg',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-20 w-20 text-rust/40">
         <path d="M24 48V28c0-4.4 3.6-8 8-8s8 3.6 8 8v20" strokeLinecap="round" />
@@ -45,6 +47,7 @@ const steps = [
       'Ajuste a intensidade do aroma, programe horários e alterne fragrâncias automaticamente. Tudo na palma da mão.',
     cta: { label: 'Montar meu kit', href: '/starter-kit' },
     bg: 'bg-ink/5',
+    image: '/images/sinesia-howto-app.jpg',
     icon: (
       <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-20 w-20 text-rust/40">
         <rect x="20" y="8" width="24" height="40" rx="4" />
@@ -85,8 +88,16 @@ export default function HowToUse() {
               transition={{ duration: 0.55, delay: index * 0.12 }}
               className="flex flex-col gap-5"
             >
-              <div className={`aspect-[4/3] w-full rounded-2xl flex items-center justify-center ${step.bg}`}>
-                {step.icon}
+              <div className={`aspect-[4/3] w-full rounded-2xl overflow-hidden flex items-center justify-center ${step.bg}`}>
+                {step.image ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={step.image}
+                    alt={step.title}
+                    className="w-full h-full object-cover"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  />
+                ) : step.icon}
               </div>
 
               <div>

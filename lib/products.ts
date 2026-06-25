@@ -61,6 +61,7 @@ export const scents: Scent[] = [
     notes: 'Sândalo, cedro, patchouli, vetiver, toque de couro',
     mood: 'Elegância de Hotel 5 Estrelas, Poder e Presença',
     cardColor: '#3D2E2B',
+    image: '/images/sinesia-madeira-nobre.jpg',
     aromatherapy:
       'O óleo essencial de sândalo reduz ansiedade, melhora a qualidade do sono e auxilia na meditação profunda. Promove equilíbrio emocional e estimula autoconhecimento e paz interior. O cedro complementa com sensação de estabilidade e confiança — aroma de "ancoragem" que ajuda a centrar a mente. Ideal para salas de estar, escritórios e recepções.',
   },
@@ -71,6 +72,7 @@ export const scents: Scent[] = [
     notes: 'Neroli, flor de laranjeira, bergamota, petit grain, jasmim suave',
     mood: 'Leveza Brasileira, Claridade e Bem-estar Energético',
     cardColor: '#A65B47',
+    image: '/images/sinesia-flor-de-laranjeira.jpg',
     aromatherapy:
       'O neroli transmite alegria de viver e melhora o descanso, sendo eficaz no tratamento de insônia. É um dos óleos mais utilizados em aromaterapia clínica para equilíbrio emocional e redução da pressão arterial. A bergamota adiciona um efeito energizante leve. É a fragrância mais versátil e universalmente agradável — ideal para qualquer ambiente.',
   },
@@ -81,6 +83,7 @@ export const scents: Scent[] = [
     notes: 'Grãos de café arábica tostados, cardamomo, caramelo, toque de noz-moscada',
     mood: 'Acolhimento Familiar, Despertar Focalizado e Presença',
     cardColor: '#2B1E1C',
+    image: '/images/sinesia-cafe-especiarias.jpg',
     aromatherapy:
       'Estudos mostram que o aroma de café aumenta o estado de alerta e a performance cognitiva sem os efeitos colaterais da cafeína ingerida. A canela estimula a circulação sanguínea e melhora o foco. O cardamomo alivia fadiga mental e dores de cabeça. A combinação é energizante mas acolhedora — ativa sem agitar. Ideal para manhãs e home office.',
   },
@@ -91,6 +94,7 @@ export const scents: Scent[] = [
     notes: 'Lima, bergamota, flor de bambu, jasmim, flor de lótus, âmbar, musk branco, cedro',
     mood: 'Foco Minimalista, Clareza Mental e Elegância Neutra',
     cardColor: '#5E6358',
+    image: '/images/sinesia-bambu-cha-branco.jpg',
     aromatherapy:
       'O bambu é associado a serenidade, harmonia e resiliência. Seu aroma fresco e levemente floral proporciona efeito calmante sem induzir sono. O jasmim tem propriedades antidepressivas e estimula otimismo. O chá branco adiciona clareza mental. É a fragrância mais unissex e a mais associada a "casa limpa e sofisticada" no Brasil — referência do aroma MMartan. Ideal para qualquer cômodo.',
   },

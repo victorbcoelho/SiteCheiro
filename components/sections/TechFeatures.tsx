@@ -79,8 +79,14 @@ export default function TechFeatures() {
               transition={{ duration: 0.55, delay: index * 0.1 }}
               className="rounded-3xl bg-white border border-sand overflow-hidden"
             >
-              <div className="aspect-square w-full">
-                <ImagePlaceholder className="w-full h-full" label={`foto ${model.name}`} />
+              <div className="aspect-square w-full bg-sand/20 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/images/sinesia-${model.id}.jpg`}
+                  alt={model.name}
+                  className="w-full h-full object-cover"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                />
               </div>
               <div className="p-6">
                 <div className="flex items-start justify-between mb-3">
