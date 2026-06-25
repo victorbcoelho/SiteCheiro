@@ -94,7 +94,7 @@ export default function HowToUse() {
                   <img
                     src={step.image}
                     alt={step.title}
-                    className="w-full h-full object-cover"
+                    className="w-3/4 h-3/4 object-contain"
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                   />
                 ) : step.icon}
