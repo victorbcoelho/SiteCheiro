@@ -1,7 +1,6 @@
 'use client';
 
 import { useState } from 'react';
-import Image from 'next/image';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
 import { trackClick } from '@/lib/analytics';
@@ -20,15 +19,18 @@ export default function Header() {
     <header className="sticky top-0 z-50 bg-offwhite/90 backdrop-blur border-b border-sand/60">
       <div className="container-page flex items-center justify-between h-20">
         <Link href="/" className="flex items-center">
-          <Image
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
             src="/images/sinesia-logo.png"
             alt="Sinesia"
-            width={180}
-            height={60}
-            className="h-11 w-auto"
-            onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+            className="h-12 w-auto"
+            onError={(e) => {
+              (e.currentTarget as HTMLImageElement).style.display = 'none';
+              const fallback = document.getElementById('logo-fallback');
+              if (fallback) fallback.style.display = 'block';
+            }}
           />
-          <span className="font-serif text-2xl tracking-tight text-rust sr-only">Sinesia</span>
+          <span id="logo-fallback" className="font-serif text-2xl tracking-tight text-rust hidden">Sinesia</span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">

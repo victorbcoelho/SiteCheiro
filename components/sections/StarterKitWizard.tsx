@@ -618,11 +618,14 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
 
                   {/* Diffuser */}
                   <div className="flex items-center gap-3 mb-3 p-3 rounded-2xl bg-sand/20">
-                    <div className="w-12 h-12 rounded-xl bg-sand/40 flex items-center justify-center shrink-0">
-                      <svg viewBox="0 0 40 40" className="h-7 w-7 text-ink/20" fill="none" stroke="currentColor" strokeWidth="1.5">
-                        <rect x="2" y="2" width="36" height="36" rx="4" />
-                        <path d="M8 8l24 24M32 8L8 32" />
-                      </svg>
+                    <div className="w-12 h-12 rounded-xl bg-white overflow-hidden shrink-0">
+                      {/* eslint-disable-next-line @next/next/no-img-element */}
+                      <img
+                        src={`/images/sinesia-${selectedDiffuser.id}.jpg`}
+                        alt={selectedDiffuser.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = ''; }}
+                      />
                     </div>
                     <div className="flex-1">
                       <p className="font-medium text-sm text-ink">
