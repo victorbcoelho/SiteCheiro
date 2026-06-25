@@ -4,13 +4,13 @@ import { useState } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import Button from '@/components/ui/Button';
+import { trackClick } from '@/lib/analytics';
 
 const navLinks = [
   { label: 'Kit para iniciar', href: '/starter-kit' },
   { label: 'Tecnologia', href: '/#tecnologia' },
   { label: 'Fragrâncias', href: '/#fragrancias' },
   { label: 'Para Empresas', href: '/empresas' },
-  { label: 'Difusor grátis', href: '/starter-kit' },
 ];
 
 export default function Header() {
@@ -34,7 +34,7 @@ export default function Header() {
         <nav className="hidden md:flex items-center gap-8">
           {navLinks.map((link) => (
             <Link
-              key={link.href}
+              key={link.label}
               href={link.href}
               className="text-sm text-ink/70 hover:text-ink transition-colors duration-300"
             >
@@ -44,7 +44,7 @@ export default function Header() {
         </nav>
 
         <div className="hidden md:block">
-          <Button href="/starter-kit" size="md">
+          <Button href="/starter-kit" size="md" onClick={() => trackClick('Montar meu kit', { section: 'header' })}>
             Montar meu kit
           </Button>
         </div>
@@ -64,7 +64,7 @@ export default function Header() {
         <div className="md:hidden container-page pb-6 flex flex-col gap-4 bg-offwhite">
           {navLinks.map((link) => (
             <Link
-              key={link.href}
+              key={link.label}
               href={link.href}
               onClick={() => setOpen(false)}
               className="text-sm text-ink/70"

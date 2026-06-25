@@ -1,4 +1,9 @@
-type AnalyticsEvent = 'lead_captured' | 'cta_clicked' | 'page_viewed' | 'wizard_step';
+type AnalyticsEvent =
+  | 'lead_captured'
+  | 'cta_clicked'
+  | 'page_viewed'
+  | 'wizard_step'
+  | 'button_click';
 
 declare global {
   interface Window {
@@ -20,4 +25,8 @@ export function trackEvent(
   if (window.fbq && eventName === 'lead_captured') {
     window.fbq('track', 'Lead', params);
   }
+}
+
+export function trackClick(label: string, extra: Record<string, unknown> = {}) {
+  trackEvent('button_click', { label, url: typeof window !== 'undefined' ? window.location.pathname : '', ...extra });
 }

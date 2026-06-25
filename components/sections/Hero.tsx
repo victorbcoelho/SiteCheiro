@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackClick } from '@/lib/analytics';
 
 export default function Hero() {
   return (
@@ -48,7 +48,7 @@ export default function Hero() {
             >
               Garantir Meu Starter Kit
             </Button>
-            <Button href="#como-funciona" variant="outline" size="lg">
+            <Button href="#como-funciona" variant="outline" size="lg" onClick={() => trackClick('Como funciona', { section: 'hero' })}>
               Como funciona
             </Button>
           </div>

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import EmpresasWizard from './EmpresasWizard';
+import { trackClick } from '@/lib/analytics';
 
 const segments = [
   {
@@ -110,7 +111,7 @@ export default function EmpresasPage() {
               pequenos comércios. Sem mensalidade cara, sem visita técnica.
             </p>
             <button
-              onClick={() => setShowWizard(true)}
+              onClick={() => { trackClick('Montar plano para minha empresa', { section: 'empresas' }); setShowWizard(true); }}
               className="inline-block bg-rust hover:bg-rustDark text-white rounded-full px-8 py-4 font-medium transition-colors duration-300"
             >
               Montar plano para minha empresa
@@ -252,7 +253,7 @@ export default function EmpresasPage() {
                 </li>
               </ul>
               <button
-                onClick={() => setShowWizard(true)}
+                onClick={() => { trackClick('Montar plano para minha empresa', { section: 'empresas' }); setShowWizard(true); }}
                 className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-3.5 font-medium transition-colors duration-300 text-sm"
               >
                 Montar plano para minha empresa

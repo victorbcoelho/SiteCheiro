@@ -2,16 +2,24 @@
 
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import ImagePlaceholder from '@/components/ui/ImagePlaceholder';
+import { trackClick } from '@/lib/analytics';
 
 const steps = [
   {
     number: '01',
     title: 'Escolha um difusor',
     description:
-      'Leve em conta o tamanho do ambiente. O Sinesia Home cobre até 30 m². O Sinesia Tower cobre até 60 m² e ainda é uma caixa de som.',
+      'Leve em conta o tamanho do ambiente. O Sinesia Room cobre até 20 m². O Sinesia Tower cobre até 40 m².',
     cta: { label: 'Ver modelos', href: '#tecnologia' },
-    visual: <ImagePlaceholder className="w-full h-full rounded-2xl" label="foto do difusor" />,
+    bg: 'bg-sand/20',
+    icon: (
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-20 w-20 text-rust/40">
+        <rect x="12" y="24" width="40" height="24" rx="4" />
+        <path d="M20 24v-4a12 12 0 0124 0v4" strokeLinecap="round" />
+        <circle cx="32" cy="36" r="4" />
+        <path d="M32 40v4" strokeLinecap="round" />
+      </svg>
+    ),
   },
   {
     number: '02',
@@ -19,24 +27,31 @@ const steps = [
     description:
       'Ache sua favorita entre as 8 essências premium — cada uma criada para amplificar uma emoção diferente no seu ambiente.',
     cta: { label: 'Ver fragrâncias', href: '#fragrancias' },
-    visual: (
-      <div className="w-full h-full rounded-2xl bg-sand/30 flex items-center justify-center gap-4 p-4">
-        {['/images/sinesia-brisa-do-mar.jpg', '/images/sinesia-lavanda-provence.jpg'].map((src, i) => (
-          <div key={i} className="relative flex-1 h-full rounded-xl overflow-hidden">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src={src} alt="" className="w-full h-full object-contain" />
-          </div>
-        ))}
-      </div>
+    bg: 'bg-rust/5',
+    icon: (
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-20 w-20 text-rust/40">
+        <path d="M24 48V28c0-4.4 3.6-8 8-8s8 3.6 8 8v20" strokeLinecap="round" />
+        <path d="M20 48h24" strokeLinecap="round" />
+        <path d="M32 20v-8" strokeLinecap="round" />
+        <path d="M26 14c0-3.3 2.7-6 6-6s6 2.7 6 6" strokeLinecap="round" />
+        <ellipse cx="32" cy="48" rx="12" ry="3" />
+      </svg>
     ),
   },
   {
     number: '03',
-    title: 'Baixe o app',
+    title: 'Controle pelo app',
     description:
-      'Customize a intensidade do aroma, o volume do áudio e alterne entre 2 fragrâncias automaticamente. Tudo na palma da mão.',
+      'Ajuste a intensidade do aroma, programe horários e alterne fragrâncias automaticamente. Tudo na palma da mão.',
     cta: { label: 'Montar meu kit', href: '/starter-kit' },
-    visual: <ImagePlaceholder className="w-full h-full rounded-2xl" label="foto do app" />,
+    bg: 'bg-ink/5',
+    icon: (
+      <svg viewBox="0 0 64 64" fill="none" stroke="currentColor" strokeWidth="1.5" className="h-20 w-20 text-rust/40">
+        <rect x="20" y="8" width="24" height="40" rx="4" />
+        <path d="M28 44h8" strokeLinecap="round" />
+        <path d="M26 18h12M26 24h8M26 30h10" strokeLinecap="round" />
+      </svg>
+    ),
   },
 ];
 
@@ -70,7 +85,9 @@ export default function HowToUse() {
               transition={{ duration: 0.55, delay: index * 0.12 }}
               className="flex flex-col gap-5"
             >
-              <div className="aspect-[4/3] w-full">{step.visual}</div>
+              <div className={`aspect-[4/3] w-full rounded-2xl flex items-center justify-center ${step.bg}`}>
+                {step.icon}
+              </div>
 
               <div>
                 <p className="font-serif text-4xl text-rust/30 mb-2">{step.number}</p>
@@ -78,6 +95,7 @@ export default function HowToUse() {
                 <p className="text-sm text-ink/60 leading-relaxed mb-4">{step.description}</p>
                 <Link
                   href={step.cta.href}
+                  onClick={() => trackClick(step.cta.label, { section: 'how_to_use', step: step.number })}
                   className="text-sm font-medium text-rust hover:text-rustDark underline underline-offset-4 transition-colors duration-300"
                 >
                   {step.cta.label} →
@@ -96,6 +114,7 @@ export default function HowToUse() {
         >
           <Link
             href="/starter-kit"
+            onClick={() => trackClick('Quero começar', { section: 'how_to_use' })}
             className="inline-block bg-rust hover:bg-rustDark text-white rounded-full px-10 py-4 text-sm font-medium transition-colors duration-300"
           >
             Quero começar
