@@ -44,10 +44,6 @@ export default function SafetySection() {
             <h2 className="font-serif text-2xl md:text-3xl text-ink mb-3">
               Seguro e limpo — inclusive para seus pets
             </h2>
-            <p className="text-sm text-ink/60 leading-relaxed mb-5">
-              Nossas fragrâncias premium são formuladas sem parabenos, ftalatos
-              ou compostos tóxicos. Testadas e certificadas para uso domiciliar.
-            </p>
             <ul className="space-y-2 mb-6 text-left">
               {badges.map((badge) => (
                 <li key={badge} className="flex items-center gap-2 text-sm text-ink/65">
@@ -57,7 +53,7 @@ export default function SafetySection() {
               ))}
             </ul>
             <Link
-              href="#fragrancias"
+              href="/starter-kit"
               className="inline-block border border-ink/20 text-ink/70 hover:border-rust hover:text-rust rounded-full px-6 py-2.5 text-sm font-medium transition-colors duration-300"
             >
               Conhecer mais

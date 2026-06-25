@@ -31,10 +31,6 @@ export default function Hero() {
           transition={{ duration: 0.8 }}
           className="max-w-2xl text-white"
         >
-          <span className="inline-block rounded-full bg-white/10 backdrop-blur px-4 py-1.5 text-xs uppercase tracking-widest mb-6">
-            Pré-lançamento — Unidades limitadas
-          </span>
-
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6">
             Difusores inteligentes que te fazem sentir.
           </h1>

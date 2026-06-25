@@ -8,9 +8,9 @@ import StarterKitWizard from './StarterKitWizard';
 type B2BStep = 'ambientes' | 'segmento' | 'objetivo' | 'consumer-flow';
 
 const ambientesOptions = [
-  { id: '1', label: '1 ambiente', sub: 'Recepção, sala de espera ou sala principal' },
-  { id: '2-3', label: '2 a 3 ambientes', sub: 'Ex: recepção + salas de reunião' },
-  { id: '4+', label: '4 ou mais ambientes', sub: 'Multi-piso ou grande estabelecimento' },
+  { id: '1', label: '1 ambiente', sub: 'Recepção, sala de espera ou sala principal', qty: 1 },
+  { id: '2-3', label: '2 a 3 ambientes', sub: 'Ex: recepção + salas de reunião', qty: 2 },
+  { id: '4+', label: '4 ou mais ambientes', sub: 'Multi-piso ou grande estabelecimento', qty: 4 },
 ];
 
 const segmentoOptions = [
@@ -33,11 +33,8 @@ const B2B_STEPS: B2BStep[] = ['ambientes', 'segmento', 'objetivo'];
 
 export default function EmpresasWizard() {
   const [step, setStep] = useState<B2BStep>('ambientes');
-  const [b2bState, setB2bState] = useState({
-    ambientes: '',
-    segmento: '',
-    objetivo: '',
-  });
+  const [b2bState, setB2bState] = useState({ ambientes: '', segmento: '', objetivo: '' });
+  const [qty, setQty] = useState(1);
 
   const stepIndex = B2B_STEPS.indexOf(step as Exclude<B2BStep, 'consumer-flow'>);
 
@@ -46,10 +43,11 @@ export default function EmpresasWizard() {
     if (prev) setStep(prev);
   };
 
-  const handleAmbientes = (id: string) => {
-    setB2bState((s) => ({ ...s, ambientes: id }));
+  const handleAmbientes = (opt: typeof ambientesOptions[number]) => {
+    setB2bState((s) => ({ ...s, ambientes: opt.id }));
+    setQty(opt.qty);
     setStep('segmento');
-    trackEvent('wizard_step', { step: 'empresas_ambientes', id });
+    trackEvent('wizard_step', { step: 'empresas_ambientes', id: opt.id });
   };
 
   const handleSegmento = (id: string) => {
@@ -64,18 +62,18 @@ export default function EmpresasWizard() {
     trackEvent('wizard_step', { step: 'empresas_objetivo', id });
   };
 
-  // After b2b steps, render the same consumer wizard with b2b context
   if (step === 'consumer-flow') {
     return (
       <StarterKitWizard
         b2bContext={b2bState}
+        b2bQty={qty}
         onB2BComplete={() => setStep('ambientes')}
       />
     );
   }
 
   return (
-    <section className="min-h-[calc(100vh-5rem)] bg-offwhite py-10">
+    <div className="min-h-[calc(100vh-5rem)] bg-offwhite py-10">
       <div className="container-page max-w-xl mx-auto">
         {/* Progress */}
         <div className="mb-8 flex items-center gap-3">
@@ -115,13 +113,13 @@ export default function EmpresasWizard() {
                 Quantos ambientes você quer aromatizar?
               </h2>
               <p className="text-ink/50 text-sm mb-8">
-                Isso vai nos ajudar a indicar o plano certo para o seu negócio.
+                Isso vai nos ajudar a indicar a quantidade certa de difusores para o seu negócio.
               </p>
               <div className="flex flex-col gap-3">
                 {ambientesOptions.map((opt) => (
                   <button
                     key={opt.id}
-                    onClick={() => handleAmbientes(opt.id)}
+                    onClick={() => handleAmbientes(opt)}
                     className="flex items-center justify-between w-full rounded-2xl border border-sand bg-white hover:border-rust hover:shadow-sm p-5 text-left transition-all duration-200 group"
                   >
                     <div>
@@ -175,7 +173,7 @@ export default function EmpresasWizard() {
                 Qual seu principal objetivo?
               </h2>
               <p className="text-ink/50 text-sm mb-8">
-                Vamos personalizar a proposta com base no que mais importa para o seu negócio.
+                Vamos personalizar a experiência com base no que mais importa para o seu negócio.
               </p>
               <div className="flex flex-col gap-3">
                 {objetivoOptions.map((opt) => (
@@ -196,6 +194,6 @@ export default function EmpresasWizard() {
           )}
         </AnimatePresence>
       </div>
-    </section>
+    </div>
   );
 }

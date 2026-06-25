@@ -16,7 +16,7 @@ interface WizardState {
   diffuserModelId: DiffuserModelId;
 }
 
-interface B2BContext {
+export interface B2BContext {
   ambientes?: string;
   segmento?: string;
   objetivo?: string;
@@ -25,9 +25,17 @@ interface B2BContext {
 interface CartSelection {
   planLabel: string;
   planPrice: string;
+  planMonthly?: string;
 }
 
-const ANNUAL_PRICE: Record<DiffuserModelId, number> = { room: 98, tower: 149, car: 49 };
+// Pricing constants
+const SCENT_FULL = 49.90;
+const SCENT_SUB = 39.90; // 20% off
+const ANNUAL_BASE: Record<DiffuserModelId, number> = { room: 98, tower: 149, car: 99 };
+
+function fmtBRL(val: number) {
+  return val.toFixed(2).replace('.', ',');
+}
 
 // Simple SVG room illustrations
 const RoomIcon = ({ roomId }: { roomId: string }) => {
@@ -147,18 +155,16 @@ function PreLaunchModal({
             <div className="inline-block bg-rust/10 text-rust text-xs uppercase tracking-widest rounded-full px-3 py-1 mb-4">
               Pré-lançamento
             </div>
-            <h3 className="font-serif text-2xl text-ink mb-2">
-              Nada será cobrado agora.
-            </h3>
-            <p className="text-ink/60 text-sm leading-relaxed mb-6">
+            <h3 className="font-serif text-2xl text-ink mb-2">Nada será cobrado agora.</h3>
+            <p className="text-ink/60 text-sm leading-relaxed mb-5">
               Estamos em fase de pré-lançamento. Deixe seu e-mail e avisaremos assim que abrirmos —
-              com <strong className="text-ink">30% de desconto</strong> no valor do kit selecionado.
+              com <strong className="text-ink">30% de desconto</strong> garantido no seu kit.
             </p>
-            <div className="bg-sand/30 rounded-xl p-4 mb-6 text-sm">
-              <p className="text-ink/50 text-xs uppercase tracking-wider mb-2">Seu kit reservado</p>
+            <div className="bg-sand/30 rounded-xl p-4 mb-5 text-sm">
+              <p className="text-ink/40 text-xs uppercase tracking-wider mb-2">Seu kit reservado</p>
               <p className="text-ink font-medium">{cartSelection.planLabel}</p>
-              <p className="text-ink/60">{diffuserName} + {scentNames.join(' + ')}</p>
-              <p className="text-rust font-serif text-lg mt-1">{cartSelection.planPrice}</p>
+              <p className="text-ink/60 text-xs">{diffuserName} + {scentNames.join(' + ')}</p>
+              <p className="text-rust font-serif text-xl mt-1">{cartSelection.planPrice}</p>
             </div>
             <form onSubmit={handleSubmit} className="flex flex-col gap-3">
               <input
@@ -205,6 +211,7 @@ function CartModal({
   scentNames,
   planLabel,
   planPrice,
+  planMonthly,
   onCheckout,
   onClose,
 }: {
@@ -212,6 +219,7 @@ function CartModal({
   scentNames: string[];
   planLabel: string;
   planPrice: string;
+  planMonthly?: string;
   onCheckout: () => void;
   onClose: () => void;
 }) {
@@ -227,29 +235,29 @@ function CartModal({
           <h3 className="font-serif text-xl text-ink">Seu carrinho</h3>
           <button
             onClick={onClose}
-            className="text-ink/30 hover:text-ink/60 text-xl transition-colors"
+            className="text-ink/30 hover:text-ink/60 text-2xl transition-colors leading-none"
             aria-label="Fechar"
           >
             ×
           </button>
         </div>
-        <div className="border border-sand rounded-2xl p-4 mb-4">
+        <div className="border border-sand rounded-2xl p-4 mb-5">
           <div className="flex items-center justify-between mb-3">
             <span className="text-sm font-medium text-ink">{diffuserName}</span>
           </div>
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap gap-2 mb-4">
             {scentNames.map((name) => (
-              <span
-                key={name}
-                className="text-xs bg-sand/50 text-ink/70 rounded-full px-3 py-1"
-              >
+              <span key={name} className="text-xs bg-sand/50 text-ink/70 rounded-full px-3 py-1">
                 {name}
               </span>
             ))}
           </div>
-          <div className="border-t border-sand mt-4 pt-4">
+          <div className="border-t border-sand pt-3">
             <p className="text-xs text-ink/40 uppercase tracking-wider mb-1">{planLabel}</p>
             <p className="font-serif text-2xl text-rust">{planPrice}</p>
+            {planMonthly && (
+              <p className="text-xs text-ink/40 mt-0.5">{planMonthly}</p>
+            )}
           </div>
         </div>
         <button
@@ -269,14 +277,56 @@ function CartModal({
   );
 }
 
+// Scent detail panel
+function ScentDetail({ scentId, onClose }: { scentId: string; onClose: () => void }) {
+  const scent = scents.find((s) => s.id === scentId);
+  if (!scent) return null;
+  return (
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-ink/60 backdrop-blur-sm p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 30 }}
+        className="bg-white rounded-3xl p-6 w-full max-w-sm shadow-2xl"
+      >
+        <div className="flex items-center justify-between mb-4">
+          <div
+            className="h-10 w-10 rounded-xl flex items-center justify-center"
+            style={{ backgroundColor: scent.cardColor }}
+          >
+            {scent.image && (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={scent.image} alt={scent.name} className="w-full h-full object-contain p-1" />
+            )}
+          </div>
+          <button
+            onClick={onClose}
+            className="text-ink/30 hover:text-ink/60 text-2xl leading-none transition-colors"
+          >
+            ×
+          </button>
+        </div>
+        <h3 className="font-serif text-xl text-ink mb-0.5">{scent.name}</h3>
+        <p className="text-xs text-ink/40 mb-3">{scent.family}</p>
+        <p className="text-xs text-rust/80 uppercase tracking-widest font-semibold mb-2">
+          Benefícios de aromaterapia
+        </p>
+        <p className="text-sm text-ink/70 leading-relaxed mb-3">{scent.aromatherapy}</p>
+        <p className="text-xs text-ink/35 italic">Notas: {scent.notes}</p>
+      </motion.div>
+    </div>
+  );
+}
+
 const STEPS: Step[] = ['room', 'mood', 'scents', 'summary'];
 
 interface StarterKitWizardProps {
   b2bContext?: B2BContext;
+  b2bQty?: number;
   onB2BComplete?: () => void;
 }
 
-export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterKitWizardProps) {
+export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete }: StarterKitWizardProps) {
   const [step, setStep] = useState<Step>('room');
   const [state, setState] = useState<WizardState>({
     roomId: null,
@@ -286,11 +336,19 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
   });
   const [cart, setCart] = useState<CartSelection | null>(null);
   const [showPreLaunch, setShowPreLaunch] = useState(false);
+  const [detailScentId, setDetailScentId] = useState<string | null>(null);
 
   const stepIndex = STEPS.indexOf(step);
   const recommendedScents = state.moodId ? getRecommendedScents(state.moodId) : [];
   const selectedDiffuser = diffuserModels.find((d) => d.id === state.diffuserModelId)!;
-  const annualPrice = ANNUAL_PRICE[state.diffuserModelId];
+  const annualBase = ANNUAL_BASE[state.diffuserModelId];
+  const annualTotal = annualBase * b2bQty;
+  const deviceTotal = selectedDiffuser.price * b2bQty;
+  const numScents = state.selectedScentIds.length || 2;
+
+  const scentSubTotal = numScents * SCENT_SUB;   // per month, with 20% off
+  const scentFullTotal = numScents * SCENT_FULL;  // avulso, full price
+
   const selectedScentNames = state.selectedScentIds
     .map((id) => scents.find((s) => s.id === id)?.name)
     .filter(Boolean) as string[];
@@ -331,8 +389,8 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
     if (prev) setStep(prev);
   };
 
-  const openCart = (planLabel: string, planPrice: string) => {
-    setCart({ planLabel, planPrice });
+  const openCart = (planLabel: string, planPrice: string, planMonthly?: string) => {
+    setCart({ planLabel, planPrice, planMonthly });
     trackEvent('cta_clicked', { cta: 'wizard_add_to_cart', plan: planLabel });
   };
 
@@ -367,7 +425,7 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
 
       <div className="container-page py-10 max-w-2xl mx-auto">
         <AnimatePresence mode="wait">
-          {/* STEP 1: ROOM */}
+          {/* ROOM */}
           {step === 'room' && (
             <motion.div
               key="room"
@@ -396,16 +454,14 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
                       <p className="font-medium text-ink">{room.label}</p>
                       <p className="text-xs text-ink/40 mt-0.5">{room.sublabel}</p>
                     </div>
-                    <span className="text-ink/20 group-hover:text-rust transition-colors text-lg shrink-0">
-                      →
-                    </span>
+                    <span className="text-ink/20 group-hover:text-rust transition-colors text-lg shrink-0">→</span>
                   </button>
                 ))}
               </div>
             </motion.div>
           )}
 
-          {/* STEP 2: MOOD */}
+          {/* MOOD */}
           {step === 'mood' && (
             <motion.div
               key="mood"
@@ -434,7 +490,7 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
             </motion.div>
           )}
 
-          {/* STEP 3: SCENTS */}
+          {/* SCENTS */}
           {step === 'scents' && (
             <motion.div
               key="scents"
@@ -447,26 +503,25 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
                 Fragrâncias recomendadas para você
               </h1>
               <p className="text-ink/50 text-sm mb-8">
-                As 2 primeiras já estão selecionadas. Toque para trocar.
+                As 2 primeiras já estão selecionadas. Toque para trocar. Use &ldquo;detalhes&rdquo; para saber mais sobre cada essência.
               </p>
 
               <div className="flex flex-col gap-3 mb-8">
                 {recommendedScents.map((scent) => {
                   const isSelected = state.selectedScentIds.includes(scent.id);
                   return (
-                    <button
+                    <div
                       key={scent.id}
-                      onClick={() => toggleScent(scent.id)}
-                      className={`flex items-center gap-4 rounded-2xl border-2 p-4 text-left transition-all duration-200 ${
-                        isSelected
-                          ? 'border-ink bg-ink/3'
-                          : 'border-sand bg-white hover:border-ink/30'
+                      className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all duration-200 ${
+                        isSelected ? 'border-ink bg-ink/[0.02]' : 'border-sand bg-white'
                       }`}
                     >
                       {/* Scent image or color swatch */}
-                      <div
+                      <button
+                        onClick={() => toggleScent(scent.id)}
                         className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center"
                         style={{ backgroundColor: scent.cardColor }}
+                        aria-label={`Selecionar ${scent.name}`}
                       >
                         {scent.image ? (
                           // eslint-disable-next-line @next/next/no-img-element
@@ -476,36 +531,46 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
                             className="absolute inset-0 w-full h-full object-contain p-1"
                           />
                         ) : (
-                          <svg
-                            viewBox="0 0 40 40"
-                            className="h-8 w-8 text-white/20"
-                            fill="none"
-                            stroke="currentColor"
-                            strokeWidth="1.5"
-                          >
+                          <svg viewBox="0 0 40 40" className="h-8 w-8 text-white/20" fill="none" stroke="currentColor" strokeWidth="1.5">
                             <rect x="2" y="2" width="36" height="36" rx="4" />
                             <path d="M8 8l24 24M32 8L8 32" />
                           </svg>
                         )}
-                      </div>
-                      <div className="flex-1 min-w-0">
+                      </button>
+
+                      <button
+                        onClick={() => toggleScent(scent.id)}
+                        className="flex-1 min-w-0 text-left"
+                        aria-label={`Selecionar ${scent.name}`}
+                      >
                         <p className="font-medium text-ink">{scent.name}</p>
                         <p className="text-xs text-ink/50 mt-0.5">{scent.family}</p>
                         <p className="text-xs text-ink/40 mt-0.5 truncate">{scent.mood}</p>
-                      </div>
-                      {/* Black checkmark when selected */}
-                      <div
+                      </button>
+
+                      {/* Details button */}
+                      <button
+                        onClick={() => setDetailScentId(scent.id)}
+                        className="text-xs text-rust/70 hover:text-rust border border-rust/30 hover:border-rust rounded-full px-2.5 py-1 transition-colors shrink-0"
+                      >
+                        detalhes
+                      </button>
+
+                      {/* Black checkmark */}
+                      <button
+                        onClick={() => toggleScent(scent.id)}
                         className={`shrink-0 h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                          isSelected ? 'bg-ink border-ink' : 'border-sand'
+                          isSelected ? 'bg-ink border-ink' : 'border-sand hover:border-ink/30'
                         }`}
+                        aria-label={isSelected ? 'Remover' : 'Selecionar'}
                       >
                         {isSelected && (
                           <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3">
                             <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
                           </svg>
                         )}
-                      </div>
-                    </button>
+                      </button>
+                    </div>
                   );
                 })}
               </div>
@@ -527,7 +592,7 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
             </motion.div>
           )}
 
-          {/* STEP 4: SUMMARY — split layout */}
+          {/* SUMMARY */}
           {step === 'summary' && (
             <motion.div
               key="summary"
@@ -547,22 +612,26 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                 {/* LEFT: Cart */}
                 <div className="rounded-3xl bg-white border border-sand p-6">
-                  <h2 className="font-serif text-lg text-ink mb-4">Seu carrinho</h2>
+                  <h2 className="font-serif text-lg text-ink mb-4">
+                    Seu carrinho{b2bQty > 1 ? ` · ${b2bQty} unidades` : ''}
+                  </h2>
 
                   {/* Diffuser */}
-                  <div className="flex items-center gap-3 mb-4 p-3 rounded-2xl bg-sand/20">
-                    <div className="w-14 h-14 rounded-xl bg-sand/40 flex items-center justify-center shrink-0">
-                      <svg viewBox="0 0 40 40" className="h-8 w-8 text-ink/25" fill="none" stroke="currentColor" strokeWidth="1.5">
+                  <div className="flex items-center gap-3 mb-3 p-3 rounded-2xl bg-sand/20">
+                    <div className="w-12 h-12 rounded-xl bg-sand/40 flex items-center justify-center shrink-0">
+                      <svg viewBox="0 0 40 40" className="h-7 w-7 text-ink/20" fill="none" stroke="currentColor" strokeWidth="1.5">
                         <rect x="2" y="2" width="36" height="36" rx="4" />
                         <path d="M8 8l24 24M32 8L8 32" />
                       </svg>
                     </div>
-                    <div>
-                      <p className="font-medium text-sm text-ink">{selectedDiffuser.name}</p>
+                    <div className="flex-1">
+                      <p className="font-medium text-sm text-ink">
+                        {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name}
+                      </p>
                       <p className="text-xs text-ink/50">{selectedDiffuser.subtitle}</p>
                     </div>
-                    <p className="ml-auto font-serif text-base text-rust shrink-0">
-                      R${selectedDiffuser.price}
+                    <p className="ml-auto font-serif text-sm text-rust shrink-0">
+                      R${fmtBRL(selectedDiffuser.price * b2bQty)}
                     </p>
                   </div>
 
@@ -574,73 +643,94 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
                       return (
                         <div key={id} className="flex items-center gap-3 p-3 rounded-xl bg-sand/10">
                           <div
-                            className="w-10 h-10 rounded-lg shrink-0 relative overflow-hidden flex items-center justify-center"
+                            className="w-9 h-9 rounded-lg shrink-0 relative overflow-hidden"
                             style={{ backgroundColor: scent.cardColor }}
                           >
                             {scent.image && (
                               // eslint-disable-next-line @next/next/no-img-element
-                              <img src={scent.image} alt={scent.name} className="absolute inset-0 w-full h-full object-contain p-1" />
+                              <img src={scent.image} alt={scent.name} className="absolute inset-0 w-full h-full object-contain p-0.5" />
                             )}
                           </div>
-                          <div>
+                          <div className="flex-1">
                             <p className="text-sm font-medium text-ink">{scent.name}</p>
                             <p className="text-xs text-ink/40">{scent.family}</p>
                           </div>
-                          <p className="ml-auto text-sm text-ink/50 shrink-0">R$39,90/mês</p>
+                          <p className="ml-auto text-xs text-ink/40 shrink-0">R$49,90</p>
                         </div>
                       );
                     })}
                   </div>
+
+                  {state.selectedScentIds.length > 0 && (
+                    <p className="text-xs text-rust mt-3 text-right">
+                      Assinantes recebem 20% off nas essências
+                    </p>
+                  )}
                 </div>
 
-                {/* RIGHT: Plan cards (smaller) */}
+                {/* RIGHT: Plan cards */}
                 <div className="flex flex-col gap-3">
-                  {/* Annual */}
+
+                  {/* 1. Annual — device free */}
                   <div className="rounded-2xl bg-ink text-white p-5 relative overflow-hidden">
                     <div className="absolute top-0 right-0 bg-rust text-white text-[10px] px-3 py-1.5 rounded-bl-xl font-medium">
                       Mais popular
                     </div>
-                    <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Plano anual</p>
+                    <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Plano anual · 12 meses</p>
                     <h3 className="font-serif text-lg mb-0.5">Difusor de graça</h3>
-                    <p className="text-white/50 text-xs mb-3">Aparelho incluso + 2 fragrâncias/mês</p>
-                    <div className="flex items-baseline gap-1 mb-1">
-                      <span className="font-serif text-3xl">R${annualPrice}</span>
-                      <span className="text-white/45 text-xs">/mês · 12 meses</span>
+                    <p className="text-white/45 text-xs mb-3">
+                      Aparelho incluso + fragrâncias com 20% off
+                    </p>
+                    <div className="flex items-baseline gap-1 mb-0.5">
+                      <span className="font-serif text-3xl">R${annualTotal}</span>
+                      <span className="text-white/40 text-xs">/mês</span>
                     </div>
+                    <p className="text-white/35 text-xs mb-4">
+                      Total 12 meses: R${fmtBRL(annualTotal * 12)} · Difusor incluso grátis
+                    </p>
                     <ul className="text-xs text-white/65 space-y-1 mb-4">
-                      <li>✓ {selectedDiffuser.name} incluso</li>
-                      <li>✓ 2 fragrâncias/mês</li>
+                      <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} incluso</li>
+                      <li>✓ {numScents} fragrâncias/mês com <strong>20% de desconto</strong></li>
                       <li>✓ Frete grátis nos refis</li>
-                      <li>✓ Garantia vitalícia</li>
+                      <li>✓ Garantia vitalícia do aparelho</li>
                     </ul>
                     <button
                       onClick={() =>
                         openCart(
-                          `Plano Anual — ${selectedDiffuser.name}`,
-                          `R$${annualPrice}/mês`
+                          'Plano Anual',
+                          `R$${annualTotal}/mês`,
+                          `12 meses · Total R$${fmtBRL(annualTotal * 12)}`
                         )
                       }
-                      className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-3 text-sm font-medium transition-colors duration-300"
+                      className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
                     >
                       Adicionar ao carrinho
                     </button>
                   </div>
 
-                  {/* Flex */}
+                  {/* 2. Flex — no commitment */}
                   <div className="rounded-2xl bg-white border-2 border-sand p-5">
-                    <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Flexível</p>
-                    <h3 className="font-serif text-lg text-ink mb-0.5">Sem compromisso</h3>
-                    <p className="text-ink/45 text-xs mb-3">Compre o aparelho + assine mês a mês</p>
-                    <div className="flex items-baseline gap-1 mb-1">
-                      <span className="font-serif text-2xl text-ink">R${selectedDiffuser.price}</span>
+                    <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Sem compromisso</p>
+                    <h3 className="font-serif text-lg text-ink mb-0.5">Assinatura mensal</h3>
+                    <div className="flex items-baseline gap-1 mb-0.5 mt-2">
+                      <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
                       <span className="text-ink/40 text-xs">aparelho</span>
                     </div>
-                    <p className="text-ink/40 text-xs mb-4">+ R$39,90/fragrância/mês</p>
+                    <p className="text-ink/40 text-xs mb-3">
+                      + R${fmtBRL(scentSubTotal)}/mês em essências ({numScents}× R$39,90)
+                    </p>
+                    <ul className="text-xs text-ink/60 space-y-1.5 mb-4">
+                      <li>✓ Cada fragrância com <strong>20% de desconto</strong></li>
+                      <li>✓ Troque as essências a cada pedido</li>
+                      <li>✓ Frete grátis em 2+ fragrâncias por pedido</li>
+                      <li>✓ Cancele quando quiser</li>
+                    </ul>
                     <button
                       onClick={() =>
                         openCart(
-                          `Plano Flex — ${selectedDiffuser.name}`,
-                          `R$${selectedDiffuser.price} + R$39,90/mês`
+                          'Assinatura Mensal',
+                          `R$${fmtBRL(deviceTotal)} + R$${fmtBRL(scentSubTotal)}/mês`,
+                          `${numScents} fragrâncias com 20% off`
                         )
                       }
                       className="w-full border-2 border-rust text-rust hover:bg-rust hover:text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
@@ -649,20 +739,26 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
                     </button>
                   </div>
 
-                  {/* One-time */}
+                  {/* 3. One-time */}
                   <div className="rounded-2xl bg-offwhite border border-sand p-5">
                     <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Compra única</p>
                     <h3 className="font-serif text-lg text-ink mb-0.5">Avulso</h3>
-                    <div className="flex items-baseline gap-1 mb-1 mt-2">
-                      <span className="font-serif text-2xl text-ink">R${selectedDiffuser.price}</span>
+                    <div className="flex items-baseline gap-1 mb-0.5 mt-2">
+                      <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
                       <span className="text-ink/40 text-xs">aparelho</span>
                     </div>
-                    <p className="text-ink/40 text-xs mb-4">+ R$49,90/fragrância</p>
+                    <p className="text-ink/40 text-xs mb-3">
+                      + R${fmtBRL(scentFullTotal)} em essências ({numScents}× R$49,90)
+                    </p>
+                    <p className="text-xs text-ink/50 mb-3">
+                      Total: <strong>R${fmtBRL(deviceTotal + scentFullTotal)}</strong> · Sem mensalidade
+                    </p>
                     <button
                       onClick={() =>
                         openCart(
-                          `Compra Avulsa — ${selectedDiffuser.name}`,
-                          `R$${selectedDiffuser.price}`
+                          'Compra Avulsa',
+                          `R$${fmtBRL(deviceTotal + scentFullTotal)}`,
+                          'Preço cheio · sem assinatura'
                         )
                       }
                       className="w-full border border-sand text-ink/60 hover:border-rust hover:text-rust rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
@@ -691,10 +787,11 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
       <AnimatePresence>
         {cart && !showPreLaunch && (
           <CartModal
-            diffuserName={selectedDiffuser.name}
+            diffuserName={b2bQty > 1 ? `${b2bQty}× ${selectedDiffuser.name}` : selectedDiffuser.name}
             scentNames={selectedScentNames}
             planLabel={cart.planLabel}
             planPrice={cart.planPrice}
+            planMonthly={cart.planMonthly}
             onCheckout={() => setShowPreLaunch(true)}
             onClose={() => setCart(null)}
           />
@@ -715,6 +812,13 @@ export default function StarterKitWizard({ b2bContext, onB2BComplete }: StarterK
           }}
         />
       )}
+
+      {/* Scent detail panel */}
+      <AnimatePresence>
+        {detailScentId && (
+          <ScentDetail scentId={detailScentId} onClose={() => setDetailScentId(null)} />
+        )}
+      </AnimatePresence>
     </div>
   );
 }

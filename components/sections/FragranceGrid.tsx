@@ -47,7 +47,7 @@ export default function FragranceGrid() {
               >
                 {/* Compact image area */}
                 <div
-                  className="relative aspect-[1/1] w-full flex flex-col justify-end p-3"
+                  className="relative aspect-[4/3] w-full flex flex-col justify-end p-2"
                   style={{ backgroundColor: scent.cardColor }}
                 >
                   {scent.image ? (
@@ -55,7 +55,7 @@ export default function FragranceGrid() {
                     <img
                       src={scent.image}
                       alt={scent.name}
-                      className="absolute inset-0 w-full h-full object-contain p-3"
+                      className="absolute inset-0 w-full h-full object-contain p-2"
                     />
                   ) : (
                     <div className="absolute inset-0 flex items-center justify-center">

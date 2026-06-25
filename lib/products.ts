@@ -145,7 +145,7 @@ export const diffuserModels: DiffuserModel[] = [
     id: 'car',
     name: 'Sinesia Car',
     subtitle: 'Difusor veicular',
-    price: 149,
+    price: 299,
     hasSound: false,
     idealFor: 'Para aromatização em movimento',
     features: [
