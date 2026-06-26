@@ -319,6 +319,7 @@ function ScentDetail({ scentId, onClose }: { scentId: string; onClose: () => voi
 }
 
 const STEPS: Step[] = ['room', 'mood', 'scents', 'summary'];
+const B2B_STEPS: Step[] = ['scents', 'summary'];
 
 interface StarterKitWizardProps {
   b2bContext?: B2BContext;
@@ -327,7 +328,8 @@ interface StarterKitWizardProps {
 }
 
 export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete }: StarterKitWizardProps) {
-  const [step, setStep] = useState<Step>('room');
+  const isB2B = Boolean(b2bContext);
+  const [step, setStep] = useState<Step>(isB2B ? 'scents' : 'room');
   const [state, setState] = useState<WizardState>({
     roomId: null,
     moodId: null,
@@ -338,16 +340,20 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
   const [showPreLaunch, setShowPreLaunch] = useState(false);
   const [detailScentId, setDetailScentId] = useState<string | null>(null);
 
-  const stepIndex = STEPS.indexOf(step);
+  const activeSteps = isB2B ? B2B_STEPS : STEPS;
+  const stepIndex = activeSteps.indexOf(step);
   const recommendedScents = state.moodId ? getRecommendedScents(state.moodId) : [];
   const selectedDiffuser = diffuserModels.find((d) => d.id === state.diffuserModelId)!;
   const annualBase = ANNUAL_BASE[state.diffuserModelId];
   const annualTotal = annualBase * b2bQty;
   const deviceTotal = selectedDiffuser.price * b2bQty;
-  const numScents = state.selectedScentIds.length || 2;
+  // B2B: each diffuser uses 2 scent types, total bottles = qty × 2 per scent type
+  const numScentBottles = isB2B
+    ? state.selectedScentIds.length * b2bQty  // e.g. 2 scents × 3 ambientes = 6 bottles
+    : (state.selectedScentIds.length || 2);
 
-  const scentSubTotal = numScents * SCENT_SUB;   // per month, with 20% off
-  const scentFullTotal = numScents * SCENT_FULL;  // avulso, full price
+  const scentSubTotal = numScentBottles * SCENT_SUB;
+  const scentFullTotal = numScentBottles * SCENT_FULL;
 
   const selectedScentNames = state.selectedScentIds
     .map((id) => scents.find((s) => s.id === id)?.name)
@@ -385,8 +391,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
   };
 
   const goBack = () => {
-    const prev = STEPS[stepIndex - 1];
+    const prev = activeSteps[stepIndex - 1];
     if (prev) setStep(prev);
+    else if (isB2B && onB2BComplete) onB2BComplete();
   };
 
   const openCart = (planLabel: string, planPrice: string, planMonthly?: string) => {
@@ -408,7 +415,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
             </button>
           )}
           <div className="flex-1 flex gap-1.5">
-            {STEPS.map((s, i) => (
+            {activeSteps.map((s, i) => (
               <div
                 key={s}
                 className={`h-1 flex-1 rounded-full transition-all duration-500 ${
@@ -418,7 +425,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
             ))}
           </div>
           <span className="text-xs text-ink/40 shrink-0">
-            {stepIndex + 1} / {STEPS.length}
+            {stepIndex + 1} / {activeSteps.length}
           </span>
         </div>
       </div>
@@ -612,9 +619,14 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                 {/* LEFT: Cart */}
                 <div className="rounded-3xl bg-white border border-sand p-6">
-                  <h2 className="font-serif text-lg text-ink mb-4">
-                    Seu carrinho{b2bQty > 1 ? ` · ${b2bQty} unidades` : ''}
+                  <h2 className="font-serif text-lg text-ink mb-1">
+                    Seu carrinho{isB2B && b2bQty > 1 ? ` · ${b2bQty} ambientes` : ''}
                   </h2>
+                  {isB2B && (
+                    <p className="text-xs text-ink/40 mb-4">
+                      {b2bQty} difusor{b2bQty > 1 ? 'es' : ''} · {state.selectedScentIds.length * b2bQty} frascos ({state.selectedScentIds.length} fragrâncias × {b2bQty} ambientes)
+                    </p>
+                  )}
 
                   {/* Diffuser */}
                   <div className="flex items-center gap-3 mb-3 p-3 rounded-2xl bg-sand/20">
@@ -643,6 +655,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                     {state.selectedScentIds.map((id) => {
                       const scent = scents.find((s) => s.id === id);
                       if (!scent) return null;
+                      const bottleQty = isB2B ? b2bQty : 1;
                       return (
                         <div key={id} className="flex items-center gap-3 p-3 rounded-xl bg-sand/10">
                           <div
@@ -655,10 +668,12 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                             )}
                           </div>
                           <div className="flex-1">
-                            <p className="text-sm font-medium text-ink">{scent.name}</p>
+                            <p className="text-sm font-medium text-ink">
+                              {bottleQty > 1 ? `${bottleQty}× ` : ''}{scent.name}
+                            </p>
                             <p className="text-xs text-ink/40">{scent.family}</p>
                           </div>
-                          <p className="ml-auto text-xs text-ink/40 shrink-0">R$49,90</p>
+                          <p className="ml-auto text-xs text-ink/40 shrink-0">R${fmtBRL(49.90 * bottleQty)}</p>
                         </div>
                       );
                     })}
@@ -693,7 +708,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                     </p>
                     <ul className="text-xs text-white/65 space-y-1 mb-4">
                       <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} incluso</li>
-                      <li>✓ {numScents} fragrâncias/mês com <strong>20% de desconto</strong></li>
+                      <li>✓ {numScentBottles} frasco{numScentBottles > 1 ? 's' : ''}/mês com <strong>20% de desconto</strong></li>
                       <li>✓ Frete grátis nos refis</li>
                       <li>✓ Garantia vitalícia do aparelho</li>
                     </ul>
@@ -721,7 +736,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                     </div>
                     <div className="flex items-baseline gap-1 mb-3">
                       <span className="font-serif text-xl text-ink">R${fmtBRL(scentSubTotal)}</span>
-                      <span className="text-ink/40 text-xs">/mês em essências ({numScents}× R$39,90 · 20% off)</span>
+                      <span className="text-ink/40 text-xs">/mês em essências ({numScentBottles}× R$39,90 · 20% off)</span>
                     </div>
                     <ul className="text-xs text-ink/60 space-y-1.5 mb-4">
                       <li>✓ Cada fragrância com <strong>20% de desconto</strong></li>
@@ -734,7 +749,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                         openCart(
                           'Assinatura Mensal',
                           `R$${fmtBRL(deviceTotal)} + R$${fmtBRL(scentSubTotal)}/mês`,
-                          `${numScents} fragrâncias com 20% off`
+                          `${numScentBottles} fragrâncias com 20% off`
                         )
                       }
                       className="w-full border-2 border-rust text-rust hover:bg-rust hover:text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
@@ -753,7 +768,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
                     </div>
                     <div className="flex items-baseline gap-1 mb-3">
                       <span className="font-serif text-xl text-ink">R${fmtBRL(scentFullTotal)}</span>
-                      <span className="text-ink/40 text-xs">essências ({numScents}× R$49,90 · preço cheio)</span>
+                      <span className="text-ink/40 text-xs">essências ({numScentBottles}× R$49,90 · preço cheio)</span>
                     </div>
                     <button
                       onClick={() =>
