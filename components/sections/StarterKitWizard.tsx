@@ -38,6 +38,31 @@ function fmtBRL(val: number) {
   return val.toFixed(2).replace('.', ',');
 }
 
+// Returns per-scent bottle quantities based on diffuser model capacity
+function getScentQtys(
+  selectedIds: string[],
+  modelId: DiffuserModelId,
+  multiplier: number
+): { id: string; qty: number }[] {
+  const max = MAX_SCENTS[modelId];
+  const count = selectedIds.length;
+  if (count === 0) return [];
+  if (count === 1) return [{ id: selectedIds[0], qty: max * multiplier }];
+  if (count === 2) {
+    if (max === 3) {
+      // Tower with 2 scents: 2 of first, 1 of second
+      return [
+        { id: selectedIds[0], qty: 2 * multiplier },
+        { id: selectedIds[1], qty: 1 * multiplier },
+      ];
+    }
+    // Room/Car with 2 scents: 1 of each
+    return selectedIds.map((id) => ({ id, qty: 1 * multiplier }));
+  }
+  // 3 scents (Tower only): 1 of each
+  return selectedIds.map((id) => ({ id, qty: 1 * multiplier }));
+}
+
 // Simple SVG room illustrations
 const RoomIcon = ({ roomId }: { roomId: string }) => {
   const icons: Record<string, React.ReactNode> = {
@@ -351,11 +376,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const selectedDiffuser = diffuserModels.find((d) => d.id === state.diffuserModelId)!;
   const deviceTotal = selectedDiffuser.price * b2bQty;
   const diffuserMaxScents = MAX_SCENTS[state.diffuserModelId];
-  // B2B: each diffuser uses selected scent types × qty environments
-  // Consumer: use selected count, defaulting to model max
-  const numScentBottles = isB2B
-    ? state.selectedScentIds.length * b2bQty
-    : (state.selectedScentIds.length || diffuserMaxScents);
+  const scentQtys = getScentQtys(state.selectedScentIds, state.diffuserModelId, isB2B ? b2bQty : 1);
+  const numScentBottles = scentQtys.reduce((sum, s) => sum + s.qty, 0) || diffuserMaxScents;
 
   const scentSubTotal = numScentBottles * SCENT_SUB;
   const scentFullTotal = numScentBottles * SCENT_FULL;
@@ -650,10 +672,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
 
                   {/* Scents */}
                   <div className="flex flex-col gap-2">
-                    {state.selectedScentIds.map((id) => {
+                    {scentQtys.map(({ id, qty }) => {
                       const scent = scents.find((s) => s.id === id);
                       if (!scent) return null;
-                      const bottleQty = isB2B ? b2bQty : 1;
                       return (
                         <div key={id} className="flex items-center gap-3 p-3 rounded-xl bg-sand/10">
                           <div
@@ -667,11 +688,11 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                           </div>
                           <div className="flex-1">
                             <p className="text-sm font-medium text-ink">
-                              {bottleQty > 1 ? `${bottleQty}× ` : ''}{scent.name}
+                              {qty}× {scent.name}
                             </p>
                             <p className="text-xs text-ink/40">{scent.family}</p>
                           </div>
-                          <p className="ml-auto text-xs text-ink/40 shrink-0">R${fmtBRL(49.90 * bottleQty)}</p>
+                          <p className="ml-auto text-xs text-ink/40 shrink-0">R${fmtBRL(49.90 * qty)}</p>
                         </div>
                       );
                     })}
@@ -708,7 +729,6 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <ul className="text-xs text-white/65 space-y-1.5 mb-4">
                       <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} <strong>incluso sem custo</strong></li>
                       <li>✓ {numScentBottles} frasco{numScentBottles > 1 ? 's' : ''}/mês com <strong>20% de desconto</strong></li>
-                      {diffuserMaxScents === 3 && <li>✓ Tower usa 3 fragrâncias simultaneamente</li>}
                       <li>✓ Frete grátis nos refis</li>
                       <li>✓ Garantia vitalícia do aparelho</li>
                     </ul>
@@ -747,7 +767,6 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <ul className="text-xs text-ink/60 space-y-1.5 mb-4">
                       <li>✓ Difusor pago uma única vez</li>
                       <li>✓ Essências com <strong>20% de desconto</strong> todo mês</li>
-                      {diffuserMaxScents === 3 && <li>✓ Tower usa 3 fragrâncias simultaneamente</li>}
                       <li>✓ Troque as fragrâncias a cada pedido</li>
                       <li>✓ Cancele quando quiser, sem taxa</li>
                     </ul>
@@ -783,7 +802,6 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <ul className="text-xs text-ink/55 space-y-1.5 mb-4">
                       <li>✓ Sem assinatura, sem compromisso</li>
                       <li>✓ Reabastece quando quiser</li>
-                      {diffuserMaxScents === 3 && <li>✓ Tower usa 3 fragrâncias simultaneamente</li>}
                       <li>✗ Sem desconto nas essências</li>
                     </ul>
                     <button
