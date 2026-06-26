@@ -23,7 +23,7 @@ export default function Header() {
           <img
             src="/images/sinesia-logo.png"
             alt="Sinesia"
-            className="h-16 w-auto"
+            className="h-16 w-auto mix-blend-multiply"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = 'none';
               const fallback = document.getElementById('logo-fallback');
@@ -38,9 +38,9 @@ export default function Header() {
           <Link
             href="/starter-kit"
             onClick={() => trackClick('header_difusor_gratis', { section: 'header' })}
-            className="text-sm font-semibold text-rust hover:text-rustDark transition-colors duration-300 flex items-center gap-1"
+            className="text-sm font-semibold text-rust hover:text-rustDark transition-colors duration-300"
           >
-            🎁 Difusor grátis
+            Difusor grátis
           </Link>
 
           {navLinks.map((link) => (
@@ -78,7 +78,7 @@ export default function Header() {
             onClick={() => { setOpen(false); trackClick('header_difusor_gratis', { section: 'header_mobile' }); }}
             className="text-sm font-semibold text-rust"
           >
-            🎁 Difusor grátis
+            Difusor grátis
           </Link>
           {navLinks.map((link) => (
             <Link
