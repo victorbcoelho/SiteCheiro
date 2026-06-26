@@ -16,7 +16,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-offwhite/90 backdrop-blur border-b border-sand/60">
+    <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur border-b border-sand/50">
       <div className="container-page flex items-center justify-between h-20">
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -34,6 +34,15 @@ export default function Header() {
         </Link>
 
         <nav className="hidden md:flex items-center gap-8">
+          {/* Difusor grátis — destaque especial */}
+          <Link
+            href="/starter-kit"
+            onClick={() => trackClick('header_difusor_gratis', { section: 'header' })}
+            className="text-sm font-semibold text-rust hover:text-rustDark transition-colors duration-300 flex items-center gap-1"
+          >
+            🎁 Difusor grátis
+          </Link>
+
           {navLinks.map((link) => (
             <Link
               key={link.label}
@@ -46,7 +55,7 @@ export default function Header() {
         </nav>
 
         <div className="hidden md:block">
-          <Button href="/starter-kit" size="md" onClick={() => trackClick('Montar meu kit', { section: 'header' })}>
+          <Button href="/starter-kit" size="md" onClick={() => trackClick('header_montar_meu_kit', { section: 'header' })}>
             Montar meu kit
           </Button>
         </div>
@@ -63,7 +72,14 @@ export default function Header() {
       </div>
 
       {open && (
-        <div className="md:hidden container-page pb-6 flex flex-col gap-4 bg-offwhite">
+        <div className="md:hidden container-page pb-6 flex flex-col gap-4 bg-cream">
+          <Link
+            href="/starter-kit"
+            onClick={() => { setOpen(false); trackClick('header_difusor_gratis', { section: 'header_mobile' }); }}
+            className="text-sm font-semibold text-rust"
+          >
+            🎁 Difusor grátis
+          </Link>
           {navLinks.map((link) => (
             <Link
               key={link.label}
