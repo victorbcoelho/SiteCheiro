@@ -31,7 +31,8 @@ interface CartSelection {
 // Pricing constants
 const SCENT_FULL = 49.90;
 const SCENT_SUB = 39.90; // 20% off
-const ANNUAL_BASE: Record<DiffuserModelId, number> = { room: 98, tower: 149, car: 99 };
+// Max scents per diffuser model (Tower supports 3 cartridges, others 2)
+const MAX_SCENTS: Record<DiffuserModelId, number> = { room: 2, tower: 3, car: 2 };
 
 function fmtBRL(val: number) {
   return val.toFixed(2).replace('.', ',');
@@ -348,13 +349,13 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
     ? scents.filter((s) => b2bRecommendedScentIds.includes(s.id))
     : state.moodId ? getRecommendedScents(state.moodId) : [];
   const selectedDiffuser = diffuserModels.find((d) => d.id === state.diffuserModelId)!;
-  const annualBase = ANNUAL_BASE[state.diffuserModelId];
-  const annualTotal = annualBase * b2bQty;
   const deviceTotal = selectedDiffuser.price * b2bQty;
-  // B2B: each diffuser uses 2 scent types, total bottles = qty × 2 per scent type
+  const diffuserMaxScents = MAX_SCENTS[state.diffuserModelId];
+  // B2B: each diffuser uses selected scent types × qty environments
+  // Consumer: use selected count, defaulting to model max
   const numScentBottles = isB2B
-    ? state.selectedScentIds.length * b2bQty  // e.g. 2 scents × 3 ambientes = 6 bottles
-    : (state.selectedScentIds.length || 2);
+    ? state.selectedScentIds.length * b2bQty
+    : (state.selectedScentIds.length || diffuserMaxScents);
 
   const scentSubTotal = numScentBottles * SCENT_SUB;
   const scentFullTotal = numScentBottles * SCENT_FULL;
@@ -378,11 +379,11 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
     trackEvent('wizard_step', { step: 'mood', moodId });
   };
 
-  const maxScents = state.diffuserModelId === 'tower' ? 3 : state.diffuserModelId === 'car' ? 1 : 2;
+  const maxScents = MAX_SCENTS[state.diffuserModelId];
 
   const toggleScent = (scentId: string) => {
     setState((s) => {
-      const max = s.diffuserModelId === 'tower' ? 3 : s.diffuserModelId === 'car' ? 1 : 2;
+      const max = MAX_SCENTS[s.diffuserModelId];
       const has = s.selectedScentIds.includes(scentId);
       if (has && s.selectedScentIds.length <= 1) return s;
       if (!has && s.selectedScentIds.length >= max) {
@@ -695,28 +696,28 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Compromisso de 12 meses</p>
                     <h3 className="font-serif text-xl mb-0.5">Difusor de graça</h3>
                     <p className="text-white/45 text-xs mb-3">
-                      Aparelho incluso + 20% off nas essências todo mês
+                      Aparelho incluso + {diffuserMaxScents === 3 ? '3 frascos/mês' : '2 frascos/mês'} com 20% off
                     </p>
                     <div className="flex items-baseline gap-1 mb-0.5">
-                      <span className="font-serif text-3xl">R${fmtBRL(annualTotal)}</span>
+                      <span className="font-serif text-3xl">R${fmtBRL(scentSubTotal)}</span>
                       <span className="text-white/40 text-xs">/mês</span>
                     </div>
                     <p className="text-white/35 text-xs mb-4">
-                      Difusor incluso sem custo extra · Renova automaticamente
+                      Difusor R${fmtBRL(deviceTotal)} incluso sem custo extra · 12 meses
                     </p>
                     <ul className="text-xs text-white/65 space-y-1.5 mb-4">
                       <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} <strong>incluso sem custo</strong></li>
                       <li>✓ {numScentBottles} frasco{numScentBottles > 1 ? 's' : ''}/mês com <strong>20% de desconto</strong></li>
+                      {diffuserMaxScents === 3 && <li>✓ Tower usa 3 fragrâncias simultaneamente</li>}
                       <li>✓ Frete grátis nos refis</li>
                       <li>✓ Garantia vitalícia do aparelho</li>
-                      <li>✓ Troque fragrâncias a qualquer mês</li>
                     </ul>
                     <button
                       onClick={() =>
                         openCart(
                           'Promoção — Difusor de Graça',
-                          `R$${fmtBRL(annualTotal)}/mês`,
-                          `Compromisso de 12 meses · difusor incluso`
+                          `R$${fmtBRL(scentSubTotal)}/mês`,
+                          `12 meses · difusor R$${fmtBRL(deviceTotal)} incluso`
                         )
                       }
                       className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
@@ -732,7 +733,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     </div>
                     <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Assinatura mensal</p>
                     <h3 className="font-serif text-xl text-ink mb-0.5">Assine e economize</h3>
-                    <p className="text-ink/50 text-xs mb-3">20% off nas essências · cancele quando quiser</p>
+                    <p className="text-ink/50 text-xs mb-3">
+                      20% off nas essências · {diffuserMaxScents === 3 ? '3 frascos/mês' : '2 frascos/mês'} · cancele quando quiser
+                    </p>
                     <div className="flex items-baseline gap-1 mb-0.5 mt-2">
                       <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
                       <span className="text-ink/40 text-xs">difusor · 1× pagamento único</span>
@@ -744,8 +747,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <ul className="text-xs text-ink/60 space-y-1.5 mb-4">
                       <li>✓ Difusor pago uma única vez</li>
                       <li>✓ Essências com <strong>20% de desconto</strong> todo mês</li>
+                      {diffuserMaxScents === 3 && <li>✓ Tower usa 3 fragrâncias simultaneamente</li>}
                       <li>✓ Troque as fragrâncias a cada pedido</li>
-                      <li>✓ Frete grátis em 2+ frascos por pedido</li>
                       <li>✓ Cancele quando quiser, sem taxa</li>
                     </ul>
                     <button
@@ -766,18 +769,21 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                   <div className="rounded-2xl bg-offwhite border border-sand p-5">
                     <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Compra única</p>
                     <h3 className="font-serif text-xl text-ink mb-0.5">Sem compromisso</h3>
-                    <p className="text-ink/50 text-xs mb-3">Pague uma vez, sem assinatura</p>
+                    <p className="text-ink/50 text-xs mb-3">
+                      Pague uma vez · {diffuserMaxScents === 3 ? '3 frascos/mês' : '2 frascos/mês'} · sem assinatura
+                    </p>
                     <div className="flex items-baseline gap-1 mb-0.5 mt-2">
                       <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
                       <span className="text-ink/40 text-xs">difusor · pagamento único</span>
                     </div>
                     <div className="flex items-baseline gap-1 mb-4">
                       <span className="font-serif text-xl text-ink">R${fmtBRL(scentFullTotal)}</span>
-                      <span className="text-ink/40 text-xs">essências ({numScentBottles}× R$49,90 · preço cheio)</span>
+                      <span className="text-ink/40 text-xs">/mês em essências ({numScentBottles}× R$49,90 · preço cheio)</span>
                     </div>
                     <ul className="text-xs text-ink/55 space-y-1.5 mb-4">
                       <li>✓ Sem assinatura, sem compromisso</li>
                       <li>✓ Reabastece quando quiser</li>
+                      {diffuserMaxScents === 3 && <li>✓ Tower usa 3 fragrâncias simultaneamente</li>}
                       <li>✗ Sem desconto nas essências</li>
                     </ul>
                     <button

@@ -117,7 +117,7 @@ export const diffuserModels: DiffuserModel[] = [
     id: 'room',
     name: 'Sinesia Room',
     subtitle: 'Difusor compacto',
-    price: 299,
+    price: 198,
     hasSound: false,
     idealFor: 'Quartos, banheiros, home office, cozinhas, corredores e espaços pequenos',
     features: [
@@ -133,7 +133,7 @@ export const diffuserModels: DiffuserModel[] = [
     id: 'tower',
     name: 'Sinesia Tower',
     subtitle: 'Difusor com caixa de som integrada',
-    price: 499,
+    price: 348,
     hasSound: true,
     idealFor: 'Salas grandes, ambientes com grande vão',
     features: [
@@ -149,7 +149,7 @@ export const diffuserModels: DiffuserModel[] = [
     id: 'car',
     name: 'Sinesia Car',
     subtitle: 'Difusor veicular',
-    price: 299,
+    price: 198,
     hasSound: false,
     idealFor: 'Para aromatização em movimento',
     features: [
