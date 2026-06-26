@@ -9,7 +9,7 @@ const config: Config = {
     extend: {
       colors: {
         offwhite: '#FBFBFA',
-        cream: '#F4EDE4',
+        cream: '#F0E8DF',
         rust: '#B95C42',
         rustDark: '#8A4132',
         ink: '#2B2B2B',
