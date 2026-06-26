@@ -15,8 +15,7 @@ export default function Footer() {
         <div>
           <p className="font-serif text-2xl mb-4">Sinesia</p>
           <p className="text-sm text-white/60 max-w-xs">
-            O primeiro ecossistema multissensorial que une Som + Aroma em um
-            único dispositivo de encaixe magnético.
+            O primeiro ecossistema multissensorial do mundo que une Som + Aroma em um único dispositivo.
           </p>
         </div>
 
