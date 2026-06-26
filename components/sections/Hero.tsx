@@ -44,11 +44,11 @@ export default function Hero() {
             <Button
               href="/starter-kit"
               size="lg"
-              onClick={() => trackEvent('cta_clicked', { cta: 'hero_primary' })}
+              onClick={() => trackClick('hero_garantir_kit', { section: 'hero' })}
             >
               Garantir Meu Starter Kit
             </Button>
-            <Button href="#como-funciona" variant="outline" size="lg" onClick={() => trackClick('Como funciona', { section: 'hero' })}>
+            <Button href="#como-funciona" variant="outline" size="lg" onClick={() => trackClick('hero_como_funciona', { section: 'hero' })}>
               Como funciona
             </Button>
           </div>

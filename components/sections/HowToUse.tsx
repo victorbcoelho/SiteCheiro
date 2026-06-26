@@ -106,7 +106,7 @@ export default function HowToUse() {
                 <p className="text-sm text-ink/60 leading-relaxed mb-4">{step.description}</p>
                 <Link
                   href={step.cta.href}
-                  onClick={() => trackClick(step.cta.label, { section: 'how_to_use', step: step.number })}
+                  onClick={() => trackClick(`como_usar_link_passo_${step.number}`, { section: 'como_funciona', passo: step.title })}
                   className="text-sm font-medium text-rust hover:text-rustDark underline underline-offset-4 transition-colors duration-300"
                 >
                   {step.cta.label} →
@@ -125,7 +125,7 @@ export default function HowToUse() {
         >
           <Link
             href="/starter-kit"
-            onClick={() => trackClick('Quero começar', { section: 'how_to_use' })}
+            onClick={() => trackClick('como_usar_quero_comecar', { section: 'como_funciona' })}
             className="inline-block bg-rust hover:bg-rustDark text-white rounded-full px-10 py-4 text-sm font-medium transition-colors duration-300"
           >
             Quero começar

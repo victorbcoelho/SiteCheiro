@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
-import { trackEvent } from '@/lib/analytics';
+import { trackClick } from '@/lib/analytics';
 import { diffuserTypes, scents, type DiffuserType } from '@/lib/products';
 
 const MAX_SCENTS = 2;
@@ -147,10 +147,10 @@ export default function ProductBuilder() {
                 variant="secondary"
                 className="w-full"
                 onClick={() =>
-                  trackEvent('cta_clicked', {
-                    cta: 'product_builder',
-                    device: selectedDevice?.id ?? null,
-                    scents: scentIds,
+                  trackClick('product_builder_continuar', {
+                    section: 'product_builder',
+                    difusor: selectedDevice?.id ?? null,
+                    fragrancias: scentIds,
                   })
                 }
               >

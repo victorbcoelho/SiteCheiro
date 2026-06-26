@@ -1,9 +1,9 @@
 type AnalyticsEvent =
   | 'lead_captured'
-  | 'cta_clicked'
-  | 'page_viewed'
+  | 'button_click'
   | 'wizard_step'
-  | 'button_click';
+  | 'scroll_depth'
+  | 'section_view';
 
 declare global {
   interface Window {
@@ -28,5 +28,9 @@ export function trackEvent(
 }
 
 export function trackClick(label: string, extra: Record<string, unknown> = {}) {
-  trackEvent('button_click', { label, url: typeof window !== 'undefined' ? window.location.pathname : '', ...extra });
+  trackEvent('button_click', {
+    label,
+    url: typeof window !== 'undefined' ? window.location.pathname : '',
+    ...extra,
+  });
 }

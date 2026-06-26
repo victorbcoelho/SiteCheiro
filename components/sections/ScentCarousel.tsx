@@ -4,7 +4,7 @@ import { useRef } from 'react';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
 import { scents } from '@/lib/products';
-import { trackEvent } from '@/lib/analytics';
+import { trackClick } from '@/lib/analytics';
 
 export default function ScentCarousel() {
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -82,7 +82,7 @@ export default function ScentCarousel() {
             transition={{ duration: 0.5, delay: index * 0.06 }}
             className="snap-start shrink-0 w-[75vw] max-w-[280px] md:max-w-[300px] rounded-3xl overflow-hidden cursor-pointer"
             style={{ backgroundColor: scent.cardColor }}
-            onClick={() => trackEvent('cta_clicked', { cta: 'scent_card', scent: scent.id })}
+            onClick={() => trackClick('fragancia_ver_detalhes', { section: 'fragrancias', fragancia: scent.id })}
           >
             <div className="relative h-[200px] overflow-hidden">
               {scent.image ? (

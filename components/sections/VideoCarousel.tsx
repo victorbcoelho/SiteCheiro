@@ -4,7 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Image from 'next/image';
 import { motion, AnimatePresence } from 'framer-motion';
 import Button from '@/components/ui/Button';
-import { trackEvent } from '@/lib/analytics';
+import { trackClick } from '@/lib/analytics';
 
 type Slide = {
   id: string;
@@ -139,7 +139,7 @@ export default function VideoCarousel() {
                   type="button"
                   onClick={() => {
                     goTo(index);
-                    trackEvent('cta_clicked', { cta: `carousel_dot_${slide.id}` });
+                    trackClick('carousel_navegar_slide', { section: 'video_carousel', slide: slide.id });
                   }}
                   aria-label={`Ver ${slide.title}`}
                   className={`h-1.5 rounded-full transition-all duration-300 ${
@@ -153,7 +153,7 @@ export default function VideoCarousel() {
               href="/pre-venda"
               variant="secondary"
               size="lg"
-              onClick={() => trackEvent('cta_clicked', { cta: 'carousel_cta' })}
+              onClick={() => trackClick('carousel_garantir_kit', { section: 'video_carousel' })}
             >
               Garantir meu Sopre
             </Button>

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { moodOptions, roomOptions, getRecommendedScents } from '@/lib/recommendations';
 import { scents, diffuserModels, type DiffuserModelId } from '@/lib/products';
-import { trackEvent } from '@/lib/analytics';
+import { trackEvent, trackClick } from '@/lib/analytics';
 import { submitLead } from '@/lib/leads';
 
 type Step = 'room' | 'mood' | 'scents' | 'summary';
@@ -440,7 +440,10 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
 
   const openCart = (planLabel: string, planPrice: string, planMonthly?: string) => {
     setCart({ planLabel, planPrice, planMonthly });
-    trackEvent('cta_clicked', { cta: 'wizard_add_to_cart', plan: planLabel });
+    const slug = planLabel.toLowerCase().includes('promo') ? 'plano_promocao'
+      : planLabel.toLowerCase().includes('assine') ? 'plano_assinatura'
+      : 'plano_compra_unica';
+    trackClick(`wizard_escolheu_${slug}`, { section: 'wizard_resumo', plano: planLabel });
   };
 
   return (

@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/Button';
-import { trackEvent } from '@/lib/analytics';
+import { trackClick } from '@/lib/analytics';
 
 const inclusions = [
   {
@@ -124,7 +124,7 @@ export default function StarterKit() {
               variant="secondary"
               size="lg"
               className="w-full"
-              onClick={() => trackEvent('cta_clicked', { cta: 'starter_kit' })}
+              onClick={() => trackClick('secao_starter_kit_assinar', { section: 'starter_kit' })}
             >
               Assinar o Starter Kit
             </Button>
