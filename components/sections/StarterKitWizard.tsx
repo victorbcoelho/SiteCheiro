@@ -324,16 +324,18 @@ const B2B_STEPS: Step[] = ['scents', 'summary'];
 interface StarterKitWizardProps {
   b2bContext?: B2BContext;
   b2bQty?: number;
+  b2bRecommendedScentIds?: string[];
   onB2BComplete?: () => void;
 }
 
-export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete }: StarterKitWizardProps) {
+export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommendedScentIds = [], onB2BComplete }: StarterKitWizardProps) {
   const isB2B = Boolean(b2bContext);
+  const initialScents = isB2B ? b2bRecommendedScentIds.slice(0, 2) : [];
   const [step, setStep] = useState<Step>(isB2B ? 'scents' : 'room');
   const [state, setState] = useState<WizardState>({
     roomId: null,
     moodId: null,
-    selectedScentIds: [],
+    selectedScentIds: initialScents,
     diffuserModelId: 'room',
   });
   const [cart, setCart] = useState<CartSelection | null>(null);
@@ -342,7 +344,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, onB2BComplete
 
   const activeSteps = isB2B ? B2B_STEPS : STEPS;
   const stepIndex = activeSteps.indexOf(step);
-  const recommendedScents = state.moodId ? getRecommendedScents(state.moodId) : [];
+  const recommendedScents = isB2B
+    ? scents.filter((s) => b2bRecommendedScentIds.includes(s.id))
+    : state.moodId ? getRecommendedScents(state.moodId) : [];
   const selectedDiffuser = diffuserModels.find((d) => d.id === state.diffuserModelId)!;
   const annualBase = ANNUAL_BASE[state.diffuserModelId];
   const annualTotal = annualBase * b2bQty;

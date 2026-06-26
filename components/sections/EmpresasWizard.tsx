@@ -14,20 +14,39 @@ const ambientesOptions = [
 ];
 
 const segmentoOptions = [
-  { id: 'escritorio', label: 'Escritório ou coworking' },
-  { id: 'consultorio', label: 'Consultório ou clínica' },
-  { id: 'salao', label: 'Salão ou studio' },
-  { id: 'comercio', label: 'Loja ou comércio' },
-  { id: 'hotel', label: 'Hotel ou pousada' },
-  { id: 'outro', label: 'Outro tipo de negócio' },
+  { id: 'escritorio', label: 'Escritório / Coworking', scents: ['bambu-cha-branco', 'cafe-especiarias', 'floresta-tropical'] },
+  { id: 'consultorio', label: 'Consultório / Clínica', scents: ['lavanda-provence', 'bambu-cha-branco', 'flor-de-laranjeira'] },
+  { id: 'salao', label: 'Salão de beleza / Estúdio', scents: ['flor-de-laranjeira', 'bambu-cha-branco', 'baunilha-ambar'] },
+  { id: 'loja', label: 'Loja / Varejo', scents: ['madeira-nobre', 'bambu-cha-branco', 'baunilha-ambar'] },
+  { id: 'restaurante', label: 'Restaurante / Café', scents: ['cafe-especiarias', 'baunilha-ambar', 'flor-de-laranjeira'] },
+  { id: 'hotel', label: 'Hotel / Pousada / Airbnb', scents: ['madeira-nobre', 'bambu-cha-branco', 'lavanda-provence'] },
+  { id: 'academia', label: 'Academia / Estúdio fitness', scents: ['floresta-tropical', 'brisa-do-mar', 'cafe-especiarias'] },
 ];
 
 const objetivoOptions = [
-  { id: 'impressao', label: 'Causar boa primeira impressão', sub: 'Clientes e visitantes' },
-  { id: 'bemestar', label: 'Bem-estar da equipe', sub: 'Foco e produtividade' },
-  { id: 'diferencial', label: 'Diferencial da marca', sub: 'Identidade sensorial' },
-  { id: 'tranquilidade', label: 'Tranquilidade para clientes', sub: 'Espera agradável' },
+  { id: 'impressionar', label: 'Impressionar clientes na recepção', sub: 'Primeira impressão marcante', scents: ['madeira-nobre', 'bambu-cha-branco', 'flor-de-laranjeira'] },
+  { id: 'bemestar', label: 'Melhorar o bem-estar dos colaboradores', sub: 'Ambiente mais humano', scents: ['lavanda-provence', 'floresta-tropical', 'bambu-cha-branco'] },
+  { id: 'foco', label: 'Aumentar o foco e a produtividade', sub: 'Equipe mais eficiente', scents: ['cafe-especiarias', 'floresta-tropical', 'brisa-do-mar'] },
+  { id: 'identidade', label: 'Criar identidade olfativa da marca', sub: 'Diferencial sensorial', scents: ['bambu-cha-branco', 'madeira-nobre', 'baunilha-ambar'] },
+  { id: 'estresse', label: 'Reduzir estresse no ambiente', sub: 'Clima mais leve', scents: ['lavanda-provence', 'flor-de-laranjeira', 'bambu-cha-branco'] },
+  { id: 'cheiroso', label: 'Manter o ambiente sempre cheiroso', sub: 'Sem esforço, automático', scents: ['bambu-cha-branco', 'brisa-do-mar', 'flor-de-laranjeira'] },
 ];
+
+// Compute recommended scents: intersection of segmento + objetivo, fallback to segmento
+function getB2BRecommendedScents(segmentoId: string, objetivoId: string): string[] {
+  const seg = segmentoOptions.find((s) => s.id === segmentoId);
+  const obj = objetivoOptions.find((o) => o.id === objetivoId);
+  if (!seg || !obj) return ['bambu-cha-branco', 'lavanda-provence', 'flor-de-laranjeira'];
+
+  const intersection = seg.scents.filter((s) => obj.scents.includes(s));
+  if (intersection.length >= 2) return intersection;
+
+  // Not enough in intersection — merge lists keeping order, remove duplicates
+  const merged = [...intersection, ...obj.scents, ...seg.scents].filter(
+    (v, i, a) => a.indexOf(v) === i
+  );
+  return merged.slice(0, 3);
+}
 
 const B2B_STEPS: B2BStep[] = ['ambientes', 'segmento', 'objetivo'];
 
@@ -35,6 +54,7 @@ export default function EmpresasWizard() {
   const [step, setStep] = useState<B2BStep>('ambientes');
   const [b2bState, setB2bState] = useState({ ambientes: '', segmento: '', objetivo: '' });
   const [qty, setQty] = useState(1);
+  const [recommendedScents, setRecommendedScents] = useState<string[]>([]);
 
   const stepIndex = B2B_STEPS.indexOf(step as Exclude<B2BStep, 'consumer-flow'>);
 
@@ -57,7 +77,9 @@ export default function EmpresasWizard() {
   };
 
   const handleObjetivo = (id: string) => {
-    setB2bState((s) => ({ ...s, objetivo: id }));
+    const newState = { ...b2bState, objetivo: id };
+    setB2bState(newState);
+    setRecommendedScents(getB2BRecommendedScents(newState.segmento, id));
     setStep('consumer-flow');
     trackEvent('wizard_step', { step: 'empresas_objetivo', id });
   };
@@ -67,6 +89,7 @@ export default function EmpresasWizard() {
       <StarterKitWizard
         b2bContext={b2bState}
         b2bQty={qty}
+        b2bRecommendedScentIds={recommendedScents}
         onB2BComplete={() => setStep('ambientes')}
       />
     );
@@ -113,7 +136,7 @@ export default function EmpresasWizard() {
                 Quantos ambientes você quer aromatizar?
               </h2>
               <p className="text-ink/50 text-sm mb-8">
-                Isso vai nos ajudar a indicar a quantidade certa de difusores para o seu negócio.
+                Cada ambiente recebe 1 difusor e 2 fragrâncias.
               </p>
               <div className="flex flex-col gap-3">
                 {ambientesOptions.map((opt) => (
@@ -173,7 +196,7 @@ export default function EmpresasWizard() {
                 Qual seu principal objetivo?
               </h2>
               <p className="text-ink/50 text-sm mb-8">
-                Vamos personalizar a experiência com base no que mais importa para o seu negócio.
+                Vamos indicar as fragrâncias mais adequadas para o seu negócio.
               </p>
               <div className="flex flex-col gap-3">
                 {objetivoOptions.map((opt) => (
