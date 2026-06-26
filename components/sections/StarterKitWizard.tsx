@@ -642,21 +642,23 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                 {/* LEFT: Cart */}
                 <div className="rounded-3xl bg-white border border-sand p-6">
-                  <h2 className="font-serif text-2xl md:text-3xl text-ink mb-3">
-                    Sua combinação está pronta</h2>
-                  <p className="text-ink/50 text-sm mb-4">
-                    {isB2B && b2bQty > 1 ? `${b2bQty} ambientes · ${state.selectedScentIds.length * b2bQty} frascos` : 'Seu kit personalizado'}
+                  <h2 className="font-serif text-2xl md:text-3xl text-ink mb-1">
+                    Sua combinação está pronta
+                  </h2>
+                  <p className="text-ink/50 text-sm mb-5">
+                    {isB2B && b2bQty > 1 ? `${b2bQty} ambientes · ${numScentBottles} frascos/mês` : `${numScentBottles} frasco${numScentBottles > 1 ? 's' : ''}/mês · kit personalizado`}
                   </p>
 
                   {/* Diffuser */}
-                  <div className="flex items-center gap-3 mb-3 p-3 rounded-2xl bg-sand/20">
-                    <div className="w-12 h-12 rounded-xl bg-white overflow-hidden shrink-0">
+                  <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-1.5">Difusor</p>
+                  <div className="flex items-center gap-3 mb-4 p-3 rounded-2xl bg-sand/20">
+                    <div className="w-14 h-14 rounded-xl bg-white overflow-hidden shrink-0 border border-sand/50">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
                       <img
                         src={`/images/sinesia-${selectedDiffuser.id}.jpg`}
                         alt={selectedDiffuser.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => { (e.currentTarget as HTMLImageElement).src = ''; }}
+                        className="w-full h-full object-contain p-1"
+                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                       />
                     </div>
                     <div className="flex-1">
@@ -664,21 +666,20 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                         {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name}
                       </p>
                       <p className="text-xs text-ink/50">{selectedDiffuser.subtitle}</p>
+                      <p className="text-xs text-rust font-medium mt-0.5">R${fmtBRL(deviceTotal)}</p>
                     </div>
-                    <p className="ml-auto font-serif text-sm text-rust shrink-0">
-                      R${fmtBRL(selectedDiffuser.price * b2bQty)}
-                    </p>
                   </div>
 
                   {/* Scents */}
-                  <div className="flex flex-col gap-2">
+                  <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-1.5">Fragrâncias ({numScentBottles} frascos/mês)</p>
+                  <div className="flex flex-col gap-2 mb-4">
                     {scentQtys.map(({ id, qty }) => {
                       const scent = scents.find((s) => s.id === id);
                       if (!scent) return null;
                       return (
                         <div key={id} className="flex items-center gap-3 p-3 rounded-xl bg-sand/10">
                           <div
-                            className="w-9 h-9 rounded-lg shrink-0 relative overflow-hidden"
+                            className="w-12 h-12 rounded-xl shrink-0 relative overflow-hidden border border-sand/40"
                             style={{ backgroundColor: scent.cardColor }}
                           >
                             {scent.image && (
@@ -686,23 +687,26 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                               <img src={scent.image} alt={scent.name} className="absolute inset-0 w-full h-full object-contain p-0.5" />
                             )}
                           </div>
-                          <div className="flex-1">
-                            <p className="text-sm font-medium text-ink">
-                              {qty}× {scent.name}
-                            </p>
+                          <div className="flex-1 min-w-0">
+                            <p className="text-sm font-medium text-ink truncate">{scent.name}</p>
                             <p className="text-xs text-ink/40">{scent.family}</p>
                           </div>
-                          <p className="ml-auto text-xs text-ink/40 shrink-0">R${fmtBRL(49.90 * qty)}</p>
+                          <div className="shrink-0 text-right">
+                            <p className="text-sm font-semibold text-ink">{qty}×</p>
+                            <p className="text-[10px] text-ink/35">frasco{qty > 1 ? 's' : ''}</p>
+                          </div>
                         </div>
                       );
                     })}
                   </div>
 
-                  {state.selectedScentIds.length > 0 && (
-                    <p className="text-xs text-rust mt-3 text-right">
-                      Assinantes recebem 20% off nas essências
+                  {/* Discount callout */}
+                  <div className="rounded-xl bg-rust/8 border border-rust/20 px-3 py-2.5 flex items-center gap-2">
+                    <span className="text-rust text-base">🏷️</span>
+                    <p className="text-xs text-rust font-medium">
+                      Assinantes economizam <strong>20% off</strong> nos frascos todo mês
                     </p>
-                  )}
+                  </div>
                 </div>
 
                 {/* RIGHT: Plan cards */}
@@ -715,29 +719,44 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                       Promoção
                     </div>
                     <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Compromisso de 12 meses</p>
-                    <h3 className="font-serif text-xl mb-0.5">Difusor de graça</h3>
-                    <p className="text-white/45 text-xs mb-3">
-                      Aparelho incluso + {diffuserMaxScents === 3 ? '3 frascos/mês' : '2 frascos/mês'} com 20% off
-                    </p>
+                    <h3 className="font-serif text-xl mb-1">Difusor de graça</h3>
+
+                    {/* Highlight: device free */}
+                    <div className="inline-flex items-center gap-1.5 bg-rust/25 border border-rust/40 rounded-lg px-2.5 py-1 mb-3">
+                      <span className="text-xs">🎁</span>
+                      <span className="text-xs text-white font-semibold">
+                        Difusor R${fmtBRL(deviceTotal)} incluso <span className="line-through opacity-60">pago</span> de graça
+                      </span>
+                    </div>
+
                     <div className="flex items-baseline gap-1 mb-0.5">
                       <span className="font-serif text-3xl">R${fmtBRL(scentSubTotal)}</span>
                       <span className="text-white/40 text-xs">/mês</span>
                     </div>
-                    <p className="text-white/35 text-xs mb-4">
-                      Difusor R${fmtBRL(deviceTotal)} incluso sem custo extra · 12 meses
+                    <p className="text-white/45 text-xs mb-3">
+                      {numScentBottles} frasco{numScentBottles > 1 ? 's' : ''}/mês · 12 meses
                     </p>
+
+                    {/* Highlight: 20% off */}
+                    <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 mb-4">
+                      <span className="text-xs font-bold text-white bg-rust rounded px-1">-20%</span>
+                      <span className="text-xs text-white/80">
+                        nas essências todo mês · você economiza R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB) * 12)}/ano
+                      </span>
+                    </div>
+
                     <ul className="text-xs text-white/65 space-y-1.5 mb-4">
-                      <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} <strong>incluso sem custo</strong></li>
-                      <li>✓ {numScentBottles} frasco{numScentBottles > 1 ? 's' : ''}/mês com <strong>20% de desconto</strong></li>
+                      <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} <strong className="text-white">sem custo</strong></li>
                       <li>✓ Frete grátis nos refis</li>
                       <li>✓ Garantia vitalícia do aparelho</li>
+                      <li>✓ Troque fragrâncias a qualquer mês</li>
                     </ul>
                     <button
                       onClick={() =>
                         openCart(
                           'Promoção — Difusor de Graça',
                           `R$${fmtBRL(scentSubTotal)}/mês`,
-                          `12 meses · difusor R$${fmtBRL(deviceTotal)} incluso`
+                          `12 meses · difusor R$${fmtBRL(deviceTotal)} incluso grátis`
                         )
                       }
                       className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
@@ -752,21 +771,27 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                       Mais popular
                     </div>
                     <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Assinatura mensal</p>
-                    <h3 className="font-serif text-xl text-ink mb-0.5">Assine e economize</h3>
-                    <p className="text-ink/50 text-xs mb-3">
-                      20% off nas essências · {diffuserMaxScents === 3 ? '3 frascos/mês' : '2 frascos/mês'} · cancele quando quiser
-                    </p>
-                    <div className="flex items-baseline gap-1 mb-0.5 mt-2">
+                    <h3 className="font-serif text-xl text-ink mb-3">Assine e economize</h3>
+
+                    <div className="flex items-baseline gap-1 mb-0.5">
                       <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
                       <span className="text-ink/40 text-xs">difusor · 1× pagamento único</span>
                     </div>
-                    <div className="flex items-baseline gap-1 mb-4">
+                    <div className="flex items-center gap-2 mb-3">
                       <span className="font-serif text-xl text-ink">R${fmtBRL(scentSubTotal)}</span>
-                      <span className="text-ink/40 text-xs">/mês em essências ({numScentBottles}× com 20% off)</span>
+                      <span className="text-ink/40 text-xs">/mês</span>
+                      {/* Highlight: 20% off badge */}
+                      <span className="ml-1 inline-flex items-center bg-rust text-white text-[10px] font-bold rounded-md px-1.5 py-0.5 uppercase tracking-wide">
+                        -20% off
+                      </span>
                     </div>
+                    <p className="text-xs text-rust font-medium mb-4">
+                      Você paga R${fmtBRL(scentFullTotal)}/mês sem assinatura — aqui economiza R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB))}/mês
+                    </p>
+
                     <ul className="text-xs text-ink/60 space-y-1.5 mb-4">
                       <li>✓ Difusor pago uma única vez</li>
-                      <li>✓ Essências com <strong>20% de desconto</strong> todo mês</li>
+                      <li>✓ <strong>20% de desconto</strong> nas essências todo mês</li>
                       <li>✓ Troque as fragrâncias a cada pedido</li>
                       <li>✓ Cancele quando quiser, sem taxa</li>
                     </ul>
@@ -787,18 +812,17 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                   {/* 3. Compra única — sem compromisso */}
                   <div className="rounded-2xl bg-offwhite border border-sand p-5">
                     <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Compra única</p>
-                    <h3 className="font-serif text-xl text-ink mb-0.5">Sem compromisso</h3>
-                    <p className="text-ink/50 text-xs mb-3">
-                      Pague uma vez · {diffuserMaxScents === 3 ? '3 frascos/mês' : '2 frascos/mês'} · sem assinatura
-                    </p>
-                    <div className="flex items-baseline gap-1 mb-0.5 mt-2">
+                    <h3 className="font-serif text-xl text-ink mb-3">Sem compromisso</h3>
+
+                    <div className="flex items-baseline gap-1 mb-0.5">
                       <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
                       <span className="text-ink/40 text-xs">difusor · pagamento único</span>
                     </div>
                     <div className="flex items-baseline gap-1 mb-4">
                       <span className="font-serif text-xl text-ink">R${fmtBRL(scentFullTotal)}</span>
-                      <span className="text-ink/40 text-xs">/mês em essências ({numScentBottles}× R$49,90 · preço cheio)</span>
+                      <span className="text-ink/40 text-xs">/mês em essências · preço cheio</span>
                     </div>
+
                     <ul className="text-xs text-ink/55 space-y-1.5 mb-4">
                       <li>✓ Sem assinatura, sem compromisso</li>
                       <li>✓ Reabastece quando quiser</li>
