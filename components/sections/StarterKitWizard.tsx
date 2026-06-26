@@ -29,8 +29,8 @@ interface CartSelection {
 }
 
 // Pricing constants
-const SCENT_FULL = 49.90;
-const SCENT_SUB = 39.90; // 20% off
+const SCENT_FULL = 59.90;
+const SCENT_SUB = 47.92; // 20% off
 // Max scents per diffuser model (Tower supports 3 cartridges, others 2)
 const MAX_SCENTS: Record<DiffuserModelId, number> = { room: 2, tower: 3, car: 2 };
 
