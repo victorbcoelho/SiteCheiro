@@ -45,17 +45,25 @@ function saveToLocalStorage(collectionName: LeadCollection, data: LeadData) {
 }
 
 export async function submitLead(collectionName: LeadCollection, data: LeadData) {
+  console.log('[Sinesia Lead] Tentando salvar lead...', { collectionName, data });
+
   if (!db) {
+    console.warn('[Sinesia Lead] ❌ Firebase não conectado — salvando no localStorage');
     if (typeof window !== 'undefined') {
       saveToLocalStorage(collectionName, data);
     }
     return;
   }
 
-  await addDoc(collection(db, collectionName), {
-    ...data,
-    timestamp: serverTimestamp(),
-  });
+  try {
+    const ref = await addDoc(collection(db, collectionName), {
+      ...data,
+      timestamp: serverTimestamp(),
+    });
+    console.log('[Sinesia Lead] ✅ Lead salvo no Firestore! ID:', ref.id);
+  } catch (err) {
+    console.error('[Sinesia Lead] ❌ Erro ao salvar no Firestore:', err);
+  }
 }
 
 const BASE_LEAD_COUNT = 47;

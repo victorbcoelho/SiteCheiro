@@ -12,6 +12,11 @@ const firebaseConfig: FirebaseOptions = {
 
 const isConfigured = Boolean(process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID);
 
+if (typeof window !== 'undefined') {
+  console.log('[Sinesia Firebase] PROJECT_ID:', process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID || '❌ NÃO CONFIGURADO');
+  console.log('[Sinesia Firebase] isConfigured:', isConfigured);
+}
+
 export const app = isConfigured
   ? getApps().length
     ? getApp()
@@ -19,3 +24,7 @@ export const app = isConfigured
   : null;
 
 export const db = isConfigured && app ? getFirestore(app) : null;
+
+if (typeof window !== 'undefined') {
+  console.log('[Sinesia Firebase] db conectado:', db ? '✅ SIM' : '❌ NÃO — leads vão para localStorage');
+}
