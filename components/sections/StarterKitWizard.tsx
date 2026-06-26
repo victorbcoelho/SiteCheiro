@@ -378,12 +378,15 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
     trackEvent('wizard_step', { step: 'mood', moodId });
   };
 
+  const maxScents = state.diffuserModelId === 'tower' ? 3 : state.diffuserModelId === 'car' ? 1 : 2;
+
   const toggleScent = (scentId: string) => {
     setState((s) => {
+      const max = s.diffuserModelId === 'tower' ? 3 : s.diffuserModelId === 'car' ? 1 : 2;
       const has = s.selectedScentIds.includes(scentId);
       if (has && s.selectedScentIds.length <= 1) return s;
-      if (!has && s.selectedScentIds.length >= 2) {
-        return { ...s, selectedScentIds: [s.selectedScentIds[0], scentId] };
+      if (!has && s.selectedScentIds.length >= max) {
+        return { ...s, selectedScentIds: [...s.selectedScentIds.slice(0, max - 1), scentId] };
       }
       return {
         ...s,
@@ -587,7 +590,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
               </div>
 
               <p className="text-xs text-ink/40 mb-6 text-center">
-                {state.selectedScentIds.length} de 2 fragrâncias selecionadas
+                {state.selectedScentIds.length} de {maxScents} fragrâncias selecionadas
               </p>
 
               <button
@@ -613,24 +616,14 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
               transition={{ duration: 0.3 }}
               className="max-w-5xl mx-auto"
             >
-              <div className="text-center mb-8">
-                <span className="inline-block rounded-full bg-rust/10 text-rust px-4 py-1.5 text-xs uppercase tracking-widest mb-3">
-                  Seu kit está pronto
-                </span>
-                <h1 className="font-serif text-3xl md:text-4xl text-ink">Escolha como levar</h1>
-              </div>
-
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                 {/* LEFT: Cart */}
                 <div className="rounded-3xl bg-white border border-sand p-6">
-                  <h2 className="font-serif text-lg text-ink mb-1">
-                    Seu carrinho{isB2B && b2bQty > 1 ? ` · ${b2bQty} ambientes` : ''}
-                  </h2>
-                  {isB2B && (
-                    <p className="text-xs text-ink/40 mb-4">
-                      {b2bQty} difusor{b2bQty > 1 ? 'es' : ''} · {state.selectedScentIds.length * b2bQty} frascos ({state.selectedScentIds.length} fragrâncias × {b2bQty} ambientes)
-                    </p>
-                  )}
+                  <h2 className="font-serif text-2xl md:text-3xl text-ink mb-3">
+                    Sua combinação está pronta</h2>
+                  <p className="text-ink/50 text-sm mb-4">
+                    {isB2B && b2bQty > 1 ? `${b2bQty} ambientes · ${state.selectedScentIds.length * b2bQty} frascos` : 'Seu kit personalizado'}
+                  </p>
 
                   {/* Diffuser */}
                   <div className="flex items-center gap-3 mb-3 p-3 rounded-2xl bg-sand/20">
@@ -692,99 +685,112 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
 
                 {/* RIGHT: Plan cards */}
                 <div className="flex flex-col gap-3">
+                  <h2 className="font-serif text-2xl md:text-3xl text-ink mb-1">Escolha seu plano</h2>
 
-                  {/* 1. Annual — device free */}
+                  {/* 1. Promoção — device free with 12-month commitment */}
                   <div className="rounded-2xl bg-ink text-white p-5 relative overflow-hidden">
-                    <div className="absolute top-0 right-0 bg-rust text-white text-[10px] px-3 py-1.5 rounded-bl-xl font-medium">
-                      Mais popular
+                    <div className="absolute top-0 right-0 bg-rust text-white text-[10px] px-3 py-1.5 rounded-bl-xl font-medium uppercase tracking-wide">
+                      Promoção
                     </div>
-                    <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Plano anual · 12 meses</p>
-                    <h3 className="font-serif text-lg mb-0.5">Difusor de graça</h3>
+                    <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Compromisso de 12 meses</p>
+                    <h3 className="font-serif text-xl mb-0.5">Difusor de graça</h3>
                     <p className="text-white/45 text-xs mb-3">
-                      Aparelho incluso + fragrâncias com 20% off
+                      Aparelho incluso + 20% off nas essências todo mês
                     </p>
                     <div className="flex items-baseline gap-1 mb-0.5">
-                      <span className="font-serif text-3xl">R${annualTotal}</span>
+                      <span className="font-serif text-3xl">R${fmtBRL(annualTotal)}</span>
                       <span className="text-white/40 text-xs">/mês</span>
                     </div>
                     <p className="text-white/35 text-xs mb-4">
-                      Difusor incluso grátis · Cancele após 12 meses
+                      Difusor incluso sem custo extra · Renova automaticamente
                     </p>
-                    <ul className="text-xs text-white/65 space-y-1 mb-4">
-                      <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} incluso</li>
+                    <ul className="text-xs text-white/65 space-y-1.5 mb-4">
+                      <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} <strong>incluso sem custo</strong></li>
                       <li>✓ {numScentBottles} frasco{numScentBottles > 1 ? 's' : ''}/mês com <strong>20% de desconto</strong></li>
                       <li>✓ Frete grátis nos refis</li>
                       <li>✓ Garantia vitalícia do aparelho</li>
+                      <li>✓ Troque fragrâncias a qualquer mês</li>
                     </ul>
                     <button
                       onClick={() =>
                         openCart(
-                          'Plano Anual',
-                          `R$${annualTotal}/mês`,
-                          `12 meses · Total R$${fmtBRL(annualTotal * 12)}`
+                          'Promoção — Difusor de Graça',
+                          `R$${fmtBRL(annualTotal)}/mês`,
+                          `Compromisso de 12 meses · difusor incluso`
                         )
                       }
                       className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
                     >
-                      Adicionar ao carrinho
+                      Quero essa promoção
                     </button>
                   </div>
 
-                  {/* 2. Flex — no commitment */}
-                  <div className="rounded-2xl bg-white border-2 border-sand p-5">
-                    <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Sem compromisso</p>
-                    <h3 className="font-serif text-lg text-ink mb-0.5">Assinatura mensal</h3>
+                  {/* 2. Mais popular — Subscribe & save */}
+                  <div className="rounded-2xl bg-white border-2 border-ink p-5 relative overflow-hidden">
+                    <div className="absolute top-0 right-0 bg-ink text-white text-[10px] px-3 py-1.5 rounded-bl-xl font-medium uppercase tracking-wide">
+                      Mais popular
+                    </div>
+                    <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Assinatura mensal</p>
+                    <h3 className="font-serif text-xl text-ink mb-0.5">Assine e economize</h3>
+                    <p className="text-ink/50 text-xs mb-3">20% off nas essências · cancele quando quiser</p>
                     <div className="flex items-baseline gap-1 mb-0.5 mt-2">
                       <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
-                      <span className="text-ink/40 text-xs">difusor · pagamento único</span>
+                      <span className="text-ink/40 text-xs">difusor · 1× pagamento único</span>
                     </div>
-                    <div className="flex items-baseline gap-1 mb-3">
+                    <div className="flex items-baseline gap-1 mb-4">
                       <span className="font-serif text-xl text-ink">R${fmtBRL(scentSubTotal)}</span>
-                      <span className="text-ink/40 text-xs">/mês em essências ({numScentBottles}× R$39,90 · 20% off)</span>
+                      <span className="text-ink/40 text-xs">/mês em essências ({numScentBottles}× com 20% off)</span>
                     </div>
                     <ul className="text-xs text-ink/60 space-y-1.5 mb-4">
-                      <li>✓ Cada fragrância com <strong>20% de desconto</strong></li>
-                      <li>✓ Troque as essências a cada pedido</li>
-                      <li>✓ Frete grátis em 2+ fragrâncias por pedido</li>
-                      <li>✓ Cancele quando quiser</li>
+                      <li>✓ Difusor pago uma única vez</li>
+                      <li>✓ Essências com <strong>20% de desconto</strong> todo mês</li>
+                      <li>✓ Troque as fragrâncias a cada pedido</li>
+                      <li>✓ Frete grátis em 2+ frascos por pedido</li>
+                      <li>✓ Cancele quando quiser, sem taxa</li>
                     </ul>
                     <button
                       onClick={() =>
                         openCart(
-                          'Assinatura Mensal',
+                          'Assine e Economize',
                           `R$${fmtBRL(deviceTotal)} + R$${fmtBRL(scentSubTotal)}/mês`,
-                          `${numScentBottles} fragrâncias com 20% off`
+                          `Difusor: pagamento único · Essências: 20% off/mês`
                         )
                       }
-                      className="w-full border-2 border-rust text-rust hover:bg-rust hover:text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
+                      className="w-full bg-ink hover:bg-ink/85 text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
                     >
-                      Adicionar ao carrinho
+                      Assinar agora
                     </button>
                   </div>
 
-                  {/* 3. One-time */}
+                  {/* 3. Compra única — sem compromisso */}
                   <div className="rounded-2xl bg-offwhite border border-sand p-5">
                     <p className="text-ink/40 text-xs uppercase tracking-widest mb-1">Compra única</p>
-                    <h3 className="font-serif text-lg text-ink mb-0.5">Avulso</h3>
+                    <h3 className="font-serif text-xl text-ink mb-0.5">Sem compromisso</h3>
+                    <p className="text-ink/50 text-xs mb-3">Pague uma vez, sem assinatura</p>
                     <div className="flex items-baseline gap-1 mb-0.5 mt-2">
                       <span className="font-serif text-2xl text-ink">R${fmtBRL(deviceTotal)}</span>
                       <span className="text-ink/40 text-xs">difusor · pagamento único</span>
                     </div>
-                    <div className="flex items-baseline gap-1 mb-3">
+                    <div className="flex items-baseline gap-1 mb-4">
                       <span className="font-serif text-xl text-ink">R${fmtBRL(scentFullTotal)}</span>
                       <span className="text-ink/40 text-xs">essências ({numScentBottles}× R$49,90 · preço cheio)</span>
                     </div>
+                    <ul className="text-xs text-ink/55 space-y-1.5 mb-4">
+                      <li>✓ Sem assinatura, sem compromisso</li>
+                      <li>✓ Reabastece quando quiser</li>
+                      <li>✗ Sem desconto nas essências</li>
+                    </ul>
                     <button
                       onClick={() =>
                         openCart(
-                          'Compra Avulsa',
+                          'Compra Única — Sem Compromisso',
                           `R$${fmtBRL(deviceTotal + scentFullTotal)}`,
-                          'Preço cheio · sem assinatura'
+                          'Difusor + essências · preço cheio · sem assinatura'
                         )
                       }
                       className="w-full border border-sand text-ink/60 hover:border-rust hover:text-rust rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
                     >
-                      Adicionar ao carrinho
+                      Comprar avulso
                     </button>
                   </div>
                 </div>
