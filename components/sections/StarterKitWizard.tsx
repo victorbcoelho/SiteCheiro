@@ -379,6 +379,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const [cart, setCart] = useState<CartSelection | null>(null);
   const [showPreLaunch, setShowPreLaunch] = useState(false);
   const [detailScentId, setDetailScentId] = useState<string | null>(null);
+  const [showAllScents, setShowAllScents] = useState(false);
 
   const activeSteps = isB2B ? B2B_STEPS : STEPS;
   const stepIndex = activeSteps.indexOf(step);
@@ -558,74 +559,84 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                 As 2 primeiras já estão selecionadas. Toque para trocar. Use &ldquo;detalhes&rdquo; para saber mais sobre cada essência.
               </p>
 
-              <div className="flex flex-col gap-3 mb-8">
-                {recommendedScents.map((scent) => {
-                  const isSelected = state.selectedScentIds.includes(scent.id);
-                  return (
-                    <div
-                      key={scent.id}
-                      className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all duration-200 ${
-                        isSelected ? 'border-ink bg-ink/[0.02]' : 'border-sand bg-white'
-                      }`}
+              {(() => {
+                const displayScents = showAllScents
+                  ? scents
+                  : [...recommendedScents.slice(0, 4), ...scents.filter(s => !recommendedScents.slice(0, 4).find(r => r.id === s.id) && state.selectedScentIds.includes(s.id))];
+                return (
+                  <div className="flex flex-col gap-3 mb-4">
+                    {displayScents.map((scent) => {
+                      const isSelected = state.selectedScentIds.includes(scent.id);
+                      const isRecommended = recommendedScents.slice(0, 4).some(r => r.id === scent.id);
+                      return (
+                        <div
+                          key={scent.id}
+                          className={`flex items-center gap-4 rounded-2xl border-2 p-4 transition-all duration-200 ${
+                            isSelected ? 'border-ink bg-ink/[0.02]' : 'border-sand bg-white'
+                          }`}
+                        >
+                          <button
+                            onClick={() => toggleScent(scent.id)}
+                            className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center"
+                            style={{ backgroundColor: scent.cardColor }}
+                            aria-label={`Selecionar ${scent.name}`}
+                          >
+                            {scent.image ? (
+                              // eslint-disable-next-line @next/next/no-img-element
+                              <img src={scent.image} alt={scent.name} className="absolute inset-0 w-full h-full object-contain p-1" />
+                            ) : (
+                              <svg viewBox="0 0 40 40" className="h-8 w-8 text-white/20" fill="none" stroke="currentColor" strokeWidth="1.5">
+                                <rect x="2" y="2" width="36" height="36" rx="4" />
+                                <path d="M8 8l24 24M32 8L8 32" />
+                              </svg>
+                            )}
+                          </button>
+
+                          <button onClick={() => toggleScent(scent.id)} className="flex-1 min-w-0 text-left" aria-label={`Selecionar ${scent.name}`}>
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-medium text-ink">{scent.name}</p>
+                              {isRecommended && !showAllScents && (
+                                <span className="text-[9px] uppercase tracking-wide bg-rust/10 text-rust rounded-full px-1.5 py-0.5">recomendada</span>
+                              )}
+                            </div>
+                            <p className="text-xs text-ink/50 mt-0.5">{scent.family}</p>
+                            <p className="text-xs text-ink/40 mt-0.5 truncate">{scent.mood}</p>
+                          </button>
+
+                          <button
+                            onClick={() => setDetailScentId(scent.id)}
+                            className="text-xs text-rust/70 hover:text-rust border border-rust/30 hover:border-rust rounded-full px-2.5 py-1 transition-colors shrink-0"
+                          >
+                            detalhes
+                          </button>
+
+                          <button
+                            onClick={() => toggleScent(scent.id)}
+                            className={`shrink-0 h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                              isSelected ? 'bg-ink border-ink' : 'border-sand hover:border-ink/30'
+                            }`}
+                            aria-label={isSelected ? 'Remover' : 'Selecionar'}
+                          >
+                            {isSelected && (
+                              <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3">
+                                <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                              </svg>
+                            )}
+                          </button>
+                        </div>
+                      );
+                    })}
+
+                    {/* Ver todas / Ver menos */}
+                    <button
+                      onClick={() => setShowAllScents(v => !v)}
+                      className="w-full border border-sand rounded-2xl py-3 text-sm text-ink/60 hover:border-rust hover:text-rust transition-all duration-200"
                     >
-                      {/* Scent image or color swatch */}
-                      <button
-                        onClick={() => toggleScent(scent.id)}
-                        className="relative w-16 h-16 rounded-xl overflow-hidden shrink-0 flex items-center justify-center"
-                        style={{ backgroundColor: scent.cardColor }}
-                        aria-label={`Selecionar ${scent.name}`}
-                      >
-                        {scent.image ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
-                            src={scent.image}
-                            alt={scent.name}
-                            className="absolute inset-0 w-full h-full object-contain p-1"
-                          />
-                        ) : (
-                          <svg viewBox="0 0 40 40" className="h-8 w-8 text-white/20" fill="none" stroke="currentColor" strokeWidth="1.5">
-                            <rect x="2" y="2" width="36" height="36" rx="4" />
-                            <path d="M8 8l24 24M32 8L8 32" />
-                          </svg>
-                        )}
-                      </button>
-
-                      <button
-                        onClick={() => toggleScent(scent.id)}
-                        className="flex-1 min-w-0 text-left"
-                        aria-label={`Selecionar ${scent.name}`}
-                      >
-                        <p className="font-medium text-ink">{scent.name}</p>
-                        <p className="text-xs text-ink/50 mt-0.5">{scent.family}</p>
-                        <p className="text-xs text-ink/40 mt-0.5 truncate">{scent.mood}</p>
-                      </button>
-
-                      {/* Details button */}
-                      <button
-                        onClick={() => setDetailScentId(scent.id)}
-                        className="text-xs text-rust/70 hover:text-rust border border-rust/30 hover:border-rust rounded-full px-2.5 py-1 transition-colors shrink-0"
-                      >
-                        detalhes
-                      </button>
-
-                      {/* Black checkmark */}
-                      <button
-                        onClick={() => toggleScent(scent.id)}
-                        className={`shrink-0 h-6 w-6 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
-                          isSelected ? 'bg-ink border-ink' : 'border-sand hover:border-ink/30'
-                        }`}
-                        aria-label={isSelected ? 'Remover' : 'Selecionar'}
-                      >
-                        {isSelected && (
-                          <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3">
-                            <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
-                          </svg>
-                        )}
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
+                      {showAllScents ? '↑ Ver apenas as recomendadas' : `Ver todas as 8 fragrâncias →`}
+                    </button>
+                  </div>
+                );
+              })()}
 
               <p className="text-xs text-ink/40 mb-6 text-center">
                 {state.selectedScentIds.length} de {maxScents} fragrâncias selecionadas
@@ -665,7 +676,17 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                   </p>
 
                   {/* Diffuser */}
-                  <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-1.5">Difusor</p>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-[10px] uppercase tracking-widest text-ink/35">Difusor</p>
+                    {!isB2B && (
+                      <button
+                        onClick={() => setStep('room')}
+                        className="text-[10px] text-rust/70 hover:text-rust underline underline-offset-2 transition-colors"
+                      >
+                        modificar
+                      </button>
+                    )}
+                  </div>
                   <div className="flex items-center gap-3 mb-4 p-3 rounded-2xl bg-sand/20">
                     <div className="w-14 h-14 rounded-xl bg-white overflow-hidden shrink-0 border border-sand/50">
                       {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -686,7 +707,15 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                   </div>
 
                   {/* Scents */}
-                  <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-1.5">Fragrâncias ({numScentBottles} frascos/mês)</p>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <p className="text-[10px] uppercase tracking-widest text-ink/35">Fragrâncias ({numScentBottles} frascos/mês)</p>
+                    <button
+                      onClick={() => setStep('scents')}
+                      className="text-[10px] text-rust/70 hover:text-rust underline underline-offset-2 transition-colors"
+                    >
+                      modificar
+                    </button>
+                  </div>
                   <div className="flex flex-col gap-2 mb-4">
                     {scentQtys.map(({ id, qty }) => {
                       const scent = scents.find((s) => s.id === id);
