@@ -16,7 +16,7 @@ export default function Header() {
   const [open, setOpen] = useState(false);
 
   return (
-    <header className="sticky top-0 z-50 bg-cream/95 backdrop-blur border-b border-sand/50">
+    <header className="sticky top-0 z-50 bg-cream border-b border-sand/50">
       <div className="container-page flex items-center justify-between h-20">
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}

@@ -115,6 +115,92 @@ const RoomIcon = ({ roomId }: { roomId: string }) => {
   return <>{icons[roomId] ?? null}</>;
 };
 
+// Diffuser selector modal (used from summary "modificar")
+function DiffuserSelectorModal({
+  currentId,
+  onSelect,
+  onClose,
+}: {
+  currentId: DiffuserModelId;
+  onSelect: (id: DiffuserModelId) => void;
+  onClose: () => void;
+}) {
+  return (
+    <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-ink/60 backdrop-blur-sm p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 40 }}
+        animate={{ opacity: 1, y: 0 }}
+        exit={{ opacity: 0, y: 40 }}
+        className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl"
+      >
+        <div className="flex items-center justify-between mb-5">
+          <h3 className="font-serif text-xl text-ink">Escolha o difusor</h3>
+          <button onClick={onClose} className="text-ink/30 hover:text-ink/60 text-2xl leading-none transition-colors">×</button>
+        </div>
+
+        <div className="flex flex-col gap-3">
+          {diffuserModels.map((model) => {
+            const isSelected = model.id === currentId;
+            return (
+              <button
+                key={model.id}
+                onClick={() => onSelect(model.id)}
+                className={`flex items-start gap-4 rounded-2xl border-2 p-4 text-left transition-all duration-200 ${
+                  isSelected ? 'border-ink bg-ink/[0.02]' : 'border-sand hover:border-rust/50'
+                }`}
+              >
+                {/* Image placeholder */}
+                <div className="w-14 h-14 rounded-xl bg-sand/30 shrink-0 overflow-hidden border border-sand/40">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/images/sinesia-${model.id}.jpg`}
+                    alt={model.name}
+                    className="w-full h-full object-contain p-1"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 flex-wrap mb-0.5">
+                    <p className="font-medium text-sm text-ink">{model.name}</p>
+                    {model.hasSound ? (
+                      <span className="text-[9px] uppercase tracking-wide bg-rust text-white rounded-full px-2 py-0.5 font-semibold">
+                        Som + Aroma
+                      </span>
+                    ) : (
+                      <span className="text-[9px] uppercase tracking-wide bg-sand text-ink/50 rounded-full px-2 py-0.5">
+                        Só Aroma
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-xs text-ink/50 mb-1">{model.subtitle}</p>
+                  <p className="text-xs text-ink/40 leading-snug">{model.idealFor}</p>
+                  <p className="text-xs text-rust font-semibold mt-1">R${fmtBRL(model.price)}</p>
+                </div>
+
+                {/* Checkmark */}
+                <div className={`shrink-0 mt-0.5 h-5 w-5 rounded-full border-2 flex items-center justify-center transition-all ${
+                  isSelected ? 'bg-ink border-ink' : 'border-sand'
+                }`}>
+                  {isSelected && (
+                    <svg viewBox="0 0 12 12" fill="none" className="h-3 w-3">
+                      <path d="M2 6l3 3 5-5" stroke="white" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+                    </svg>
+                  )}
+                </div>
+              </button>
+            );
+          })}
+        </div>
+
+        <p className="text-[11px] text-ink/35 text-center mt-4">
+          A seleção de fragrâncias pode ser ajustada após trocar o modelo.
+        </p>
+      </motion.div>
+    </div>
+  );
+}
+
 // Pre-launch modal
 function PreLaunchModal({
   cartSelection,
@@ -380,6 +466,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const [showPreLaunch, setShowPreLaunch] = useState(false);
   const [detailScentId, setDetailScentId] = useState<string | null>(null);
   const [showAllScents, setShowAllScents] = useState(false);
+  const [showDiffuserModal, setShowDiffuserModal] = useState(false);
 
   const activeSteps = isB2B ? B2B_STEPS : STEPS;
   const stepIndex = activeSteps.indexOf(step);
@@ -680,7 +767,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <p className="text-[10px] uppercase tracking-widest text-ink/35">Difusor</p>
                     {!isB2B && (
                       <button
-                        onClick={() => setStep('room')}
+                        onClick={() => setShowDiffuserModal(true)}
                         className="text-[10px] text-rust/70 hover:text-rust underline underline-offset-2 transition-colors"
                       >
                         modificar
@@ -936,6 +1023,26 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
       <AnimatePresence>
         {detailScentId && (
           <ScentDetail scentId={detailScentId} onClose={() => setDetailScentId(null)} />
+        )}
+      </AnimatePresence>
+
+      {/* Diffuser selector modal */}
+      <AnimatePresence>
+        {showDiffuserModal && (
+          <DiffuserSelectorModal
+            currentId={state.diffuserModelId}
+            onSelect={(id) => {
+              setState((s) => {
+                const newMax = MAX_SCENTS[id];
+                // Trim selected scents if new model supports fewer
+                const trimmed = s.selectedScentIds.slice(0, newMax);
+                const selected = trimmed.length > 0 ? trimmed : s.selectedScentIds.slice(0, 1);
+                return { ...s, diffuserModelId: id, selectedScentIds: selected };
+              });
+              setShowDiffuserModal(false);
+            }}
+            onClose={() => setShowDiffuserModal(false)}
+          />
         )}
       </AnimatePresence>
     </div>
