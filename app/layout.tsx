@@ -109,7 +109,7 @@ export default function RootLayout({
                   fbq('init', '${metaPixelId}');
                   fbq('track', 'PageView');
                   console.log('[Sinesia Meta] Pixel ID:', '${metaPixelId}');
-                  console.log('[Sinesia Meta] fbq carregado:', typeof f.fbq !== 'undefined' ? '✅ SIM' : '❌ NÃO');
+                  console.log('[Sinesia Meta] fbq carregado:', typeof window.fbq !== 'undefined' ? '✅ SIM' : '❌ NÃO');
                 `,
               }}
             />
