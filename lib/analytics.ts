@@ -65,6 +65,7 @@ export async function identifyUser(params: { email?: string; phone?: string; ext
     ...(phoneNumber && { phone_number: phoneNumber }),
     ...(externalId && { external_id: externalId }),
   });
+  console.log('[Sinesia TikTok] ttq.identify() disparado (e-mail hasheado, sem PII em texto puro)');
 }
 
 export type CommerceEventName =
@@ -106,6 +107,7 @@ export function trackCommerceEvent(eventName: CommerceEventName, { contents, val
   };
 
   window.ttq?.track(eventName, payload);
+  console.log(`[Sinesia TikTok] ttq.track('${eventName}')`, payload, window.ttq ? '✅ enviado' : '❌ ttq indisponível');
 
   const fbqMappable: CommerceEventName[] = ['ViewContent', 'AddToCart', 'AddToWishlist', 'Search', 'AddPaymentInfo', 'InitiateCheckout', 'CompleteRegistration', 'Purchase'];
   if (fbqMappable.includes(eventName)) {

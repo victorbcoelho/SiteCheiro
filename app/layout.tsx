@@ -126,6 +126,8 @@ export default function RootLayout({
 
                   ttq.load('${tiktokPixelId}');
                   ttq.page();
+                  console.log('[Sinesia TikTok] Pixel ID:', '${tiktokPixelId}');
+                  console.log('[Sinesia TikTok] ttq carregado:', typeof w.ttq !== 'undefined' ? '✅ SIM' : '❌ NÃO');
                 }(window, document, 'ttq');
               `,
             }}
