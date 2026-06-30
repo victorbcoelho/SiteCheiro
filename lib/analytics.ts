@@ -10,7 +10,10 @@ declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
     fbq?: (...args: unknown[]) => void;
-    ttq?: { track: (...args: unknown[]) => void };
+    ttq?: {
+      track: (...args: unknown[]) => void;
+      identify: (...args: unknown[]) => void;
+    };
   }
 }
 
@@ -26,12 +29,6 @@ export function trackEvent(
 
   if (eventName === 'lead_captured') {
     window.fbq?.('track', 'Lead', params);
-    window.ttq?.track('SubmitForm', params);
-  }
-
-  if (eventName === 'cart_opened') {
-    window.fbq?.('track', 'InitiateCheckout', params);
-    window.ttq?.track('InitiateCheckout', params);
   }
 }
 
@@ -41,4 +38,77 @@ export function trackClick(label: string, extra: Record<string, unknown> = {}) {
     url: typeof window !== 'undefined' ? window.location.pathname : '',
     ...extra,
   });
+}
+
+// SHA-256 hash via Web Crypto API — TikTok requires PII hashed client-side before ttq.identify()
+async function sha256Hex(value: string): Promise<string> {
+  const normalized = value.trim().toLowerCase();
+  const digest = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(normalized));
+  return Array.from(new Uint8Array(digest))
+    .map((b) => b.toString(16).padStart(2, '0'))
+    .join('');
+}
+
+// Identifies the visitor to TikTok ahead of conversion events, improving match rate.
+// Call this before trackCommerceEvent on pages with known PII (e.g. after lead capture).
+export async function identifyUser(params: { email?: string; phone?: string; externalId?: string }) {
+  if (typeof window === 'undefined' || !window.ttq) return;
+
+  const [email, phoneNumber, externalId] = await Promise.all([
+    params.email ? sha256Hex(params.email) : undefined,
+    params.phone ? sha256Hex(params.phone) : undefined,
+    params.externalId ? sha256Hex(params.externalId) : undefined,
+  ]);
+
+  window.ttq.identify({
+    ...(email && { email }),
+    ...(phoneNumber && { phone_number: phoneNumber }),
+    ...(externalId && { external_id: externalId }),
+  });
+}
+
+export type CommerceEventName =
+  | 'ViewContent'
+  | 'AddToCart'
+  | 'AddToWishlist'
+  | 'Search'
+  | 'AddPaymentInfo'
+  | 'InitiateCheckout'
+  | 'PlaceAnOrder'
+  | 'CompleteRegistration'
+  | 'Purchase';
+
+interface CommerceContent {
+  contentId: string;
+  contentType?: 'product' | 'product_group';
+  contentName: string;
+}
+
+interface CommerceParams {
+  contents: CommerceContent[];
+  value: number;
+  currency?: string;
+}
+
+// Fires the standard e-commerce event schema TikTok (and Meta, for the overlapping events)
+// expect: contents[], value, currency. Use alongside trackEvent for the GA4-shaped event.
+export function trackCommerceEvent(eventName: CommerceEventName, { contents, value, currency = 'BRL' }: CommerceParams) {
+  if (typeof window === 'undefined') return;
+
+  const payload = {
+    contents: contents.map((c) => ({
+      content_id: c.contentId,
+      content_type: c.contentType ?? 'product',
+      content_name: c.contentName,
+    })),
+    value,
+    currency,
+  };
+
+  window.ttq?.track(eventName, payload);
+
+  const fbqMappable: CommerceEventName[] = ['ViewContent', 'AddToCart', 'AddToWishlist', 'Search', 'AddPaymentInfo', 'InitiateCheckout', 'CompleteRegistration', 'Purchase'];
+  if (fbqMappable.includes(eventName)) {
+    window.fbq?.('track', eventName, payload);
+  }
 }

@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { moodOptions, roomOptions, getRecommendedScents } from '@/lib/recommendations';
 import { scents, diffuserModels, type DiffuserModelId } from '@/lib/products';
-import { trackEvent, trackClick } from '@/lib/analytics';
+import { trackEvent, trackClick, trackCommerceEvent, identifyUser } from '@/lib/analytics';
 import { submitLead } from '@/lib/leads';
 
 type Step = 'room' | 'mood' | 'scents' | 'summary';
@@ -26,6 +26,7 @@ interface CartSelection {
   planLabel: string;
   planPrice: string;
   planMonthly?: string;
+  valueNumeric: number;
 }
 
 // Pricing constants
@@ -204,12 +205,14 @@ function DiffuserSelectorModal({
 // Pre-launch modal
 function PreLaunchModal({
   cartSelection,
+  diffuserId,
   diffuserName,
   scentNames,
   b2bContext,
   onClose,
 }: {
   cartSelection: CartSelection;
+  diffuserId: string;
   diffuserName: string;
   scentNames: string[];
   b2bContext?: B2BContext;
@@ -235,6 +238,11 @@ function PreLaunchModal({
     trackEvent('lead_captured', {
       plano: cartSelection.planLabel,
       origem: b2bContext ? 'empresas-wizard' : 'starter-kit-wizard',
+    });
+    await identifyUser({ email });
+    trackCommerceEvent('CompleteRegistration', {
+      contents: [{ contentId: diffuserId, contentType: 'product', contentName: diffuserName }],
+      value: cartSelection.valueNumeric,
     });
     setSubmitted(true);
     setLoading(false);
@@ -526,13 +534,17 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
     else if (isB2B && onB2BComplete) onB2BComplete();
   };
 
-  const openCart = (planLabel: string, planPrice: string, planMonthly?: string) => {
-    setCart({ planLabel, planPrice, planMonthly });
+  const openCart = (planLabel: string, planPrice: string, planMonthly: string | undefined, valueNumeric: number) => {
+    setCart({ planLabel, planPrice, planMonthly, valueNumeric });
     const slug = planLabel.toLowerCase().includes('promo') ? 'plano_promocao'
       : planLabel.toLowerCase().includes('assine') ? 'plano_assinatura'
       : 'plano_compra_unica';
     trackClick(`wizard_escolheu_${slug}`, { section: 'wizard_resumo', plano: planLabel });
     trackEvent('cart_opened', { plano: planLabel, valor: planPrice });
+    trackCommerceEvent('InitiateCheckout', {
+      contents: [{ contentId: selectedDiffuser.id, contentType: 'product', contentName: selectedDiffuser.name }],
+      value: valueNumeric,
+    });
   };
 
   return (
@@ -888,7 +900,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                         openCart(
                           'Promoção — Difusor de Graça',
                           `R$${fmtBRL(scentSubTotal)}/mês`,
-                          `12 meses · difusor R$${fmtBRL(deviceTotal)} incluso grátis`
+                          `12 meses · difusor R$${fmtBRL(deviceTotal)} incluso grátis`,
+                          scentSubTotal
                         )
                       }
                       className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
@@ -932,7 +945,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                         openCart(
                           'Assine e Economize',
                           `R$${fmtBRL(deviceTotal)} + R$${fmtBRL(scentSubTotal)}/mês`,
-                          `Difusor: pagamento único · Essências: 20% off/mês`
+                          `Difusor: pagamento único · Essências: 20% off/mês`,
+                          deviceTotal + scentSubTotal
                         )
                       }
                       className="w-full bg-ink hover:bg-ink/85 text-white rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
@@ -965,7 +979,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                         openCart(
                           'Compra Única — Sem Compromisso',
                           `R$${fmtBRL(deviceTotal + scentFullTotal)}`,
-                          'Difusor + essências · preço cheio · sem assinatura'
+                          'Difusor + essências · preço cheio · sem assinatura',
+                          deviceTotal + scentFullTotal
                         )
                       }
                       className="w-full border border-sand text-ink/60 hover:border-rust hover:text-rust rounded-xl py-2.5 text-sm font-medium transition-colors duration-300"
@@ -1009,6 +1024,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
       {cart && showPreLaunch && (
         <PreLaunchModal
           cartSelection={cart}
+          diffuserId={selectedDiffuser.id}
           diffuserName={selectedDiffuser.name}
           scentNames={selectedScentNames}
           b2bContext={b2bContext}
