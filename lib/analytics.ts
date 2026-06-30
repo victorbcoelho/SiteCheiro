@@ -3,12 +3,14 @@ type AnalyticsEvent =
   | 'button_click'
   | 'wizard_step'
   | 'scroll_depth'
-  | 'section_view';
+  | 'section_view'
+  | 'cart_opened';
 
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
     fbq?: (...args: unknown[]) => void;
+    ttq?: { track: (...args: unknown[]) => void };
   }
 }
 
@@ -22,8 +24,14 @@ export function trackEvent(
     window.gtag('event', eventName, params);
   }
 
-  if (window.fbq && eventName === 'lead_captured') {
-    window.fbq('track', 'Lead', params);
+  if (eventName === 'lead_captured') {
+    window.fbq?.('track', 'Lead', params);
+    window.ttq?.track('SubmitForm', params);
+  }
+
+  if (eventName === 'cart_opened') {
+    window.fbq?.('track', 'InitiateCheckout', params);
+    window.ttq?.track('InitiateCheckout', params);
   }
 }
 

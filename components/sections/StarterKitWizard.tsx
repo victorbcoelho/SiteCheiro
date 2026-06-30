@@ -532,6 +532,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
       : planLabel.toLowerCase().includes('assine') ? 'plano_assinatura'
       : 'plano_compra_unica';
     trackClick(`wizard_escolheu_${slug}`, { section: 'wizard_resumo', plano: planLabel });
+    trackEvent('cart_opened', { plano: planLabel, valor: planPrice });
   };
 
   return (
