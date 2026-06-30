@@ -17,8 +17,8 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-cream border-b border-sand/50">
-      <div className="container-page flex items-center justify-between h-28">
-        <Link href="/" className="flex items-center">
+      <div className="container-page flex items-center justify-between h-20 overflow-visible">
+        <Link href="/" className="flex items-center shrink-0">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/sinesia-logo.png"

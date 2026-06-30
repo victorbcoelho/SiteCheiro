@@ -96,7 +96,7 @@ export default function EmpresasWizard() {
   }
 
   return (
-    <div className="min-h-[calc(100vh-7rem)] bg-offwhite py-10">
+    <div className="min-h-[calc(100vh-5rem)] bg-offwhite py-10">
       <div className="container-page max-w-xl mx-auto">
         {/* Progress */}
         <div className="mb-8 flex items-center gap-3">

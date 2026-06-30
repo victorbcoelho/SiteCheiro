@@ -535,9 +535,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   };
 
   return (
-    <div className="min-h-[calc(100vh-7rem)] bg-offwhite">
+    <div className="min-h-[calc(100vh-5rem)] bg-offwhite">
       {/* Progress bar */}
-      <div className="sticky top-28 z-40 bg-offwhite/95 backdrop-blur border-b border-sand/40">
+      <div className="sticky top-20 z-40 bg-offwhite/95 backdrop-blur border-b border-sand/40">
         <div className="container-page py-3 flex items-center gap-4 max-w-5xl mx-auto">
           {stepIndex > 0 && (
             <button
