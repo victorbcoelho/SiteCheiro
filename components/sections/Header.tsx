@@ -17,13 +17,13 @@ export default function Header() {
 
   return (
     <header className="sticky top-0 z-50 bg-cream border-b border-sand/50">
-      <div className="container-page flex items-center justify-between h-20">
+      <div className="container-page flex items-center justify-between h-28">
         <Link href="/" className="flex items-center">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/images/sinesia-logo.png"
             alt="Sinesia"
-            className="h-16 w-auto mix-blend-multiply"
+            className="h-24 w-auto"
             onError={(e) => {
               (e.currentTarget as HTMLImageElement).style.display = 'none';
               const fallback = document.getElementById('logo-fallback');
