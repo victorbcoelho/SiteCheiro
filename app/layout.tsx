@@ -108,9 +108,21 @@ export default function RootLayout({
                   'https://connect.facebook.net/en_US/fbevents.js');
                   fbq('init', '${metaPixelId}');
                   fbq('track', 'PageView');
+                  console.log('[Sinesia Meta] Pixel ID:', '${metaPixelId}');
+                  console.log('[Sinesia Meta] fbq carregado:', typeof f.fbq !== 'undefined' ? '✅ SIM' : '❌ NÃO');
                 `,
               }}
             />
+            <noscript>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                height="1"
+                width="1"
+                style={{ display: 'none' }}
+                src={`https://www.facebook.com/tr?id=${metaPixelId}&ev=PageView&noscript=1`}
+                alt=""
+              />
+            </noscript>
           </>
         )}
 
