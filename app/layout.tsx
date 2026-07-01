@@ -104,6 +104,8 @@ export default function RootLayout({
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', '${gAdsId}');
+              console.log('[Sinesia Google Ads] ID:', '${gAdsId}');
+              console.log('[Sinesia Google Ads] gtag carregado:', typeof window.gtag !== 'undefined' ? '✅ SIM' : '❌ NÃO');
             `}</Script>
           </>
         )}
