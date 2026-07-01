@@ -5,7 +5,9 @@ const footerLinks = [
   { label: 'Tecnologia', href: '/#como-funciona' },
   { label: 'Fragrâncias', href: '/#fragrancias' },
   { label: 'Para Empresas', href: '/empresas' },
+  { label: 'Sobre', href: '/sobre' },
   { label: 'Contato', href: 'mailto:oi@sinesia.com.br' },
+  { label: 'Política de Privacidade', href: '/privacidade' },
 ];
 
 export default function Footer() {
@@ -72,8 +74,9 @@ export default function Footer() {
       </div>
 
       <div className="border-t border-white/10">
-        <div className="container-page py-6 text-xs text-white/40">
-          © 2026 Sinesia — Todos os direitos reservados
+        <div className="container-page py-6 flex flex-col md:flex-row md:items-center md:justify-between gap-2 text-xs text-white/40">
+          <span>© 2026 Sinesia — Todos os direitos reservados</span>
+          <span>CNPJ 47.784.039/0001-00</span>
         </div>
       </div>
     </footer>
