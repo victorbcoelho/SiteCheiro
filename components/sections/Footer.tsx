@@ -43,7 +43,7 @@ export default function Footer() {
           <ul className="space-y-2">
             <li>
               <a
-                href="https://instagram.com/sinesia.oficial"
+                href="https://instagram.com/use_sinesia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-white/70 hover:text-white transition-colors duration-300"
@@ -53,7 +53,7 @@ export default function Footer() {
             </li>
             <li>
               <a
-                href="https://tiktok.com/@sinesia.oficial"
+                href="https://tiktok.com/@use_sinesia"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-sm text-white/70 hover:text-white transition-colors duration-300"
