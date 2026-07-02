@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2a2320"/>
+      <stop offset="1" stop-color="#1a1512"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0.78" cy="0.4" r="0.5">
+      <stop offset="0" stop-color="#B08D57" stop-opacity="0.55"/>
+      <stop offset="1" stop-color="#B08D57" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <rect width="1200" height="630" fill="url(#glow)"/>
+  <text x="90" y="300" font-family="Georgia, 'Playfair Display', serif" font-size="96" fill="#FAFAF8">Lûmance</text>
+  <text x="94" y="368" font-family="Inter, Arial, sans-serif" font-size="30" fill="#FAFAF8" opacity="0.8">Luz que cuida da sua pele em casa</text>
+  <text x="94" y="418" font-family="Inter, Arial, sans-serif" font-size="20" letter-spacing="4" fill="#B08D57">TERAPIA DE LUZ LED · PRÉ-LANÇAMENTO</text>
+</svg>

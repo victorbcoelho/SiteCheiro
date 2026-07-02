@@ -1,0 +1,36 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply bg-offwhite text-ink font-sans antialiased;
+}
+
+/* Compensa a top bar + navbar fixas ao ancorar em seções. */
+section[id] {
+  scroll-margin-top: 96px;
+}
+
+/* Marquee: duplicamos o conteúdo, então -50% completa um loop perfeito. */
+.marquee-track {
+  display: flex;
+  width: max-content;
+  animation: marquee 32s linear infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .marquee-track {
+    animation: none;
+  }
+}
