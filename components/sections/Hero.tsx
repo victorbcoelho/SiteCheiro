@@ -32,12 +32,11 @@ export default function Hero() {
           className="max-w-2xl text-white"
         >
           <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6">
-            Difusores inteligentes que te fazem sentir.
+            Sua casa com cheiro de praia. Ou de floresta. Ou de hotel 5 estrelas. Você escolhe.
           </h1>
 
           <p className="text-lg md:text-xl text-white/75 mb-10 max-w-xl">
-            Escolha a fragrância e o app Sinesia escolhe o som adequado para
-            cada momento do seu dia.
+            Sinesia combina aroma e som pra te transportar pra onde quiser. Pelo app, sem sair do sofá.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
@@ -46,7 +45,7 @@ export default function Hero() {
               size="lg"
               onClick={() => trackClick('hero_garantir_kit', { section: 'hero' })}
             >
-              Garantir Meu Starter Kit
+              Descubra seu aroma ideal
             </Button>
             <Button href="#como-funciona" variant="outline" size="lg" onClick={() => trackClick('hero_como_funciona', { section: 'hero' })}>
               Como funciona
