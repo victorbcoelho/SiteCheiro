@@ -31,7 +31,7 @@ export default function Hero() {
           transition={{ duration: 0.8 }}
           className="max-w-2xl text-white"
         >
-          <h1 className="font-serif text-4xl md:text-6xl lg:text-7xl leading-[1.05] mb-6">
+          <h1 className="font-serif text-2xl md:text-4xl lg:text-5xl leading-[1.05] mb-6">
             Sua casa com cheiro de praia. Ou de floresta. Ou de hotel 5 estrelas. Você escolhe.
           </h1>
 
