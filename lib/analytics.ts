@@ -1,7 +1,10 @@
 type AnalyticsEvent =
   | 'lead_captured'
   | 'button_click'
+  | 'wizard_started'
   | 'wizard_step'
+  | 'wizard_summary_viewed'
+  | 'wizard_plan_selected'
   | 'scroll_depth'
   | 'section_view'
   | 'cart_opened';

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { moodOptions, roomOptions, getRecommendedScents } from '@/lib/recommendations';
 import { scents, diffuserModels, type DiffuserModelId } from '@/lib/products';
@@ -476,6 +476,23 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const [showAllScents, setShowAllScents] = useState(false);
   const [showDiffuserModal, setShowDiffuserModal] = useState(false);
 
+  useEffect(() => {
+    if (!isB2B) trackEvent('wizard_started', { origem: 'starter-kit-wizard' });
+  }, [isB2B]);
+
+  useEffect(() => {
+    if (step === 'summary') {
+      trackEvent('wizard_summary_viewed', {
+        difusor: state.diffuserModelId,
+        fragrancias: state.selectedScentIds,
+      });
+      trackCommerceEvent('ViewContent', {
+        contents: [{ contentId: state.diffuserModelId, contentType: 'product', contentName: state.diffuserModelId }],
+        value: 0,
+      });
+    }
+  }, [step, state.diffuserModelId, state.selectedScentIds]);
+
   const activeSteps = isB2B ? B2B_STEPS : STEPS;
   const stepIndex = activeSteps.indexOf(step);
   const recommendedScents = isB2B
@@ -539,8 +556,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
     const slug = planLabel.toLowerCase().includes('promo') ? 'plano_promocao'
       : planLabel.toLowerCase().includes('assine') ? 'plano_assinatura'
       : 'plano_compra_unica';
-    trackClick(`wizard_escolheu_${slug}`, { section: 'wizard_resumo', plano: planLabel });
-    trackEvent('cart_opened', { plano: planLabel, valor: planPrice });
+    trackEvent('wizard_plan_selected', { plano: planLabel, slug, valor: planPrice });
+    trackEvent('cart_opened', { plano: planLabel, slug, valor: planPrice });
     trackCommerceEvent('InitiateCheckout', {
       contents: [{ contentId: selectedDiffuser.id, contentType: 'product', contentName: selectedDiffuser.name }],
       value: valueNumeric,
