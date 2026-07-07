@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { trackEvent } from '@/lib/analytics';
 import StarterKitWizard from './StarterKitWizard';
@@ -57,6 +57,10 @@ export default function EmpresasWizard() {
   const [recommendedScents, setRecommendedScents] = useState<string[]>([]);
 
   const stepIndex = B2B_STEPS.indexOf(step as Exclude<B2BStep, 'consumer-flow'>);
+
+  useEffect(() => {
+    trackEvent('wizard_started', { origem: 'empresas-wizard' });
+  }, []);
 
   const goBack = () => {
     const prev = B2B_STEPS[stepIndex - 1];

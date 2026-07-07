@@ -485,16 +485,18 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
 
   useEffect(() => {
     if (step === 'summary') {
+      const origem = isB2B ? 'empresas-wizard' : 'starter-kit-wizard';
       trackEvent('wizard_summary_viewed', {
         difusor: state.diffuserModelId,
         fragrancias: state.selectedScentIds,
+        origem,
       });
       trackCommerceEvent('ViewContent', {
         contents: [{ contentId: state.diffuserModelId, contentType: 'product', contentName: state.diffuserModelId }],
         value: 0,
       });
     }
-  }, [step, state.diffuserModelId, state.selectedScentIds]);
+  }, [step, state.diffuserModelId, state.selectedScentIds, isB2B]);
 
   const activeSteps = isB2B ? B2B_STEPS : STEPS;
   const stepIndex = activeSteps.indexOf(step);
@@ -559,8 +561,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
     const slug = planLabel.toLowerCase().includes('promo') ? 'plano_promocao'
       : planLabel.toLowerCase().includes('assine') ? 'plano_assinatura'
       : 'plano_compra_unica';
-    trackEvent('wizard_plan_selected', { plano: planLabel, slug, valor: planPrice });
-    trackEvent('cart_opened', { plano: planLabel, slug, valor: planPrice });
+    const origem = isB2B ? 'empresas-wizard' : 'starter-kit-wizard';
+    trackEvent('wizard_plan_selected', { plano: planLabel, slug, valor: planPrice, origem });
+    trackEvent('cart_opened', { plano: planLabel, slug, valor: planPrice, origem });
     trackCommerceEvent('InitiateCheckout', {
       contents: [{ contentId: selectedDiffuser.id, contentType: 'product', contentName: selectedDiffuser.name }],
       value: valueNumeric,
