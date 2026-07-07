@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { collection, getDocs, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 const SENHA = '112233@';
@@ -51,7 +51,7 @@ export default function AdminPage() {
       const cols = ['leads_b2c', 'leads', 'leads_b2b'];
       const all: Lead[] = [];
       for (const col of cols) {
-        const snap = await getDocs(query(collection(db, col), orderBy('timestamp', 'desc')));
+        const snap = await getDocs(collection(db, col));
         snap.forEach((doc) => all.push({ id: doc.id, _col: col, ...doc.data() } as Lead));
       }
       all.sort((a, b) => (b.timestamp?.seconds ?? 0) - (a.timestamp?.seconds ?? 0));
