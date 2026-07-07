@@ -41,6 +41,7 @@ export default function AdminPage() {
   const [leads, setLeads] = useState<Lead[]>([]);
   const [loading, setLoading] = useState(false);
   const [filtroOrigem, setFiltroOrigem] = useState('todos');
+  const [filtroDifusor, setFiltroDifusor] = useState('todos');
   const [busca, setBusca] = useState('');
 
   useEffect(() => {
@@ -100,10 +101,13 @@ export default function AdminPage() {
     porPlano[p] = (porPlano[p] || 0) + 1;
   });
 
-  const porOrigem: Record<string, number> = {};
+  const porDifusor: Record<string, { count: number; valor: number }> = {};
   leads.forEach((l) => {
-    const o = (l.origem as string) || 'desconhecida';
-    porOrigem[o] = (porOrigem[o] || 0) + 1;
+    const d = (l.difusor as string) || 'Não informado';
+    if (!porDifusor[d]) porDifusor[d] = { count: 0, valor: 0 };
+    porDifusor[d].count += 1;
+    const v = parseFloat((l.valor as string) || '0') || 0;
+    porDifusor[d].valor += v;
   });
 
   const fragranciaCount: Record<string, number> = {};
@@ -119,15 +123,19 @@ export default function AdminPage() {
     .slice(0, 8);
 
   const origens = ['todos', ...Array.from(new Set(leads.map((l) => (l.origem as string) || 'desconhecida')))];
+  const difusores = ['todos', ...Array.from(new Set(leads.map((l) => (l.difusor as string) || 'Não informado')))];
 
   const filtrados = leads.filter((l) => {
     const matchOrigem = filtroOrigem === 'todos' || l.origem === filtroOrigem;
+    const matchDifusor = filtroDifusor === 'todos' || (l.difusor as string) === filtroDifusor;
     const matchBusca =
       !busca ||
       (l.nome || '').toLowerCase().includes(busca.toLowerCase()) ||
       (l.email || '').toLowerCase().includes(busca.toLowerCase());
-    return matchOrigem && matchBusca;
+    return matchOrigem && matchDifusor && matchBusca;
   });
+
+  const valorTotalDifusores = Object.values(porDifusor).reduce((s, d) => s + d.valor, 0);
 
   const planColors: Record<string, string> = {
     'plano_promocao': 'bg-amber-100 text-amber-800',
@@ -151,11 +159,16 @@ export default function AdminPage() {
                 <p className="text-zinc-400 text-xs uppercase tracking-widest mb-1">Total de leads</p>
                 <p className="text-4xl font-serif font-bold">{total}</p>
               </div>
-              {Object.entries(porOrigem).map(([origem, count]) => (
-                <div key={origem} className="bg-zinc-900 rounded-2xl p-5">
-                  <p className="text-zinc-400 text-xs uppercase tracking-widest mb-1">{origem}</p>
-                  <p className="text-4xl font-serif font-bold">{count}</p>
-                  <p className="text-zinc-500 text-xs mt-1">{Math.round((count / total) * 100)}% do total</p>
+              {Object.entries(porDifusor).sort((a, b) => b[1].count - a[1].count).map(([difusor, data]) => (
+                <div key={difusor} className="bg-zinc-900 rounded-2xl p-5">
+                  <p className="text-zinc-400 text-xs uppercase tracking-widest mb-1">{difusor}</p>
+                  <p className="text-4xl font-serif font-bold">{data.count}</p>
+                  <p className="text-zinc-500 text-xs mt-1">{Math.round((data.count / total) * 100)}% dos leads</p>
+                  {data.valor > 0 && (
+                    <p className="text-amber-400 text-xs mt-0.5 font-medium">
+                      R$ {data.valor.toFixed(2).replace('.', ',')} potencial
+                    </p>
+                  )}
                 </div>
               ))}
             </div>
@@ -210,6 +223,15 @@ export default function AdminPage() {
               >
                 {origens.map((o) => (
                   <option key={o} value={o}>{o === 'todos' ? 'Todas as origens' : o}</option>
+                ))}
+              </select>
+              <select
+                value={filtroDifusor}
+                onChange={(e) => setFiltroDifusor(e.target.value)}
+                className="bg-zinc-900 text-white rounded-xl px-4 py-2 text-sm outline-none border border-zinc-700"
+              >
+                {difusores.map((d) => (
+                  <option key={d} value={d}>{d === 'todos' ? 'Todos os difusores' : d}</option>
                 ))}
               </select>
               <span className="text-zinc-500 text-sm self-center">{filtrados.length} resultado(s)</span>
