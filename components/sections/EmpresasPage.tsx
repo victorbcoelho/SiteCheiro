@@ -234,7 +234,7 @@ export default function EmpresasPage() {
                 <tr>
                   <th className="text-left text-ink/50 text-xs uppercase tracking-widest font-medium px-5 py-4 bg-transparent w-[34%]" />
                   <th className="text-center px-5 py-4 bg-sand/40 rounded-tl-2xl text-ink/60 font-medium text-sm">Varetas e Sprays</th>
-                  <th className="text-center px-5 py-4 bg-sand/40 text-ink/60 font-medium text-sm">Grandes empresas</th>
+                  <th className="text-center px-5 py-4 bg-sand/40 text-ink/60 font-medium text-sm">Marketing olfativo tradicional</th>
                   <th className="text-center px-5 py-4 bg-rust text-white font-semibold text-sm rounded-tr-2xl">Sinesia ✦</th>
                 </tr>
               </thead>
