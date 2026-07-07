@@ -60,7 +60,7 @@ const benefits = [
   {
     number: '01',
     title: 'Primeira impressão marcante',
-    text: 'Estudos mostram que 75% das emoções do dia são influenciadas pelo olfato. O aroma do seu negócio é sua identidade mais poderosa.',
+    text: 'O olfato é o sentido mais ligado à memória e à emoção. O aroma do seu negócio se torna parte de como o cliente lembra da sua marca.',
   },
   {
     number: '02',
@@ -71,6 +71,11 @@ const benefits = [
     number: '03',
     title: 'Controle total pelo app',
     text: 'Intensidade, horário, troca de fragrância — tudo pelo app Sinesia. Funciona de qualquer lugar.',
+  },
+  {
+    number: '04',
+    title: 'Cheiro o dia todo, não só no começo',
+    text: 'Diferente de spray e vareta, que somem em minutos, o difusor mantém o ambiente perfumado do abrir ao fechar. Todo dia, com a mesma intensidade.',
   },
 ];
 
@@ -104,11 +109,10 @@ export default function EmpresasPage() {
               Sinesia para empresas
             </span>
             <h1 className="font-serif text-4xl md:text-5xl leading-[1.1] mb-5">
-              O ambiente que seus clientes vão notar
+              O cheiro que faz seu cliente voltar
             </h1>
             <p className="text-base text-white/80 mb-8 max-w-md">
-              Aromatização inteligente para escritórios, consultórios, salões e
-              pequenos comércios. Sem mensalidade cara, sem visita técnica.
+              Aromatização profissional para quem não quer pagar caro nem depender de técnico. Seu ambiente perfumado o tempo todo — não só nos primeiros minutos, como acontece com spray e vareta.
             </p>
             <button
               onClick={() => { trackClick('Montar plano para minha empresa', { section: 'empresas' }); setShowWizard(true); }}
@@ -116,6 +120,7 @@ export default function EmpresasPage() {
             >
               Montar plano para minha empresa
             </button>
+            <p className="text-white/40 text-xs mt-4">Sem contrato · Sem taxa de instalação · Manutenção inclusa</p>
           </motion.div>
         </div>
       </section>
@@ -155,6 +160,16 @@ export default function EmpresasPage() {
               </motion.div>
             ))}
           </div>
+
+          <motion.p
+            initial={{ opacity: 0, y: 12 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center text-ink/50 text-sm mt-10 leading-relaxed"
+          >
+            Ideal também para: Academias · Showrooms · Imobiliárias · Hotéis e pousadas · Restaurantes e cafés · Clínicas de estética · Coworkings · Pet shops · Óticas · Concessionárias
+          </motion.p>
         </div>
       </section>
 
@@ -176,7 +191,7 @@ export default function EmpresasPage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-8">
             {benefits.map((b, i) => (
               <motion.div
                 key={b.number}
@@ -191,6 +206,63 @@ export default function EmpresasPage() {
               </motion.div>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* Tabela comparativa */}
+      <section className="section-padding bg-offwhite">
+        <div className="container-page">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="text-center mb-10"
+          >
+            <h2 className="font-serif text-3xl md:text-4xl text-ink mb-3">Como a Sinesia se compara</h2>
+          </motion.div>
+
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.5 }}
+            className="overflow-x-auto"
+          >
+            <table className="w-full min-w-[600px] text-sm border-separate border-spacing-0">
+              <thead>
+                <tr>
+                  <th className="text-left text-ink/50 text-xs uppercase tracking-widest font-medium px-5 py-4 bg-transparent w-[34%]" />
+                  <th className="text-center px-5 py-4 bg-sand/40 rounded-tl-2xl text-ink/60 font-medium text-sm">Spray / Vareta</th>
+                  <th className="text-center px-5 py-4 bg-sand/40 text-ink/60 font-medium text-sm">Grandes empresas</th>
+                  <th className="text-center px-5 py-4 bg-rust text-white font-semibold text-sm rounded-tr-2xl">Sinesia ✦</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  ['Cheiro o dia todo',       false, true,  true ],
+                  ['Preço acessível',          true,  false, true ],
+                  ['Sem contrato de fidelidade', true, false, true],
+                  ['Sem visita técnica',       true,  null,  true ],
+                  ['Manutenção inclusa',       false, null,  true ],
+                  ['Resultado profissional',   false, true,  true ],
+                ].map(([label, spray, grandes, sinesia], i) => (
+                  <tr key={label as string} className={i % 2 === 0 ? 'bg-white' : 'bg-sand/20'}>
+                    <td className={`px-5 py-3.5 font-medium text-ink ${i === 5 ? 'rounded-bl-2xl' : ''}`}>{label as string}</td>
+                    <td className="px-5 py-3.5 text-center">
+                      {spray === true ? <span className="text-green-600 font-bold text-base">✓</span> : spray === false ? <span className="text-ink/25 font-bold text-base">✕</span> : <span className="text-ink/40 text-xs">parcial</span>}
+                    </td>
+                    <td className="px-5 py-3.5 text-center bg-sand/40">
+                      {grandes === true ? <span className="text-green-600 font-bold text-base">✓</span> : grandes === false ? <span className="text-ink/25 font-bold text-base">✕</span> : <span className="text-ink/40 text-xs">parcial</span>}
+                    </td>
+                    <td className={`px-5 py-3.5 text-center bg-rust/8 border-x border-rust/20 ${i === 5 ? 'rounded-br-2xl border-b border-rust/20' : ''}`}>
+                      {sinesia === true ? <span className="text-rust font-bold text-base">✓</span> : <span className="text-ink/25 font-bold text-base">✕</span>}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </motion.div>
         </div>
       </section>
 
