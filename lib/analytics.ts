@@ -12,6 +12,7 @@ type AnalyticsEvent =
 declare global {
   interface Window {
     gtag?: (...args: unknown[]) => void;
+    gtag_report_conversion?: (url?: string) => boolean;
     fbq?: (...args: unknown[]) => void;
     ttq?: {
       track: (...args: unknown[]) => void;

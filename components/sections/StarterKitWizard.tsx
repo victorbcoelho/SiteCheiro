@@ -244,6 +244,9 @@ function PreLaunchModal({
       contents: [{ contentId: diffuserId, contentType: 'product', contentName: diffuserName }],
       value: cartSelection.valueNumeric,
     });
+    if (typeof window !== 'undefined' && typeof window.gtag_report_conversion === 'function') {
+      window.gtag_report_conversion();
+    }
     setSubmitted(true);
     setLoading(false);
   };

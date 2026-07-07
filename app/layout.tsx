@@ -104,6 +104,16 @@ export default function RootLayout({
               function gtag(){dataLayer.push(arguments);}
               gtag('js', new Date());
               gtag('config', '${gAdsId}');
+              window.gtag_report_conversion = function(url) {
+                var callback = function() {
+                  if (typeof(url) !== 'undefined') { window.location = url; }
+                };
+                gtag('event', 'conversion', {
+                  'send_to': 'AW-18275491265/vwhXCJ-XiMwcEMG7t4pE',
+                  'event_callback': callback
+                });
+                return false;
+              };
               console.log('[Sinesia Google Ads] ID:', '${gAdsId}');
               console.log('[Sinesia Google Ads] gtag carregado:', typeof window.gtag !== 'undefined' ? '✅ SIM' : '❌ NÃO');
             `}</Script>
