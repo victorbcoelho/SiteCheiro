@@ -75,7 +75,7 @@ const benefits = [
   {
     number: '04',
     title: 'Cheiro o dia todo, não só no começo',
-    text: 'Diferente de spray e vareta, que somem em minutos, o difusor mantém o ambiente perfumado do abrir ao fechar. Todo dia, com a mesma intensidade.',
+    text: 'Diferente de varetas e sprays, que somem em minutos, o difusor mantém o ambiente perfumado do abrir ao fechar. Todo dia, com a mesma intensidade.',
   },
 ];
 
@@ -112,7 +112,7 @@ export default function EmpresasPage() {
               O cheiro que faz seu cliente voltar
             </h1>
             <p className="text-base text-white/80 mb-8 max-w-md">
-              Aromatização profissional para quem não quer pagar caro nem depender de técnico. Seu ambiente perfumado o tempo todo — não só nos primeiros minutos, como acontece com spray e vareta.
+              Aromatização profissional para quem não quer pagar caro nem depender de técnico. Seu ambiente perfumado o tempo todo — não só nos primeiros minutos, como acontece com varetas e sprays.
             </p>
             <button
               onClick={() => { trackClick('Montar plano para minha empresa', { section: 'empresas' }); setShowWizard(true); }}
@@ -233,7 +233,7 @@ export default function EmpresasPage() {
               <thead>
                 <tr>
                   <th className="text-left text-ink/50 text-xs uppercase tracking-widest font-medium px-5 py-4 bg-transparent w-[34%]" />
-                  <th className="text-center px-5 py-4 bg-sand/40 rounded-tl-2xl text-ink/60 font-medium text-sm">Spray / Vareta</th>
+                  <th className="text-center px-5 py-4 bg-sand/40 rounded-tl-2xl text-ink/60 font-medium text-sm">Varetas e Sprays</th>
                   <th className="text-center px-5 py-4 bg-sand/40 text-ink/60 font-medium text-sm">Grandes empresas</th>
                   <th className="text-center px-5 py-4 bg-rust text-white font-semibold text-sm rounded-tr-2xl">Sinesia ✦</th>
                 </tr>

@@ -264,7 +264,7 @@ function PreLaunchModal({
             <h3 className="font-serif text-2xl text-ink mb-3">Você está na lista!</h3>
             <p className="text-ink/60 text-sm leading-relaxed mb-6">
               Assim que abrirmos as vagas, você será o primeiro a saber —{' '}
-              com <strong className="text-rust">50% de desconto</strong> garantido no seu kit.
+              com <strong className="text-rust">30% de desconto</strong> garantido no seu kit.
             </p>
             <button
               onClick={onClose}
@@ -284,10 +284,10 @@ function PreLaunchModal({
               Deixe seu e-mail para receber o convite de abertura em primeira mão.
             </p>
 
-            {/* Big 50% highlight */}
+            {/* Big 30% highlight */}
             <div className="bg-rust text-white rounded-2xl px-5 py-4 mb-4 text-center">
               <p className="text-white/70 text-xs uppercase tracking-widest mb-0.5">Desconto exclusivo de acesso antecipado</p>
-              <p className="font-serif text-5xl font-bold leading-none">50% off</p>
+              <p className="font-serif text-5xl font-bold leading-none">30% off</p>
               <p className="text-white/80 text-xs mt-1">no seu primeiro kit · exclusivo para quem entrar agora</p>
             </div>
 
@@ -320,7 +320,7 @@ function PreLaunchModal({
                 disabled={loading}
                 className="bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-3.5 font-medium transition-colors duration-300 text-sm"
               >
-                {loading ? 'Salvando...' : 'Garantir meu 50% de desconto'}
+                {loading ? 'Salvando...' : 'Garantir meu 30% de desconto'}
               </button>
               <p className="text-[11px] text-ink/35 text-center">
                 Nenhum valor será cobrado hoje.
