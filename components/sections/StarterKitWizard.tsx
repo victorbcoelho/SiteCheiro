@@ -444,9 +444,16 @@ function CartModal({
                 <p className="text-sm font-medium text-ink truncate">{s.name}</p>
               </div>
               <div className="shrink-0 text-right">
-                <p className="text-sm font-semibold text-ink">R${fmtBRL(s.priceEach * s.qty)}/mês</p>
-                {isPromo && (
-                  <p className="text-[10px] text-ink/40 leading-tight">durante 12 meses</p>
+                {hasScentDiscount ? (
+                  <>
+                    <p className="text-[10px] text-ink/35 line-through">R${fmtBRL(SCENT_FULL * s.qty)}/mês</p>
+                    <p className="text-sm font-semibold text-rust">R${fmtBRL(s.priceEach * s.qty)}/mês</p>
+                    {isPromo && (
+                      <p className="text-[10px] text-ink/40 leading-tight">durante 12 meses</p>
+                    )}
+                  </>
+                ) : (
+                  <p className="text-sm font-semibold text-ink">R${fmtBRL(s.priceEach * s.qty)}/mês</p>
                 )}
               </div>
             </div>
@@ -591,6 +598,10 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   useEffect(() => {
     if (!isB2B) trackEvent('wizard_started', { origem: 'starter-kit-wizard' });
   }, [isB2B]);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [step]);
 
   useEffect(() => {
     if (step === 'summary') {
@@ -1019,7 +1030,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                         nas essências · economia total de R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB) * 12 + deviceTotal)}/ano
                       </span>
                     </div>
-                    <p className="text-white/45 text-xs mb-4">Assinatura anual cobrada mensalmente</p>
+                    <p className="text-white/50 text-sm mb-4">Assinatura anual cobrada mensalmente</p>
 
                     <ul className="text-xs text-white/65 space-y-1.5 mb-4">
                       <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} <strong className="text-white">sem custo</strong></li>
