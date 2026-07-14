@@ -966,8 +966,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                       Promoção
                     </div>
                     <div className="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-lg px-2.5 py-1 mb-2">
-                      <span className="text-xs">🔒</span>
-                      <span className="text-xs text-white font-semibold uppercase tracking-wide">Compromisso de 12 meses</span>
+                      <span className="text-xs text-white font-semibold uppercase tracking-wide">Assinatura anual cobrada mensalmente</span>
                     </div>
                     <h3 className="font-serif text-xl mb-1">Difusor de graça</h3>
 
@@ -975,7 +974,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <div className="inline-flex items-center gap-1.5 bg-rust/25 border border-rust/40 rounded-lg px-2.5 py-1 mb-3">
                       <span className="text-xs">🎁</span>
                       <span className="text-xs text-white font-semibold">
-                        Difusor R${fmtBRL(deviceTotal)} incluso <span className="line-through opacity-60">pago</span> de graça
+                        Difusor R${fmtBRL(deviceTotal)} incluso <span className="line-through opacity-60">pago</span> de graça somente nesse plano
                       </span>
                     </div>
 
