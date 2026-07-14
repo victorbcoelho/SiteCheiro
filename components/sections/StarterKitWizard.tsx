@@ -994,9 +994,6 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <div className="absolute top-0 right-0 bg-rust text-white text-[10px] px-3 py-1.5 rounded-bl-xl font-medium uppercase tracking-wide">
                       Promoção
                     </div>
-                    <div className="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-lg px-2.5 py-1 mb-2">
-                      <span className="text-xs text-white font-semibold uppercase tracking-wide">Assinatura anual cobrada mensalmente</span>
-                    </div>
                     <h3 className="font-serif text-xl mb-1">Difusor de graça</h3>
 
                     {/* Highlight: device free */}
@@ -1016,12 +1013,13 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     </p>
 
                     {/* Highlight: 20% off + total savings */}
-                    <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 mb-4">
+                    <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 mb-2">
                       <span className="text-xs font-bold text-white bg-rust rounded px-1">-20%</span>
                       <span className="text-xs text-white/80">
                         nas essências · economia total de R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB) * 12 + deviceTotal)}/ano
                       </span>
                     </div>
+                    <p className="text-white/45 text-xs mb-4">Assinatura anual cobrada mensalmente</p>
 
                     <ul className="text-xs text-white/65 space-y-1.5 mb-4">
                       <li>✓ {b2bQty > 1 ? `${b2bQty}× ` : ''}{selectedDiffuser.name} <strong className="text-white">sem custo</strong></li>
