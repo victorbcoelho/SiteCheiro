@@ -72,6 +72,7 @@ export default function RootLayout({
   const gAdsId = process.env.NEXT_PUBLIC_GADS_ID;
   const metaPixelId = process.env.NEXT_PUBLIC_META_PIXEL_ID;
   const tiktokPixelId = process.env.NEXT_PUBLIC_TIKTOK_PIXEL_ID;
+  const pinterestTagId = process.env.NEXT_PUBLIC_PINTEREST_TAG_ID;
 
   return (
     <html lang="pt-BR" className={`${inter.variable} ${playfair.variable}`}>
@@ -172,6 +173,33 @@ export default function RootLayout({
               `,
             }}
           />
+        )}
+
+        {pinterestTagId && (
+          <>
+            <Script id="pinterest-tag" strategy="afterInteractive">{`
+              !function(e){if(!window.pintrk){window.pintrk=function(){
+              window.pintrk.queue.push(Array.prototype.slice.call(arguments))};var
+              n=window.pintrk;n.queue=[],n.version="3.0";var
+              t=document.createElement("script");t.async=!0,t.src=e;var
+              r=document.getElementsByTagName("script")[0];
+              r.parentNode.insertBefore(t,r)}}("https://s.pinimg.com/ct/core.js");
+              pintrk('load', '${pinterestTagId}');
+              pintrk('page');
+              console.log('[Sinesia Pinterest] Tag ID:', '${pinterestTagId}');
+              console.log('[Sinesia Pinterest] pintrk carregado:', typeof window.pintrk !== 'undefined' ? '✅ SIM' : '❌ NÃO');
+            `}</Script>
+            <noscript>
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                height="1"
+                width="1"
+                style={{ display: 'none' }}
+                alt=""
+                src={`https://ct.pinterest.com/v3/?event=init&tid=${pinterestTagId}&noscript=1`}
+              />
+            </noscript>
+          </>
         )}
       </body>
     </html>

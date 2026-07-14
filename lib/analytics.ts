@@ -18,6 +18,7 @@ declare global {
       track: (...args: unknown[]) => void;
       identify: (...args: unknown[]) => void;
     };
+    pintrk?: (...args: unknown[]) => void;
   }
 }
 
