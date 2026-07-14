@@ -340,12 +340,20 @@ function PreLaunchModal({
   );
 }
 
+interface CartScentItem {
+  name: string;
+  image?: string;
+  cardColor?: string;
+  qty: number;
+  priceEach: number;
+}
+
 // Cart modal
 function CartModal({
   diffuserName,
   diffuserId,
-  scentNames,
-  scentImages,
+  diffuserPrice,
+  scentItems,
   planLabel,
   planPrice,
   planMonthly,
@@ -354,8 +362,8 @@ function CartModal({
 }: {
   diffuserName: string;
   diffuserId: string;
-  scentNames: string[];
-  scentImages: { name: string; image?: string; cardColor?: string }[];
+  diffuserPrice: number;
+  scentItems: CartScentItem[];
   planLabel: string;
   planPrice: string;
   planMonthly?: string;
@@ -365,6 +373,7 @@ function CartModal({
   const [showDetails, setShowDetails] = useState(false);
   const isPromo = planLabel.toLowerCase().includes('promo');
   const isSubscribe = planLabel.toLowerCase().includes('assine');
+  const hasScentDiscount = isPromo || isSubscribe;
 
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-ink/60 backdrop-blur-sm p-4">
@@ -372,9 +381,9 @@ function CartModal({
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 40 }}
-        className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-3xl p-6 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto"
       >
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-5">
           <h3 className="font-serif text-xl text-ink">Seu carrinho</h3>
           <button
             onClick={onClose}
@@ -385,47 +394,67 @@ function CartModal({
           </button>
         </div>
 
-        {/* Diffuser image */}
-        <div className="flex items-center gap-3 mb-4">
-          <div className="w-16 h-16 rounded-xl bg-sand/30 shrink-0 overflow-hidden border border-sand/40">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={`/images/sinesia-${diffuserId}.jpg`}
-              alt={diffuserName}
-              className="w-full h-full object-contain p-1"
-              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-            />
-          </div>
-          <div>
-            <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-0.5">Difusor</p>
-            <p className="text-sm font-medium text-ink">{diffuserName}</p>
-          </div>
-        </div>
-
-        {/* Scent images */}
-        {scentImages.length > 0 && (
-          <div className="mb-4">
-            <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-2">Fragrâncias</p>
-            <div className="flex gap-2 flex-wrap">
-              {scentImages.map((s) => (
-                <div key={s.name} className="flex flex-col items-center gap-1">
-                  <div
-                    className="w-14 h-14 rounded-xl overflow-hidden border border-sand/40 relative"
-                    style={{ backgroundColor: s.cardColor ?? '#e5e0d6' }}
-                  >
-                    {s.image && (
-                      // eslint-disable-next-line @next/next/no-img-element
-                      <img src={s.image} alt={s.name} className="absolute inset-0 w-full h-full object-contain p-1" />
-                    )}
-                  </div>
-                  <span className="text-[10px] text-ink/50 text-center max-w-[56px] leading-tight">{s.name}</span>
+        <div className="flex flex-col gap-3 mb-5">
+          {/* Diffuser row */}
+          <div className="flex items-center gap-3 rounded-2xl border border-sand p-3">
+            <div className="w-14 h-14 rounded-xl bg-sand/30 shrink-0 overflow-hidden border border-sand/40">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={`/images/sinesia-${diffuserId}.jpg`}
+                alt={diffuserName}
+                className="w-full h-full object-contain p-1"
+                onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-0.5">Difusor · 1×</p>
+              <p className="text-sm font-medium text-ink truncate">{diffuserName}</p>
+            </div>
+            <div className="shrink-0 text-right">
+              {isPromo ? (
+                <div className="flex flex-col items-end">
+                  <span className="text-[10px] text-ink/35 line-through">R${fmtBRL(diffuserPrice)}</span>
+                  <span className="text-sm font-bold text-green-600 uppercase tracking-wide">GRÁTIS</span>
                 </div>
-              ))}
+              ) : (
+                <span className="text-sm font-semibold text-ink">R${fmtBRL(diffuserPrice)}</span>
+              )}
             </div>
           </div>
-        )}
 
-        <div className="border border-sand rounded-2xl p-4 mb-5">
+          {/* Scent rows */}
+          {scentItems.map((s) => (
+            <div key={s.name} className="flex items-center gap-3 rounded-2xl border border-sand p-3">
+              <div
+                className="w-14 h-14 rounded-xl shrink-0 overflow-hidden border border-sand/40 relative"
+                style={{ backgroundColor: s.cardColor ?? '#e5e0d6' }}
+              >
+                {s.image && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={s.image} alt={s.name} className="absolute inset-0 w-full h-full object-contain p-1" />
+                )}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 flex-wrap">
+                  <p className="text-[10px] uppercase tracking-widest text-ink/35">Fragrância · {s.qty}×</p>
+                  {hasScentDiscount && (
+                    <span className="text-[9px] font-bold bg-rust text-white rounded px-1 uppercase">-20% off</span>
+                  )}
+                </div>
+                <p className="text-sm font-medium text-ink truncate">{s.name}</p>
+              </div>
+              <div className="shrink-0 text-right">
+                <p className="text-sm font-semibold text-ink">R${fmtBRL(s.priceEach * s.qty)}/mês</p>
+                {isPromo && (
+                  <p className="text-[10px] text-ink/40 leading-tight">durante 12 meses</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Plan total */}
+        <div className="bg-sand/20 rounded-2xl p-4 mb-5">
           <p className="text-xs text-ink/40 uppercase tracking-wider mb-1">{planLabel}</p>
           <p className="font-serif text-2xl text-rust">{planPrice}</p>
           {planMonthly && (
@@ -986,11 +1015,11 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                       {numScentBottles} frasco{numScentBottles > 1 ? 's' : ''}/mês · 12 meses
                     </p>
 
-                    {/* Highlight: 20% off */}
+                    {/* Highlight: 20% off + total savings */}
                     <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 mb-4">
                       <span className="text-xs font-bold text-white bg-rust rounded px-1">-20%</span>
                       <span className="text-xs text-white/80">
-                        nas essências todo mês · você economiza R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB) * 12)}/ano
+                        nas essências · economia total de R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB) * 12 + deviceTotal)}/ano
                       </span>
                     </div>
 
@@ -1143,10 +1172,17 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
           <CartModal
             diffuserName={b2bQty > 1 ? `${b2bQty}× ${selectedDiffuser.name}` : selectedDiffuser.name}
             diffuserId={selectedDiffuser.id}
-            scentNames={selectedScentNames}
-            scentImages={state.selectedScentIds.map((id) => {
+            diffuserPrice={deviceTotal}
+            scentItems={scentQtys.map(({ id, qty }) => {
               const s = scents.find((sc) => sc.id === id);
-              return { name: s?.name ?? id, image: s?.image, cardColor: s?.cardColor };
+              const isSubPlan = cart.planLabel.toLowerCase().includes('promo') || cart.planLabel.toLowerCase().includes('assine');
+              return {
+                name: s?.name ?? id,
+                image: s?.image,
+                cardColor: s?.cardColor,
+                qty,
+                priceEach: isSubPlan ? SCENT_SUB : SCENT_FULL,
+              };
             })}
             planLabel={cart.planLabel}
             planPrice={cart.planPrice}
