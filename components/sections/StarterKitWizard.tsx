@@ -343,7 +343,9 @@ function PreLaunchModal({
 // Cart modal
 function CartModal({
   diffuserName,
+  diffuserId,
   scentNames,
+  scentImages,
   planLabel,
   planPrice,
   planMonthly,
@@ -351,20 +353,26 @@ function CartModal({
   onClose,
 }: {
   diffuserName: string;
+  diffuserId: string;
   scentNames: string[];
+  scentImages: { name: string; image?: string; cardColor?: string }[];
   planLabel: string;
   planPrice: string;
   planMonthly?: string;
   onCheckout: () => void;
   onClose: () => void;
 }) {
+  const [showDetails, setShowDetails] = useState(false);
+  const isPromo = planLabel.toLowerCase().includes('promo');
+  const isSubscribe = planLabel.toLowerCase().includes('assine');
+
   return (
     <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-ink/60 backdrop-blur-sm p-4">
       <motion.div
         initial={{ opacity: 0, y: 40 }}
         animate={{ opacity: 1, y: 0 }}
         exit={{ opacity: 0, y: 40 }}
-        className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl"
+        className="bg-white rounded-3xl p-8 w-full max-w-md shadow-2xl max-h-[90vh] overflow-y-auto"
       >
         <div className="flex items-center justify-between mb-6">
           <h3 className="font-serif text-xl text-ink">Seu carrinho</h3>
@@ -376,31 +384,101 @@ function CartModal({
             ×
           </button>
         </div>
-        <div className="border border-sand rounded-2xl p-4 mb-5">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm font-medium text-ink">{diffuserName}</span>
+
+        {/* Diffuser image */}
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-16 h-16 rounded-xl bg-sand/30 shrink-0 overflow-hidden border border-sand/40">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={`/images/sinesia-${diffuserId}.jpg`}
+              alt={diffuserName}
+              className="w-full h-full object-contain p-1"
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+            />
           </div>
-          <div className="flex flex-wrap gap-2 mb-4">
-            {scentNames.map((name) => (
-              <span key={name} className="text-xs bg-sand/50 text-ink/70 rounded-full px-3 py-1">
-                {name}
-              </span>
-            ))}
-          </div>
-          <div className="border-t border-sand pt-3">
-            <p className="text-xs text-ink/40 uppercase tracking-wider mb-1">{planLabel}</p>
-            <p className="font-serif text-2xl text-rust">{planPrice}</p>
-            {planMonthly && (
-              <p className="text-xs text-ink/40 mt-0.5">{planMonthly}</p>
-            )}
+          <div>
+            <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-0.5">Difusor</p>
+            <p className="text-sm font-medium text-ink">{diffuserName}</p>
           </div>
         </div>
+
+        {/* Scent images */}
+        {scentImages.length > 0 && (
+          <div className="mb-4">
+            <p className="text-[10px] uppercase tracking-widest text-ink/35 mb-2">Fragrâncias</p>
+            <div className="flex gap-2 flex-wrap">
+              {scentImages.map((s) => (
+                <div key={s.name} className="flex flex-col items-center gap-1">
+                  <div
+                    className="w-14 h-14 rounded-xl overflow-hidden border border-sand/40 relative"
+                    style={{ backgroundColor: s.cardColor ?? '#e5e0d6' }}
+                  >
+                    {s.image && (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={s.image} alt={s.name} className="absolute inset-0 w-full h-full object-contain p-1" />
+                    )}
+                  </div>
+                  <span className="text-[10px] text-ink/50 text-center max-w-[56px] leading-tight">{s.name}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div className="border border-sand rounded-2xl p-4 mb-5">
+          <p className="text-xs text-ink/40 uppercase tracking-wider mb-1">{planLabel}</p>
+          <p className="font-serif text-2xl text-rust">{planPrice}</p>
+          {planMonthly && (
+            <p className="text-xs text-ink/40 mt-0.5">{planMonthly}</p>
+          )}
+        </div>
+
         <button
           onClick={onCheckout}
           className="w-full bg-rust hover:bg-rustDark text-white rounded-xl py-4 font-medium transition-colors duration-300 text-sm"
         >
           Fazer pagamento
         </button>
+
+        {/* +Detalhes for Promo plan */}
+        {isPromo && (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowDetails(!showDetails)}
+              className="w-full text-xs text-ink/40 hover:text-ink/70 transition-colors py-1"
+            >
+              {showDetails ? '− Detalhes' : '+ Detalhes'}
+            </button>
+            {showDetails && (
+              <div className="mt-2 text-xs text-ink/60 leading-relaxed space-y-1.5 bg-sand/20 rounded-xl p-3 border border-sand/40">
+                <p>✓ Difusor com garantia vitalícia enquanto assinatura estiver válida.</p>
+                <p>✓ Promoção válida na assinatura de 12 meses.</p>
+                <p>⚠ Pode ser cancelado antes desse prazo, porém o difusor será cobrado pelo valor integral.</p>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* +Detalhes for Subscribe plan */}
+        {isSubscribe && (
+          <div className="mt-3">
+            <button
+              type="button"
+              onClick={() => setShowDetails(!showDetails)}
+              className="w-full text-xs text-ink/40 hover:text-ink/70 transition-colors py-1"
+            >
+              {showDetails ? '− Detalhes' : '+ Detalhes'}
+            </button>
+            {showDetails && (
+              <div className="mt-2 text-xs text-ink/60 leading-relaxed space-y-1.5 bg-sand/20 rounded-xl p-3 border border-sand/40">
+                <p>✓ Assinatura pode ser cancelada quando quiser.</p>
+                <p>✓ Difusor com garantia vitalícia enquanto assinatura estiver válida.</p>
+              </div>
+            )}
+          </div>
+        )}
+
         <button
           onClick={onClose}
           className="w-full text-xs text-ink/35 hover:text-ink/55 mt-3 py-1 transition-colors"
@@ -478,6 +556,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const [detailScentId, setDetailScentId] = useState<string | null>(null);
   const [showAllScents, setShowAllScents] = useState(false);
   const [showDiffuserModal, setShowDiffuserModal] = useState(false);
+  const [showPromoDetails, setShowPromoDetails] = useState(false);
+  const [showSubscribeDetails, setShowSubscribeDetails] = useState(false);
 
   useEffect(() => {
     if (!isB2B) trackEvent('wizard_started', { origem: 'starter-kit-wizard' });
@@ -885,7 +965,10 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     <div className="absolute top-0 right-0 bg-rust text-white text-[10px] px-3 py-1.5 rounded-bl-xl font-medium uppercase tracking-wide">
                       Promoção
                     </div>
-                    <p className="text-white/50 text-xs uppercase tracking-widest mb-1">Compromisso de 12 meses</p>
+                    <div className="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-lg px-2.5 py-1 mb-2">
+                      <span className="text-xs">🔒</span>
+                      <span className="text-xs text-white font-semibold uppercase tracking-wide">Compromisso de 12 meses</span>
+                    </div>
                     <h3 className="font-serif text-xl mb-1">Difusor de graça</h3>
 
                     {/* Highlight: device free */}
@@ -931,6 +1014,20 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     >
                       Quero essa promoção
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowPromoDetails(!showPromoDetails)}
+                      className="w-full text-white/45 hover:text-white/70 text-xs mt-2 transition-colors py-0.5"
+                    >
+                      {showPromoDetails ? '− Detalhes' : '+ Detalhes'}
+                    </button>
+                    {showPromoDetails && (
+                      <div className="mt-2 text-xs text-white/60 leading-relaxed space-y-1.5 border-t border-white/10 pt-2">
+                        <p>✓ Difusor com garantia vitalícia enquanto assinatura estiver válida.</p>
+                        <p>✓ Promoção válida na assinatura de 12 meses.</p>
+                        <p>⚠ Pode ser cancelado antes desse prazo, porém o difusor será cobrado pelo valor integral.</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* 2. Mais popular — Subscribe & save */}
@@ -976,6 +1073,19 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                     >
                       Assinar agora
                     </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowSubscribeDetails(!showSubscribeDetails)}
+                      className="w-full text-ink/40 hover:text-ink/70 text-xs mt-2 transition-colors py-0.5"
+                    >
+                      {showSubscribeDetails ? '− Detalhes' : '+ Detalhes'}
+                    </button>
+                    {showSubscribeDetails && (
+                      <div className="mt-2 text-xs text-ink/60 leading-relaxed space-y-1.5 border-t border-sand pt-2">
+                        <p>✓ Assinatura pode ser cancelada quando quiser.</p>
+                        <p>✓ Difusor com garantia vitalícia enquanto assinatura estiver válida.</p>
+                      </div>
+                    )}
                   </div>
 
                   {/* 3. Compra única — sem compromisso */}
@@ -1033,7 +1143,12 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
         {cart && !showPreLaunch && (
           <CartModal
             diffuserName={b2bQty > 1 ? `${b2bQty}× ${selectedDiffuser.name}` : selectedDiffuser.name}
+            diffuserId={selectedDiffuser.id}
             scentNames={selectedScentNames}
+            scentImages={state.selectedScentIds.map((id) => {
+              const s = scents.find((sc) => sc.id === id);
+              return { name: s?.name ?? id, image: s?.image, cardColor: s?.cardColor };
+            })}
             planLabel={cart.planLabel}
             planPrice={cart.planPrice}
             planMonthly={cart.planMonthly}
