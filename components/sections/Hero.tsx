@@ -36,7 +36,7 @@ export default function Hero() {
           </h1>
 
           <p className="text-lg md:text-xl text-white/75 mb-10 max-w-xl">
-            Sinesia combina aroma e som pra te transportar pra onde quiser. Pelo app, sem sair do sofá.
+            Sua casa sempre cheirosa, sem você precisar pensar nisso. Os refis chegam antes de acabar, com frete grátis.
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4">
