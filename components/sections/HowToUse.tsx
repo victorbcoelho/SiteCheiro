@@ -42,9 +42,9 @@ const steps = [
   },
   {
     number: '03',
-    title: 'Controle pelo app',
+    title: 'Escolha seu plano',
     description:
-      'Ajuste a intensidade do aroma, programe horários e alterne fragrâncias automaticamente. Tudo na palma da mão.',
+      'Suas essências favoritas chegam todo mês, com 20% off e frete grátis. No plano de 12 meses, o difusor é seu de graça — e com garantia válida durante todo o tempo que for nosso assinante.',
     cta: { label: 'Montar meu kit', href: '/starter-kit' },
     bg: 'bg-ink/5',
     image: '/images/sinesia-howto-app.jpg',
