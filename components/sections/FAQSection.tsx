@@ -4,7 +4,7 @@ const items: FAQItem[] = [
   {
     question: 'O aparelho Sinesia toca músicas?',
     answer:
-      'Sim. Apenas o modelo Sinesia Tower possui alto-falante integrado que reproduz playlists e frequências sonoras via app. Você controla o volume e a intensidade do aroma de forma independente.',
+      'Sim. Apenas o modelo Sinesia Tower possui alto-falante integrado que reproduz playlists de músicas e frequências sonoras relaxantes via app. Você controla o volume do som e a intensidade do aroma de forma independente.',
   },
   {
     question: 'Quanto tempo dura cada refil?',
