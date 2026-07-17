@@ -4,27 +4,32 @@ const items: FAQItem[] = [
   {
     question: 'O aparelho Sinesia toca músicas?',
     answer:
-      'Sim. O Sinesia possui alto-falante integrado que reproduz playlists e frequências sonoras via app. Você controla volume e intensidade do aroma de forma independente.',
+      'Sim. Apenas o modelo Sinesia Tower possui alto-falante integrado, que reproduz playlists e frequências sonoras via app.',
   },
   {
-    question: 'Quanto tempo dura cada cartucho?',
+    question: 'Quanto tempo dura cada refil?',
     answer:
-      'Cada cartucho dura entre 30 e 45 dias em uso moderado (8h/dia). O app monitora o nível e avisa antes de acabar.',
+      'Cada refil que você recebe mensalmente dura 30 dias. Antes de as essências acabarem, você recebe os próximos, mantendo seu ambiente sempre perfumado e aconchegante.',
   },
   {
     question: 'Posso cancelar o plano quando quiser?',
     answer:
-      'Sim, sem multa e sem burocracia. Cancele pelo app ou por e-mail com 1 clique.',
+      'Sim, sem multa e sem burocracia. Na promoção do difusor grátis, se o cancelamento for feito antes dos 12 meses, será cobrado apenas o valor do difusor.',
   },
   {
     question: 'O aparelho precisa de WiFi?',
     answer:
-      'Sim para sincronizar o app e reconhecer novos cartuchos. Mas rotinas já programadas continuam funcionando offline.',
+      'Não, os aparelhos funcionam offline. O modelo Sinesia Tower toca músicas através do bluetooth do seu celular.',
   },
   {
     question: 'E se eu não gostar de uma fragrância?',
     answer:
       'Troca garantida no próximo envio, sem custo adicional. Nossa equipe ajuda a escolher a essência certa para o seu ambiente.',
+  },
+  {
+    question: 'Posso variar as essências e não ficar preso às mesmas todos os meses?',
+    answer:
+      'Se preferir, fique à vontade para trocar as essências todos os meses. É só nos informar, via WhatsApp ou e-mail, quais essências gostaria de alterar no próximo mês, sem custo adicional.',
   },
 ];
 
