@@ -7,9 +7,10 @@ export const dynamic = 'force-dynamic';
 const RESERVA_VALOR = 28.9;
 
 interface CreatePreferenceBody {
-  nome?: string;
-  email?: string;
   reservaId?: string;
+  plano?: string;
+  difusor?: string;
+  fragrancias?: string;
   origin?: string;
 }
 
@@ -30,7 +31,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Requisição inválida.' }, { status: 400 });
   }
 
-  const { nome, email, reservaId, origin } = body;
+  const { reservaId, plano, difusor, fragrancias, origin } = body;
   if (!reservaId || !origin) {
     return NextResponse.json({ error: 'Dados incompletos.' }, { status: 400 });
   }
@@ -41,25 +42,29 @@ export async function POST(req: NextRequest) {
     items: [
       {
         id: 'reserva-sinesia',
-        title: 'Reserva Sinesia — pré-lançamento',
+        title: `Reserva Sinesia — ${difusor || 'pré-lançamento'}`,
         description: 'Reserva do difusor Sinesia (valor abatível no pedido final).',
         quantity: 1,
         currency_id: 'BRL',
         unit_price: RESERVA_VALOR,
       },
     ],
-    payer: {
-      ...(nome ? { name: nome } : {}),
-      ...(email ? { email } : {}),
-    },
     external_reference: String(reservaId),
     statement_descriptor: 'SINESIA',
+    // Metadados usados pelo webhook para registrar a compra mesmo sem endereço
+    metadata: {
+      reserva_id: String(reservaId),
+      plano: plano || '',
+      difusor: difusor || '',
+      fragrancias: fragrancias || '',
+    },
     back_urls: {
       success: backUrl,
       failure: backUrl,
       pending: backUrl,
     },
     auto_return: 'approved',
+    notification_url: `${origin}/api/mp-webhook`,
   };
 
   try {

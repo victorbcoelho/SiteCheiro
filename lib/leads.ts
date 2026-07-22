@@ -4,6 +4,7 @@ import {
   doc,
   getCountFromServer,
   serverTimestamp,
+  setDoc,
   updateDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
@@ -84,6 +85,22 @@ export async function updateReservaStatus(id: string, data: LeadData): Promise<v
     console.log('[Sinesia Reserva] ✅ Status atualizado:', id, data);
   } catch (err) {
     console.error('[Sinesia Reserva] ❌ Erro ao atualizar status:', err);
+  }
+}
+
+// Cria ou atualiza (merge) uma reserva — usado pelo webhook e pela coleta de
+// endereço pós-pagamento. Não falha se o documento ainda não existir.
+export async function upsertReserva(id: string, data: LeadData): Promise<void> {
+  if (!db) return;
+  try {
+    await setDoc(
+      doc(db, 'reservas', id),
+      { ...data, atualizadoEm: serverTimestamp() },
+      { merge: true }
+    );
+    console.log('[Sinesia Reserva] ✅ Reserva gravada (merge):', id);
+  } catch (err) {
+    console.error('[Sinesia Reserva] ❌ Erro ao gravar reserva:', err);
   }
 }
 

@@ -38,6 +38,7 @@ function formatDate(ts?: { seconds: number }) {
 
 const statusInfo: Record<string, { label: string; color: string }> = {
   pago: { label: 'Pago', color: 'bg-green-100 text-green-800' },
+  approved: { label: 'Pago', color: 'bg-green-100 text-green-800' },
   pendente: { label: 'Pendente', color: 'bg-zinc-200 text-zinc-700' },
   pagamento_pendente: { label: 'Pagamento pendente', color: 'bg-amber-100 text-amber-800' },
   pagamento_recusado: { label: 'Recusado', color: 'bg-red-100 text-red-800' },

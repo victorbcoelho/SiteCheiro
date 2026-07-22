@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { submitLead } from '@/lib/leads';
-import { trackEvent, trackCommerceEvent, identifyUser } from '@/lib/analytics';
+import { trackEvent, trackCommerceEvent } from '@/lib/analytics';
 import type { B2BContext } from './StarterKitWizard';
 
 const RESERVA_VALOR = 28.9;
@@ -29,55 +29,18 @@ export default function ReservationModal({
   b2bContext?: B2BContext;
   onClose: () => void;
 }) {
-  const [nome, setNome] = useState('');
-  const [email, setEmail] = useState('');
-  const [cep, setCep] = useState('');
-  const [endereco, setEndereco] = useState('');
-  const [numero, setNumero] = useState('');
-  const [complemento, setComplemento] = useState('');
-  const [bairro, setBairro] = useState('');
-  const [cidade, setCidade] = useState('');
-  const [estado, setEstado] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
   const origem = b2bContext ? 'empresas-wizard' : 'starter-kit-wizard';
 
-  // Autocompleta endereço pelo CEP (ViaCEP)
-  const handleCepBlur = async () => {
-    const clean = cep.replace(/\D/g, '');
-    if (clean.length !== 8) return;
-    try {
-      const res = await fetch(`https://viacep.com.br/ws/${clean}/json/`);
-      const data = await res.json();
-      if (!data.erro) {
-        setEndereco(data.logradouro || '');
-        setBairro(data.bairro || '');
-        setCidade(data.localidade || '');
-        setEstado(data.uf || '');
-      }
-    } catch {
-      /* silencioso — usuário preenche manualmente */
-    }
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleReservar = async () => {
     setError('');
     setLoading(true);
 
     try {
-      // 1. Salva a reserva no Firebase (status pendente)
+      // 1. Cria a reserva no Firebase (status pendente, SEM endereço — vem depois)
       const reservaId = await submitLead('reservas', {
-        nome,
-        email,
-        endereco,
-        numero,
-        complemento,
-        bairro,
-        cidade,
-        estado,
-        cep,
         plano: cartSelection.planLabel,
         difusor: diffuserName,
         fragrancias: scentNames.join(', '),
@@ -89,22 +52,22 @@ export default function ReservationModal({
 
       const ref = reservaId || `reserva_${Date.now()}`;
 
-      // 2. Analytics
+      // 2. Analytics (antes do redirecionamento)
       trackEvent('lead_captured', { plano: cartSelection.planLabel, origem });
-      await identifyUser({ email });
       trackCommerceEvent('AddPaymentInfo', {
         contents: [{ contentId: diffuserId, contentType: 'product', contentName: diffuserName }],
         value: RESERVA_VALOR,
       });
 
-      // 3. Cria a cobrança no Mercado Pago (serverless)
+      // 3. Cria a cobrança no Mercado Pago (serverless) — guest checkout puro
       const res = await fetch('/api/create-preference', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          nome,
-          email,
           reservaId: ref,
+          plano: cartSelection.planLabel,
+          difusor: diffuserName,
+          fragrancias: scentNames.join(', '),
           origin: window.location.origin,
         }),
       });
@@ -114,7 +77,7 @@ export default function ReservationModal({
         throw new Error(data?.error || 'Não foi possível iniciar o pagamento.');
       }
 
-      // 4. Redireciona para o checkout do Mercado Pago
+      // 4. Redireciona direto para o checkout do Mercado Pago
       window.location.href = data.init_point;
     } catch (err) {
       console.error('[Sinesia Reserva] erro:', err);
@@ -122,9 +85,6 @@ export default function ReservationModal({
       setLoading(false);
     }
   };
-
-  const inputClass =
-    'border border-sand rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rust transition-colors w-full';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 backdrop-blur-sm p-4">
@@ -166,107 +126,34 @@ export default function ReservationModal({
           <li>✓ Nenhuma mensalidade é cobrada agora</li>
         </ul>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-          <p className="text-xs text-ink/45 uppercase tracking-wider">Seus dados</p>
-          <input
-            type="text"
-            placeholder="Nome completo"
-            value={nome}
-            onChange={(e) => setNome(e.target.value)}
-            required
-            className={inputClass}
-          />
-          <input
-            type="email"
-            placeholder="E-mail"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            className={inputClass}
-          />
-
-          <p className="text-xs text-ink/45 uppercase tracking-wider mt-2">
-            Endereço de entrega
+        {error && (
+          <p className="text-xs text-red-500 text-center bg-red-50 rounded-lg py-2 px-3 mb-3">
+            {error}
           </p>
-          <div className="flex gap-3">
-            <input
-              type="text"
-              placeholder="CEP"
-              value={cep}
-              onChange={(e) => setCep(e.target.value)}
-              onBlur={handleCepBlur}
-              required
-              className={`${inputClass} max-w-[140px]`}
-            />
-            <input
-              type="text"
-              placeholder="Cidade"
-              value={cidade}
-              onChange={(e) => setCidade(e.target.value)}
-              required
-              className={inputClass}
-            />
-            <input
-              type="text"
-              placeholder="UF"
-              value={estado}
-              onChange={(e) => setEstado(e.target.value)}
-              required
-              className={`${inputClass} max-w-[80px]`}
-              maxLength={2}
-            />
-          </div>
-          <input
-            type="text"
-            placeholder="Rua / logradouro"
-            value={endereco}
-            onChange={(e) => setEndereco(e.target.value)}
-            required
-            className={inputClass}
-          />
-          <div className="flex gap-3">
-            <input
-              type="text"
-              placeholder="Número"
-              value={numero}
-              onChange={(e) => setNumero(e.target.value)}
-              required
-              className={`${inputClass} max-w-[120px]`}
-            />
-            <input
-              type="text"
-              placeholder="Complemento (opcional)"
-              value={complemento}
-              onChange={(e) => setComplemento(e.target.value)}
-              className={inputClass}
-            />
-          </div>
-          <input
-            type="text"
-            placeholder="Bairro"
-            value={bairro}
-            onChange={(e) => setBairro(e.target.value)}
-            required
-            className={inputClass}
-          />
+        )}
 
-          {error && (
-            <p className="text-xs text-red-500 text-center bg-red-50 rounded-lg py-2 px-3">
-              {error}
-            </p>
-          )}
+        <button
+          type="button"
+          onClick={handleReservar}
+          disabled={loading}
+          className="w-full bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-4 font-medium transition-colors duration-300 text-sm"
+        >
+          {loading ? 'Redirecionando...' : 'Reservar minha vaga — R$28,90'}
+        </button>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-4 font-medium transition-colors duration-300 text-sm mt-2"
-          >
-            {loading ? 'Redirecionando...' : 'Reservar minha vaga — R$28,90'}
-          </button>
-          <p className="text-[11px] text-ink/40 text-center leading-relaxed">
-            Pagamento seguro via Mercado Pago (Pix ou cartão). Reembolso total em até 60 dias.
-          </p>
-        </form>
+        {/* Selo de confiança */}
+        <div className="mt-3 flex items-center justify-center gap-2 bg-sand/40 rounded-xl py-2.5 px-3">
+          <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-ink/70" stroke="currentColor" strokeWidth="2">
+            <rect x="5" y="11" width="14" height="9" rx="2" />
+            <path d="M8 11V8a4 4 0 018 0v3" strokeLinecap="round" />
+          </svg>
+          <span className="text-xs font-medium text-ink/70">Pagamento seguro · Pix ou cartão</span>
+          <span className="text-xs font-bold" style={{ color: '#009EE3' }}>Mercado Pago</span>
+        </div>
+
+        <p className="text-[11px] text-ink/45 text-center leading-relaxed mt-3">
+          Envio previsto em até 60 dias · Reembolso total a qualquer momento.
+        </p>
       </motion.div>
     </div>
   );
