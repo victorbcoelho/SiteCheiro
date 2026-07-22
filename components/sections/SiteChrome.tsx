@@ -6,7 +6,10 @@ import Footer from './Footer';
 
 export default function SiteChrome({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
-  const minimal = pathname === '/pre-venda' || pathname === '/resultadoportafalsa';
+  const minimal =
+    pathname === '/pre-venda' ||
+    pathname === '/resultadoportafalsa' ||
+    pathname === '/compras';
 
   if (minimal) {
     return <>{children}</>;
