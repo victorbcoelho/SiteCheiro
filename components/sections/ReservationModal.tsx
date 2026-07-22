@@ -31,7 +31,6 @@ export default function ReservationModal({
 }) {
   const [nome, setNome] = useState('');
   const [email, setEmail] = useState('');
-  const [telefone, setTelefone] = useState('');
   const [cep, setCep] = useState('');
   const [endereco, setEndereco] = useState('');
   const [numero, setNumero] = useState('');
@@ -72,7 +71,6 @@ export default function ReservationModal({
       const reservaId = await submitLead('reservas', {
         nome,
         email,
-        telefone,
         endereco,
         numero,
         complemento,
@@ -148,27 +146,25 @@ export default function ReservationModal({
           </button>
         </div>
 
-        <h3 className="font-serif text-2xl text-ink mb-2">Garanta seu Sinesia</h3>
+        <h3 className="font-serif text-2xl text-ink mb-0.5">
+          Você escolheu o {diffuserName}
+        </h3>
+        <p className="text-rust font-medium text-sm mb-4">{cartSelection.planPrice}</p>
 
-        {/* Valor da reserva */}
-        <div className="bg-rust text-white rounded-2xl px-5 py-4 mb-4 text-center">
-          <p className="text-white/70 text-xs uppercase tracking-widest mb-0.5">
-            Reserva com valor 100% abatível
-          </p>
-          <p className="font-serif text-4xl font-bold leading-none">R$28,90</p>
-          <p className="text-white/80 text-xs mt-1">
-            descontado integralmente do valor final do seu pedido
-          </p>
-        </div>
+        <p className="text-ink/60 text-sm leading-relaxed mb-2">
+          A Sinesia está em pré-lançamento. As primeiras unidades são limitadas.
+        </p>
+        <p className="text-ink/70 text-sm leading-relaxed mb-4">
+          Garanta sua vaga no primeiro lote com uma reserva de <strong>R$28,90</strong> —
+          que será integralmente abatida do seu primeiro pagamento.
+        </p>
 
-        {/* Kit reservado */}
-        <div className="bg-sand/30 rounded-xl p-3 mb-4 text-sm">
-          <p className="text-ink/40 text-xs uppercase tracking-wider mb-1">Seu kit</p>
-          <p className="text-ink font-medium">{cartSelection.planLabel}</p>
-          <p className="text-ink/60 text-xs">
-            {diffuserName} + {scentNames.join(' + ')}
-          </p>
-        </div>
+        <ul className="text-sm text-ink/70 space-y-1.5 mb-5">
+          <li>✓ Preço de fundador travado</li>
+          <li>✓ Primeiro lote garantido</li>
+          <li>✓ Reembolso 100% a qualquer momento</li>
+          <li>✓ Nenhuma mensalidade é cobrada agora</li>
+        </ul>
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-3">
           <p className="text-xs text-ink/45 uppercase tracking-wider">Seus dados</p>
@@ -185,14 +181,6 @@ export default function ReservationModal({
             placeholder="E-mail"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            required
-            className={inputClass}
-          />
-          <input
-            type="tel"
-            placeholder="WhatsApp / telefone"
-            value={telefone}
-            onChange={(e) => setTelefone(e.target.value)}
             required
             className={inputClass}
           />
@@ -273,7 +261,7 @@ export default function ReservationModal({
             disabled={loading}
             className="bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-4 font-medium transition-colors duration-300 text-sm mt-2"
           >
-            {loading ? 'Redirecionando...' : 'Pagar R$28,90 e reservar'}
+            {loading ? 'Redirecionando...' : 'Reservar minha vaga — R$28,90'}
           </button>
           <p className="text-[11px] text-ink/40 text-center leading-relaxed">
             Pagamento seguro via Mercado Pago (Pix ou cartão). Reembolso total em até 60 dias.
