@@ -6,6 +6,7 @@ import { moodOptions, roomOptions, getRecommendedScents } from '@/lib/recommenda
 import { scents, diffuserModels, type DiffuserModelId } from '@/lib/products';
 import { trackEvent, trackClick, trackCommerceEvent, identifyUser } from '@/lib/analytics';
 import { submitLead } from '@/lib/leads';
+import ReservationModal from './ReservationModal';
 
 type Step = 'room' | 'mood' | 'scents' | 'summary';
 
@@ -1202,9 +1203,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
         )}
       </AnimatePresence>
 
-      {/* Pre-launch modal */}
+      {/* Reservation + payment modal */}
       {cart && showPreLaunch && (
-        <PreLaunchModal
+        <ReservationModal
           cartSelection={cart}
           diffuserId={selectedDiffuser.id}
           diffuserName={selectedDiffuser.name}

@@ -1,12 +1,14 @@
 import {
   addDoc,
   collection,
+  doc,
   getCountFromServer,
   serverTimestamp,
+  updateDoc,
 } from 'firebase/firestore';
 import { db } from './firebase';
 
-export type LeadCollection = 'leads' | 'leads_b2b' | 'leads_b2c';
+export type LeadCollection = 'leads' | 'leads_b2b' | 'leads_b2c' | 'reservas';
 
 export interface LeadPayload {
   nome: string;
@@ -44,7 +46,10 @@ function saveToLocalStorage(collectionName: LeadCollection, data: LeadData) {
   }
 }
 
-export async function submitLead(collectionName: LeadCollection, data: LeadData) {
+export async function submitLead(
+  collectionName: LeadCollection,
+  data: LeadData
+): Promise<string | null> {
   console.log('[Sinesia Lead] Tentando salvar lead...', { collectionName, data });
 
   if (!db) {
@@ -52,7 +57,7 @@ export async function submitLead(collectionName: LeadCollection, data: LeadData)
     if (typeof window !== 'undefined') {
       saveToLocalStorage(collectionName, data);
     }
-    return;
+    return null;
   }
 
   try {
@@ -61,8 +66,24 @@ export async function submitLead(collectionName: LeadCollection, data: LeadData)
       timestamp: serverTimestamp(),
     });
     console.log('[Sinesia Lead] ✅ Lead salvo no Firestore! ID:', ref.id);
+    return ref.id;
   } catch (err) {
     console.error('[Sinesia Lead] ❌ Erro ao salvar no Firestore:', err);
+    return null;
+  }
+}
+
+// Atualiza o status de uma reserva (ex: após o retorno do Mercado Pago)
+export async function updateReservaStatus(id: string, data: LeadData): Promise<void> {
+  if (!db) return;
+  try {
+    await updateDoc(doc(db, 'reservas', id), {
+      ...data,
+      atualizadoEm: serverTimestamp(),
+    });
+    console.log('[Sinesia Reserva] ✅ Status atualizado:', id, data);
+  } catch (err) {
+    console.error('[Sinesia Reserva] ❌ Erro ao atualizar status:', err);
   }
 }
 
