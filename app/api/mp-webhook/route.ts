@@ -65,24 +65,27 @@ export async function POST(req: NextRequest) {
     const metadata = pay.metadata || {};
     const reservaId: string =
       pay.external_reference || metadata.reserva_id || `mp_${paymentId}`;
-    const email = pay.payer?.email || '';
-
-    // Dedup: verifica se essa reserva já estava paga (evita e-mail/Purchase duplicados)
+    // Dedup + e-mail real: lê o doc (o e-mail do MP vem mascarado)
     let jaEstavaPago = false;
+    let emailReal = '';
     if (db) {
       try {
         const snap = await getDoc(doc(db, 'reservas', reservaId));
-        jaEstavaPago = snap.exists() && snap.data()?.status === 'pago';
+        if (snap.exists()) {
+          jaEstavaPago = snap.data()?.status === 'pago';
+          emailReal = (snap.data()?.email as string) || '';
+        }
       } catch { /* ignora */ }
     }
 
+    // NÃO sobrescrever o e-mail: o Mercado Pago retorna mascarado (XXXX) na API.
+    // O e-mail real é o que a pessoa digitou no modal (já salvo no doc).
     await upsertReserva(reservaId, {
       status: mapStatus(pay.status),
       mp_status: pay.status,
       mp_payment_id: String(paymentId),
       credito: 28.9,
       valorPago: pay.transaction_amount ?? 28.9,
-      email,
       metodoPagamento: pay.payment_type_id || '',
       plano: metadata.plano || undefined,
       difusor: metadata.difusor || undefined,
@@ -92,9 +95,9 @@ export async function POST(req: NextRequest) {
     // Só na PRIMEIRA aprovação: e-mail de confirmação + Purchase server-side
     if (pay.status === 'approved' && !jaEstavaPago) {
       await Promise.all([
-        sendReservaEmail({ to: email, difusor: metadata.difusor, plano: metadata.plano }),
+        sendReservaEmail({ to: emailReal, difusor: metadata.difusor, plano: metadata.plano }),
         sendMetaPurchase({
-          email,
+          email: emailReal,
           value: pay.transaction_amount ?? 28.9,
           eventId: `mp_${paymentId}`,
         }),

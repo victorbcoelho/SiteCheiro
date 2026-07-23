@@ -96,7 +96,7 @@ export default function ReservationModal({
 
   const checkStatus = async (paymentId: number, reservaId: string) => {
     try {
-      const res = await fetch(`/api/payment-status?id=${paymentId}`);
+      const res = await fetch(`/api/payment-status?id=${paymentId}&_=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
       if (data.status === 'approved') {
         if (pollRef.current) clearInterval(pollRef.current);
@@ -241,8 +241,6 @@ export default function ReservationModal({
             </p>
 
             <ul className="text-sm text-ink/70 space-y-1.5 mb-4">
-              <li>✓ Preço de fundador travado</li>
-              <li>✓ Primeiro lote garantido</li>
               <li>✓ Reembolso 100% a qualquer momento</li>
               <li>✓ Nenhuma mensalidade é cobrada agora</li>
             </ul>
@@ -263,8 +261,18 @@ export default function ReservationModal({
               value={email}
               onChange={(e) => { setEmail(e.target.value); setError(''); }}
               required
-              className="border border-sand rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rust transition-colors w-full mb-3"
+              className="border border-sand rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-rust transition-colors w-full mb-2"
             />
+
+            {/* Selo de segurança logo abaixo do e-mail */}
+            <div className="flex items-center justify-center gap-1.5 mb-3">
+              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-ink/55" stroke="currentColor" strokeWidth="2">
+                <rect x="5" y="11" width="14" height="9" rx="2" />
+                <path d="M8 11V8a4 4 0 018 0v3" strokeLinecap="round" />
+              </svg>
+              <span className="text-xs text-ink/55">Pagamento seguro via</span>
+              <span className="text-xs font-bold" style={{ color: '#009EE3' }}>Mercado Pago</span>
+            </div>
 
             {error && (
               <p className="text-xs text-red-500 text-center bg-red-50 rounded-lg py-2 px-3 mb-3">
@@ -272,35 +280,24 @@ export default function ReservationModal({
               </p>
             )}
 
-            <button
-              type="button"
-              onClick={handlePix}
-              disabled={loading !== ''}
-              className="w-full bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-4 font-medium transition-colors duration-300 text-sm"
-            >
-              {loading === 'pix' ? 'Gerando Pix...' : 'Reservar com Pix — R$28,90'}
-            </button>
-
-            <button
-              type="button"
-              onClick={handleCartao}
-              disabled={loading !== ''}
-              className="w-full mt-2 border border-sand hover:border-rust text-ink/70 hover:text-rust disabled:opacity-60 rounded-xl py-3 font-medium transition-colors duration-300 text-sm"
-            >
-              {loading === 'cartao' ? 'Redirecionando...' : 'Pagar com cartão'}
-            </button>
-            <p className="text-[11px] text-ink/40 text-center mt-1.5 leading-relaxed">
-              Seus dados de cartão vão direto para o Mercado Pago — a Sinesia não armazena nada.
-            </p>
-
-            {/* Selo de confiança */}
-            <div className="mt-3 flex items-center justify-center gap-2 bg-sand/40 rounded-xl py-2.5 px-3">
-              <svg viewBox="0 0 24 24" fill="none" className="h-4 w-4 text-ink/70" stroke="currentColor" strokeWidth="2">
-                <rect x="5" y="11" width="14" height="9" rx="2" />
-                <path d="M8 11V8a4 4 0 018 0v3" strokeLinecap="round" />
-              </svg>
-              <span className="text-xs font-medium text-ink/70">Pagamento seguro · Pix ou cartão</span>
-              <span className="text-xs font-bold" style={{ color: '#009EE3' }}>Mercado Pago</span>
+            {/* Botões lado a lado */}
+            <div className="flex gap-3">
+              <button
+                type="button"
+                onClick={handlePix}
+                disabled={loading !== ''}
+                className="flex-1 bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-3.5 font-medium transition-colors duration-300 text-sm"
+              >
+                {loading === 'pix' ? 'Gerando...' : 'Pagar via Pix'}
+              </button>
+              <button
+                type="button"
+                onClick={handleCartao}
+                disabled={loading !== ''}
+                className="flex-1 bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-3.5 font-medium transition-colors duration-300 text-sm"
+              >
+                {loading === 'cartao' ? '...' : 'Pagar via cartão'}
+              </button>
             </div>
 
             <p className="text-[11px] text-ink/45 text-center leading-relaxed mt-3">
