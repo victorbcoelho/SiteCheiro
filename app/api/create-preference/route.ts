@@ -52,15 +52,12 @@ export async function POST(req: NextRequest) {
     external_reference: String(reservaId),
     statement_descriptor: 'SINESIA',
     // Este caminho é só cartão — o Pix é feito embutido no site.
-    // Exclui boleto, Pix e saldo MP para cair direto na tela do cartão.
+    // Exclui boleto e Pix da tela do Checkout Pro.
     payment_methods: {
       excluded_payment_types: [
         { id: 'ticket' },        // boleto
         { id: 'bank_transfer' }, // Pix
-        { id: 'atm' },           // pagamento em caixa eletrônico
-        { id: 'account_money' }, // saldo Mercado Pago (exige login)
       ],
-      installments: 1,
     },
     // Metadados usados pelo webhook para registrar a compra mesmo sem endereço
     metadata: {
@@ -91,9 +88,10 @@ export async function POST(req: NextRequest) {
     const data = await res.json();
 
     if (!res.ok) {
-      console.error('[MP] Erro ao criar preferência:', data);
+      console.error('[MP] Erro ao criar preferência:', JSON.stringify(data));
+      const detalhe = data?.message || data?.error || (data?.cause?.[0]?.description) || 'erro do Mercado Pago';
       return NextResponse.json(
-        { error: 'Falha ao criar o pagamento.', detail: data?.message },
+        { error: `Mercado Pago recusou: ${detalhe}`, detail: data },
         { status: 502 }
       );
     }
