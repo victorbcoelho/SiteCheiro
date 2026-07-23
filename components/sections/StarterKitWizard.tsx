@@ -595,9 +595,32 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const [showDiffuserModal, setShowDiffuserModal] = useState(false);
   const [showPromoDetails, setShowPromoDetails] = useState(false);
   const [showSubscribeDetails, setShowSubscribeDetails] = useState(false);
+  const [founderPromo, setFounderPromo] = useState(false);
 
   useEffect(() => {
     if (!isB2B) trackEvent('wizard_started', { origem: 'starter-kit-wizard' });
+  }, [isB2B]);
+
+  // Deep-link do e-mail: ?d=<difusor>&e=<essencias>&promo=30 → abre o carrinho pronto
+  useEffect(() => {
+    if (isB2B || typeof window === 'undefined') return;
+    const p = new URLSearchParams(window.location.search);
+    const d = p.get('d') as DiffuserModelId | null;
+    const e = p.get('e');
+    if (d && diffuserModels.some((m) => m.id === d)) {
+      const ids = (e || '')
+        .split(',')
+        .map((s) => s.trim())
+        .filter((id) => scents.some((sc) => sc.id === id))
+        .slice(0, MAX_SCENTS[d]);
+      setState((s) => ({
+        ...s,
+        diffuserModelId: d,
+        selectedScentIds: ids.length ? ids : s.selectedScentIds,
+      }));
+      if (p.get('promo') === '30') setFounderPromo(true);
+      setStep('summary');
+    }
   }, [isB2B]);
 
   useEffect(() => {
@@ -630,7 +653,10 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const scentQtys = getScentQtys(state.selectedScentIds, state.diffuserModelId, isB2B ? b2bQty : 1);
   const numScentBottles = scentQtys.reduce((sum, s) => sum + s.qty, 0) || diffuserMaxScents;
 
-  const scentSubTotal = numScentBottles * SCENT_SUB;
+  // Desconto de fundador (30%) via link do e-mail; senão o padrão de assinante (20%)
+  const scentDiscountPct = founderPromo ? 30 : 20;
+  const SCENT_SUB_EFF = founderPromo ? Number((SCENT_FULL * 0.7).toFixed(2)) : SCENT_SUB;
+  const scentSubTotal = numScentBottles * SCENT_SUB_EFF;
   const scentFullTotal = numScentBottles * SCENT_FULL;
 
   const selectedScentNames = state.selectedScentIds
@@ -911,6 +937,14 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
               transition={{ duration: 0.3 }}
               className="max-w-5xl mx-auto"
             >
+              {founderPromo && (
+                <div className="mb-5 flex items-center gap-2 bg-rust text-white rounded-2xl px-4 py-3">
+                  <span className="text-lg">🎁</span>
+                  <p className="text-sm font-medium">
+                    Desconto de fundador ativado: <strong>30% off</strong> nas essências, exclusivo do acesso antecipado.
+                  </p>
+                </div>
+              )}
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
                 {/* LEFT: Cart */}
                 <div className="rounded-3xl bg-white border border-sand p-6">
@@ -994,7 +1028,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                   <div className="rounded-xl bg-rust/8 border border-rust/20 px-3 py-2.5 flex items-center gap-2">
                     <span className="text-rust text-base">🏷️</span>
                     <p className="text-xs text-rust font-medium">
-                      Assinantes economizam <strong>20% off</strong> nos frascos todo mês
+                      Assinantes economizam <strong>{scentDiscountPct}% off</strong> nos frascos todo mês
                     </p>
                   </div>
                 </div>
@@ -1028,9 +1062,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
 
                     {/* Highlight: 20% off + total savings */}
                     <div className="inline-flex items-center gap-1.5 bg-white/10 rounded-lg px-2.5 py-1 mb-2">
-                      <span className="text-xs font-bold text-white bg-rust rounded px-1">-20%</span>
+                      <span className="text-xs font-bold text-white bg-rust rounded px-1">-{scentDiscountPct}%</span>
                       <span className="text-xs text-white/80">
-                        nas essências · economia total de R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB) * 12 + deviceTotal)}/ano
+                        nas essências · economia total de R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB_EFF) * 12 + deviceTotal)}/ano
                       </span>
                     </div>
                     <p className="text-white/50 text-sm mb-4">Assinatura anual cobrada mensalmente</p>
@@ -1087,16 +1121,16 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                       <span className="text-ink/40 text-xs">/mês</span>
                       {/* Highlight: 20% off badge */}
                       <span className="ml-1 inline-flex items-center bg-rust text-white text-[10px] font-bold rounded-md px-1.5 py-0.5 uppercase tracking-wide">
-                        -20% off
+                        -{scentDiscountPct}% off
                       </span>
                     </div>
                     <p className="text-xs text-rust font-medium mb-4">
-                      Você paga R${fmtBRL(scentFullTotal)}/mês sem assinatura — aqui economiza R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB))}/mês
+                      Você paga R${fmtBRL(scentFullTotal)}/mês sem assinatura — aqui economiza R${fmtBRL(numScentBottles * (SCENT_FULL - SCENT_SUB_EFF))}/mês
                     </p>
 
                     <ul className="text-xs text-ink/60 space-y-1.5 mb-4">
                       <li>✓ Difusor pago uma única vez</li>
-                      <li>✓ <strong>20% de desconto</strong> nas essências todo mês</li>
+                      <li>✓ <strong>{scentDiscountPct}% de desconto</strong> nas essências todo mês</li>
                       <li>✓ Troque as fragrâncias a cada pedido</li>
                       <li>✓ Cancele quando quiser, sem taxa</li>
                     </ul>
@@ -1105,7 +1139,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                         openCart(
                           'Assine e Economize',
                           `R$${fmtBRL(deviceTotal)} + R$${fmtBRL(scentSubTotal)}/mês`,
-                          `Difusor: pagamento único · Essências: 20% off/mês`,
+                          `Difusor: pagamento único · Essências: ${scentDiscountPct}% off/mês`,
                           deviceTotal + scentSubTotal
                         )
                       }
@@ -1217,7 +1251,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
           scentItems={scentQtys.map(({ id, qty }) => {
             const s = scents.find((sc) => sc.id === id);
             const isSub = cart.planLabel.toLowerCase().includes('promo') || cart.planLabel.toLowerCase().includes('assine');
-            return { name: s?.name ?? id, qty, monthly: qty * (isSub ? SCENT_SUB : SCENT_FULL), image: s?.image, cardColor: s?.cardColor };
+            return { name: s?.name ?? id, qty, monthly: qty * (isSub ? SCENT_SUB_EFF : SCENT_FULL), image: s?.image, cardColor: s?.cardColor };
           })}
           scentMonthlyTotal={(cart.planLabel.toLowerCase().includes('promo') || cart.planLabel.toLowerCase().includes('assine')) ? scentSubTotal : scentFullTotal}
           b2bContext={b2bContext}

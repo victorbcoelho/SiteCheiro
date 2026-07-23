@@ -1,10 +1,69 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
+import { scents, diffuserModels } from '@/lib/products';
 
 const SENHA = '112233@';
+
+const EMAIL_ASSUNTO = 'Lembra da Sinesia? Chegou a hora (e tenho uma pergunta)';
+
+function diffuserIdFromName(name?: string): string {
+  return diffuserModels.find((d) => d.name === name)?.id || 'room';
+}
+
+function scentIdsFromNames(fragrancias?: string): string[] {
+  if (!fragrancias) return [];
+  return fragrancias
+    .split(',')
+    .map((n) => n.trim())
+    .map((n) => scents.find((s) => s.name === n)?.id)
+    .filter(Boolean) as string[];
+}
+
+function buildLink(difusor?: string, fragrancias?: string): string {
+  const origin = typeof window !== 'undefined' ? window.location.origin : 'https://sinesia.com.br';
+  const e = scentIdsFromNames(fragrancias);
+  const params = new URLSearchParams({ d: diffuserIdFromName(difusor), promo: '30' });
+  if (e.length) params.set('e', e.join(','));
+  return `${origin}/starter-kit?${params.toString()}`;
+}
+
+function buildEmailBody(nome?: string, difusor?: string, fragrancias?: string): string {
+  const primeiroNome = (nome || '').trim().split(' ')[0] || '';
+  const link = buildLink(difusor, fragrancias);
+  return `Oi ${primeiroNome},
+
+Aqui é o Victor, da Sinesia. Há algumas semanas você deixou seu e-mail pra ser avisado quando abríssemos as primeiras vagas — e eu queria te avisar pessoalmente que chegou a hora.
+
+Estamos abrindo o primeiro lote, que é limitado. Você mantém os 30% de desconto do acesso antecipado no seu primeiro kit, como combinado.
+
+Pra garantir sua vaga é uma reserva de R$28,90, abatida integralmente do primeiro pagamento. O envio está previsto para até 60 dias, e o reembolso é total a qualquer momento — basta responder este e-mail.
+
+${link}
+
+E se você olhar e decidir não seguir, eu também quero saber: me responde em uma linha o que te fez desistir? Estamos construindo a Sinesia do zero e sua resposta vale muito pra mim.
+
+Abraço,
+Victor`;
+}
+
+function CopyBtn({ text, label }: { text: string; label: string }) {
+  const [ok, setOk] = useState(false);
+  return (
+    <button
+      onClick={() => {
+        navigator.clipboard.writeText(text);
+        setOk(true);
+        setTimeout(() => setOk(false), 1500);
+      }}
+      className="text-xs bg-zinc-700 hover:bg-zinc-600 text-white rounded-lg px-3 py-1.5 transition-colors"
+    >
+      {ok ? '✓ Copiado' : label}
+    </button>
+  );
+}
 
 interface Lead {
   id: string;
@@ -43,6 +102,7 @@ export default function AdminPage() {
   const [filtroOrigem, setFiltroOrigem] = useState('todos');
   const [filtroDifusor, setFiltroDifusor] = useState('todos');
   const [busca, setBusca] = useState('');
+  const [expandedId, setExpandedId] = useState<string | null>(null);
 
   useEffect(() => {
     if (!authed) return;
@@ -250,11 +310,15 @@ export default function AdminPage() {
                       <th className="text-left px-5 py-3">Fragrâncias</th>
                       <th className="text-left px-5 py-3">Origem</th>
                       <th className="text-left px-5 py-3">Data</th>
+                      <th className="text-left px-5 py-3">E-mail</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {filtrados.map((lead, i) => (
-                      <tr key={lead.id} className={`border-b border-zinc-800/50 hover:bg-zinc-800/40 transition-colors ${i % 2 === 0 ? '' : 'bg-zinc-800/10'}`}>
+                    {filtrados.map((lead, i) => {
+                      const aberto = expandedId === lead.id;
+                      return (
+                      <Fragment key={lead.id}>
+                      <tr className={`border-b border-zinc-800/50 hover:bg-zinc-800/40 transition-colors ${i % 2 === 0 ? '' : 'bg-zinc-800/10'}`}>
                         <td className="px-5 py-3 font-medium">{lead.nome || '—'}</td>
                         <td className="px-5 py-3 text-zinc-300">{lead.email || '—'}</td>
                         <td className="px-5 py-3">
@@ -270,10 +334,51 @@ export default function AdminPage() {
                           <Badge color="bg-zinc-700 text-zinc-200">{(lead.origem as string) || '—'}</Badge>
                         </td>
                         <td className="px-5 py-3 text-zinc-400 whitespace-nowrap">{formatDate(lead.timestamp)}</td>
+                        <td className="px-5 py-3">
+                          <button
+                            onClick={() => setExpandedId(aberto ? null : lead.id)}
+                            className="text-xs bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
+                          >
+                            {aberto ? '▲ Fechar' : '✉ E-mail'}
+                          </button>
+                        </td>
                       </tr>
-                    ))}
+                      {aberto && (
+                        <tr className="bg-zinc-950/70">
+                          <td colSpan={8} className="px-5 py-4">
+                            <div className="max-w-3xl space-y-3">
+                              <div className="flex flex-wrap gap-2">
+                                <CopyBtn text={lead.email || ''} label="Copiar e-mail do destinatário" />
+                                <CopyBtn text={EMAIL_ASSUNTO} label="Copiar assunto" />
+                                <CopyBtn text={buildEmailBody(lead.nome, lead.difusor, lead.fragrancias)} label="Copiar corpo do e-mail" />
+                              </div>
+                              <div>
+                                <p className="text-zinc-500 text-[11px] uppercase tracking-widest mb-1">Destinatário</p>
+                                <p className="text-zinc-200 text-sm">{lead.email || '—'}</p>
+                              </div>
+                              <div>
+                                <p className="text-zinc-500 text-[11px] uppercase tracking-widest mb-1">Assunto</p>
+                                <p className="text-zinc-200 text-sm">{EMAIL_ASSUNTO}</p>
+                              </div>
+                              <div>
+                                <p className="text-zinc-500 text-[11px] uppercase tracking-widest mb-1">Corpo do e-mail</p>
+                                <pre className="text-zinc-300 text-sm whitespace-pre-wrap font-sans bg-zinc-900 rounded-xl p-4 border border-zinc-800">{buildEmailBody(lead.nome, lead.difusor, lead.fragrancias)}</pre>
+                              </div>
+                              <div>
+                                <p className="text-zinc-500 text-[11px] uppercase tracking-widest mb-1">Link gerado (carrinho pronto + 30% off)</p>
+                                <a href={buildLink(lead.difusor, lead.fragrancias)} target="_blank" rel="noreferrer" className="text-blue-400 text-xs break-all underline">
+                                  {buildLink(lead.difusor, lead.fragrancias)}
+                                </a>
+                              </div>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      </Fragment>
+                      );
+                    })}
                     {filtrados.length === 0 && (
-                      <tr><td colSpan={7} className="px-5 py-10 text-center text-zinc-500">Nenhum lead encontrado</td></tr>
+                      <tr><td colSpan={8} className="px-5 py-10 text-center text-zinc-500">Nenhum lead encontrado</td></tr>
                     )}
                   </tbody>
                 </table>
