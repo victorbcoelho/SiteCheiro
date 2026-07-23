@@ -14,7 +14,8 @@ function ReservaConfirmadaContent() {
   const [ref, setRef] = useState('');
   const disparado = useRef(false);
 
-  // Campos de endereço (coletados só após aprovação)
+  // Campos coletados só após aprovação
+  const [nome, setNome] = useState('');
   const [cep, setCep] = useState('');
   const [cidade, setCidade] = useState('');
   const [uf, setUf] = useState('');
@@ -82,6 +83,7 @@ function ReservaConfirmadaContent() {
     e.preventDefault();
     setSalvando(true);
     await upsertReserva(ref || `mp_${Date.now()}`, {
+      nome,
       cep,
       cidade,
       estado: uf,
@@ -119,10 +121,10 @@ function ReservaConfirmadaContent() {
                   enviar o seu Sinesia quando o lote for produzido.
                 </p>
                 <form onSubmit={handleSalvarEndereco} className="flex flex-col gap-3">
+                  <input type="text" inputMode="numeric" placeholder="CEP (preenche o endereço)" value={cep}
+                    onChange={(e) => setCep(e.target.value)} onBlur={handleCepBlur}
+                    required className={inputClass} />
                   <div className="flex gap-3">
-                    <input type="text" placeholder="CEP" value={cep}
-                      onChange={(e) => setCep(e.target.value)} onBlur={handleCepBlur}
-                      required className={`${inputClass} max-w-[130px]`} />
                     <input type="text" placeholder="Cidade" value={cidade}
                       onChange={(e) => setCidade(e.target.value)} required className={inputClass} />
                     <input type="text" placeholder="UF" value={uf}
@@ -139,6 +141,8 @@ function ReservaConfirmadaContent() {
                   </div>
                   <input type="text" placeholder="Bairro" value={bairro}
                     onChange={(e) => setBairro(e.target.value)} required className={inputClass} />
+                  <input type="text" placeholder="Nome completo (de quem recebe)" value={nome}
+                    onChange={(e) => setNome(e.target.value)} required className={inputClass} />
                   <button type="submit" disabled={salvando}
                     className="bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-3.5 font-medium transition-colors duration-300 text-sm mt-1">
                     {salvando ? 'Salvando...' : 'Salvar endereço de entrega'}
