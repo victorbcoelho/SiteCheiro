@@ -153,6 +153,13 @@ export default function ReservationModal({
     setTimeout(() => setCopiado(false), 2000);
   };
 
+  const voltarParaForm = () => {
+    if (pollRef.current) clearInterval(pollRef.current);
+    setView('form');
+    setPix(null);
+    setError('');
+  };
+
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-ink/70 backdrop-blur-sm p-4">
       <motion.div
@@ -247,9 +254,10 @@ export default function ReservationModal({
         {view === 'pix' && pix && (
           <div className="text-center">
             <h3 className="font-serif text-2xl text-ink mb-1">Pague com Pix para reservar</h3>
+            <p className="text-rust font-serif text-3xl font-bold mb-1">R$28,90</p>
             <p className="text-ink/55 text-sm mb-4">
               Escaneie o QR Code no app do seu banco. Assim que o pagamento for
-              confirmado, avançamos <strong>automaticamente</strong>.
+              confirmado, avançamos <strong>automaticamente</strong> — não feche esta tela.
             </p>
 
             {pix.qrCodeBase64 && (
@@ -277,6 +285,14 @@ export default function ReservationModal({
             <p className="text-[11px] text-ink/40 mt-4 leading-relaxed">
               Reserva de R$28,90 · 100% abatível · reembolso total a qualquer momento.
             </p>
+
+            <button
+              type="button"
+              onClick={voltarParaForm}
+              className="text-xs text-ink/40 hover:text-ink/70 mt-3 transition-colors"
+            >
+              ← Escolher outro meio de pagamento
+            </button>
           </div>
         )}
       </motion.div>

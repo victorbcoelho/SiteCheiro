@@ -679,6 +679,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
 
   const openCart = (planLabel: string, planPrice: string, planMonthly: string | undefined, valueNumeric: number) => {
     setCart({ planLabel, planPrice, planMonthly, valueNumeric });
+    // Vai direto para o modal de reserva/pré-venda (menos fricção = mais conversão)
+    setShowPreLaunch(true);
     const slug = planLabel.toLowerCase().includes('promo') ? 'plano_promocao'
       : planLabel.toLowerCase().includes('assine') ? 'plano_assinatura'
       : 'plano_compra_unica';
