@@ -165,6 +165,7 @@ export default function ReservationModal({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           reservaId,
+          email,
           plano: cartSelection.planLabel,
           difusor: diffuserName,
           fragrancias: scentNames.join(', '),

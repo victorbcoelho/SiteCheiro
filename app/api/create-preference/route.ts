@@ -8,6 +8,7 @@ const RESERVA_VALOR = 28.9;
 
 interface CreatePreferenceBody {
   reservaId?: string;
+  email?: string;
   plano?: string;
   difusor?: string;
   fragrancias?: string;
@@ -31,7 +32,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Requisição inválida.' }, { status: 400 });
   }
 
-  const { reservaId, plano, difusor, fragrancias, origin } = body;
+  const { reservaId, email, plano, difusor, fragrancias, origin } = body;
   if (!reservaId || !origin) {
     return NextResponse.json({ error: 'Dados incompletos.' }, { status: 400 });
   }
@@ -51,6 +52,8 @@ export async function POST(req: NextRequest) {
     ],
     external_reference: String(reservaId),
     statement_descriptor: 'SINESIA',
+    // Pré-preenche o e-mail no checkout (evita digitar de novo)
+    ...(email ? { payer: { email } } : {}),
     // Este caminho é só cartão — o Pix é feito embutido no site.
     // Exclui boleto e Pix da tela do Checkout Pro.
     payment_methods: {
