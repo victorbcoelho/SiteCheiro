@@ -29,26 +29,36 @@ interface PixData {
   qrCodeBase64?: string;
 }
 
-interface ScentThumb {
+interface ScentItem {
   name: string;
+  qty: number;
+  monthly: number;
   image?: string;
   cardColor?: string;
 }
+
+const brl = (v: number) => `R$${v.toFixed(2).replace('.', ',')}`;
 
 export default function ReservationModal({
   cartSelection,
   diffuserId,
   diffuserName,
+  diffuserPrice,
+  diffuserFree = false,
   scentNames,
-  scentThumbs = [],
+  scentItems = [],
+  scentMonthlyTotal = 0,
   b2bContext,
   onClose,
 }: {
   cartSelection: CartSelection;
   diffuserId: string;
   diffuserName: string;
+  diffuserPrice: number;
+  diffuserFree?: boolean;
   scentNames: string[];
-  scentThumbs?: ScentThumb[];
+  scentItems?: ScentItem[];
+  scentMonthlyTotal?: number;
   b2bContext?: B2BContext;
   onClose: () => void;
 }) {
@@ -224,12 +234,12 @@ export default function ReservationModal({
             </h3>
             <p className="text-rust font-medium text-sm mb-3">{cartSelection.planPrice}</p>
 
-            {/* Mini-carrinho: difusor + frascos das essências escolhidas */}
+            {/* Mini-carrinho itemizado: difusor (pagamento único) + essências (mensal) */}
             <div className="bg-sand/25 rounded-2xl p-3 mb-4">
               <p className="text-[10px] uppercase tracking-widest text-ink/40 mb-2">Seu kit reservado</p>
 
-              {/* Difusor */}
-              <div className="flex items-center gap-3 mb-3">
+              {/* Difusor — pagamento único */}
+              <div className="flex items-center gap-3 pb-3 mb-3 border-b border-sand/60">
                 <div className="w-14 h-14 rounded-xl bg-white shrink-0 overflow-hidden border border-sand/50">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
@@ -239,34 +249,61 @@ export default function ReservationModal({
                     onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
                   />
                 </div>
-                <div className="min-w-0">
-                  <p className="text-[10px] uppercase tracking-widest text-ink/40">Difusor</p>
+                <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-ink truncate">{diffuserName}</p>
+                  <p className="text-xs text-ink/50">Difusor · pagamento único</p>
+                </div>
+                <div className="text-right shrink-0">
+                  {diffuserFree ? (
+                    <>
+                      <span className="block text-[10px] text-ink/35 line-through">{brl(diffuserPrice)}</span>
+                      <span className="text-xs font-bold text-green-600">GRÁTIS</span>
+                    </>
+                  ) : (
+                    <span className="text-sm font-semibold text-ink">{brl(diffuserPrice)}</span>
+                  )}
                 </div>
               </div>
 
-              {/* Essências */}
-              {(scentThumbs.length > 0 ? scentThumbs : scentNames.map((name) => ({ name }))).length > 0 && (
-                <>
-                  <p className="text-[10px] uppercase tracking-widest text-ink/40 mb-2">Fragrâncias</p>
-                  <div className="flex gap-2 flex-wrap">
-                    {(scentThumbs.length > 0 ? scentThumbs : scentNames.map((name) => ({ name } as ScentThumb))).map((s) => (
-                      <div key={s.name} className="flex flex-col items-center gap-1 w-16">
-                        <div
-                          className="w-14 h-14 rounded-xl overflow-hidden border border-sand/40 relative"
-                          style={{ backgroundColor: s.cardColor ?? '#e5e0d6' }}
-                        >
-                          {s.image && (
-                            // eslint-disable-next-line @next/next/no-img-element
-                            <img src={s.image} alt={s.name} className="absolute inset-0 w-full h-full object-contain p-1" />
-                          )}
-                        </div>
-                        <span className="text-[10px] text-ink/55 text-center leading-tight">{s.name}</span>
-                      </div>
-                    ))}
+              {/* Essências — assinatura mensal */}
+              <p className="text-[10px] uppercase tracking-widest text-ink/40 mb-2">Essências · assinatura mensal</p>
+              <div className="flex flex-col gap-2">
+                {(scentItems.length > 0
+                  ? scentItems
+                  : scentNames.map((name) => ({ name, qty: 1, monthly: 0 } as ScentItem))
+                ).map((s) => (
+                  <div key={s.name} className="flex items-center gap-3">
+                    <div
+                      className="w-11 h-11 rounded-lg overflow-hidden border border-sand/40 relative shrink-0"
+                      style={{ backgroundColor: s.cardColor ?? '#e5e0d6' }}
+                    >
+                      {s.image && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img src={s.image} alt={s.name} className="absolute inset-0 w-full h-full object-contain p-1" />
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm text-ink truncate">{s.qty}× {s.name}</p>
+                      <p className="text-xs text-ink/45">por mês</p>
+                    </div>
+                    {s.monthly > 0 && (
+                      <span className="text-xs text-ink/60 shrink-0">{brl(s.monthly)}/mês</span>
+                    )}
                   </div>
-                </>
+                ))}
+              </div>
+
+              {scentMonthlyTotal > 0 && (
+                <div className="flex justify-between items-center border-t border-sand/60 mt-2 pt-2">
+                  <span className="text-xs text-ink/60">Total das essências</span>
+                  <span className="text-sm font-semibold text-rust">{brl(scentMonthlyTotal)}/mês</span>
+                </div>
               )}
+
+              <p className="text-[11px] text-ink/45 mt-3 leading-relaxed">
+                Hoje você paga só a <strong>reserva de R$28,90</strong> — abatida do primeiro
+                pagamento. As essências só passam a ser cobradas quando o kit for enviado.
+              </p>
             </div>
 
             <p className="text-ink/60 text-sm leading-relaxed mb-2">

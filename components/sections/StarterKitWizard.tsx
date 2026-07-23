@@ -1211,11 +1211,15 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
           cartSelection={cart}
           diffuserId={selectedDiffuser.id}
           diffuserName={selectedDiffuser.name}
+          diffuserPrice={deviceTotal}
+          diffuserFree={cart.planLabel.toLowerCase().includes('promo')}
           scentNames={selectedScentNames}
-          scentThumbs={state.selectedScentIds.map((id) => {
+          scentItems={scentQtys.map(({ id, qty }) => {
             const s = scents.find((sc) => sc.id === id);
-            return { name: s?.name ?? id, image: s?.image, cardColor: s?.cardColor };
+            const isSub = cart.planLabel.toLowerCase().includes('promo') || cart.planLabel.toLowerCase().includes('assine');
+            return { name: s?.name ?? id, qty, monthly: qty * (isSub ? SCENT_SUB : SCENT_FULL), image: s?.image, cardColor: s?.cardColor };
           })}
+          scentMonthlyTotal={(cart.planLabel.toLowerCase().includes('promo') || cart.planLabel.toLowerCase().includes('assine')) ? scentSubTotal : scentFullTotal}
           b2bContext={b2bContext}
           onClose={() => {
             setShowPreLaunch(false);

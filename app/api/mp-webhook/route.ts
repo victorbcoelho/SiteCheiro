@@ -83,6 +83,7 @@ export async function POST(req: NextRequest) {
     await upsertReserva(reservaId, {
       status: mapStatus(pay.status),
       mp_status: pay.status,
+      mp_status_detail: pay.status_detail || '',
       mp_payment_id: String(paymentId),
       credito: 28.9,
       valorPago: pay.transaction_amount ?? 28.9,
