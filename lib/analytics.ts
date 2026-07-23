@@ -122,5 +122,11 @@ export function trackCommerceEvent(
   const fbqMappable: CommerceEventName[] = ['ViewContent', 'AddToCart', 'AddToWishlist', 'Search', 'AddPaymentInfo', 'InitiateCheckout', 'CompleteRegistration', 'Purchase'];
   if (fbqMappable.includes(eventName)) {
     window.fbq?.('track', eventName, payload, opts?.eventId ? { eventID: opts.eventId } : undefined);
+    const selo = eventName === 'Purchase' ? '🛒 VENDA' : 'evento';
+    console.log(
+      `[Sinesia Meta] ${selo} → fbq.track('${eventName}')`,
+      { value, currency, eventID: opts?.eventId ?? '(sem)' },
+      window.fbq ? '✅ enviado ao Meta Pixel' : '❌ fbq indisponível'
+    );
   }
 }
