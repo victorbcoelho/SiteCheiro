@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { doc, getDoc } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 import { upsertReserva } from '@/lib/leads';
+import { sendReservaEmail } from '@/lib/email';
+import { sendMetaPurchase } from '@/lib/meta';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -61,6 +65,16 @@ export async function POST(req: NextRequest) {
     const metadata = pay.metadata || {};
     const reservaId: string =
       pay.external_reference || metadata.reserva_id || `mp_${paymentId}`;
+    const email = pay.payer?.email || '';
+
+    // Dedup: verifica se essa reserva já estava paga (evita e-mail/Purchase duplicados)
+    let jaEstavaPago = false;
+    if (db) {
+      try {
+        const snap = await getDoc(doc(db, 'reservas', reservaId));
+        jaEstavaPago = snap.exists() && snap.data()?.status === 'pago';
+      } catch { /* ignora */ }
+    }
 
     await upsertReserva(reservaId, {
       status: mapStatus(pay.status),
@@ -68,12 +82,24 @@ export async function POST(req: NextRequest) {
       mp_payment_id: String(paymentId),
       credito: 28.9,
       valorPago: pay.transaction_amount ?? 28.9,
-      email: pay.payer?.email || '',
+      email,
       metodoPagamento: pay.payment_type_id || '',
       plano: metadata.plano || undefined,
       difusor: metadata.difusor || undefined,
       fragrancias: metadata.fragrancias || undefined,
     });
+
+    // Só na PRIMEIRA aprovação: e-mail de confirmação + Purchase server-side
+    if (pay.status === 'approved' && !jaEstavaPago) {
+      await Promise.all([
+        sendReservaEmail({ to: email, difusor: metadata.difusor, plano: metadata.plano }),
+        sendMetaPurchase({
+          email,
+          value: pay.transaction_amount ?? 28.9,
+          eventId: `mp_${paymentId}`,
+        }),
+      ]);
+    }
 
     console.log('[MP webhook] ✅ Reserva atualizada', reservaId, pay.status);
     return NextResponse.json({ ok: true }, { status: 200 });

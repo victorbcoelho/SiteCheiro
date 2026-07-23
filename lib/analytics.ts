@@ -98,7 +98,11 @@ interface CommerceParams {
 
 // Fires the standard e-commerce event schema TikTok (and Meta, for the overlapping events)
 // expect: contents[], value, currency. Use alongside trackEvent for the GA4-shaped event.
-export function trackCommerceEvent(eventName: CommerceEventName, { contents, value, currency = 'BRL' }: CommerceParams) {
+export function trackCommerceEvent(
+  eventName: CommerceEventName,
+  { contents, value, currency = 'BRL' }: CommerceParams,
+  opts?: { eventId?: string }
+) {
   if (typeof window === 'undefined') return;
 
   const payload = {
@@ -111,11 +115,12 @@ export function trackCommerceEvent(eventName: CommerceEventName, { contents, val
     currency,
   };
 
-  window.ttq?.track(eventName, payload);
+  // event_id permite deduplicar com o evento server-side (Conversions API)
+  window.ttq?.track(eventName, payload, opts?.eventId ? { event_id: opts.eventId } : undefined);
   console.log(`[Sinesia TikTok] ttq.track('${eventName}')`, payload, window.ttq ? '✅ enviado' : '❌ ttq indisponível');
 
   const fbqMappable: CommerceEventName[] = ['ViewContent', 'AddToCart', 'AddToWishlist', 'Search', 'AddPaymentInfo', 'InitiateCheckout', 'CompleteRegistration', 'Purchase'];
   if (fbqMappable.includes(eventName)) {
-    window.fbq?.('track', eventName, payload);
+    window.fbq?.('track', eventName, payload, opts?.eventId ? { eventID: opts.eventId } : undefined);
   }
 }

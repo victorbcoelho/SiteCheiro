@@ -52,10 +52,12 @@ function ReservaConfirmadaContent() {
 
     if (resolvido === 'aprovado') {
       // Meta Pixel Purchase (value 28.90 BRL) + conversão Google Ads
-      trackCommerceEvent('Purchase', {
-        contents: [{ contentId: 'reserva-sinesia', contentType: 'product', contentName: 'Reserva Sinesia' }],
-        value: 28.9,
-      });
+      // eventId deduplica com o Purchase server-side (Conversions API)
+      trackCommerceEvent(
+        'Purchase',
+        { contents: [{ contentId: 'reserva-sinesia', contentType: 'product', contentName: 'Reserva Sinesia' }], value: 28.9 },
+        { eventId: paymentId ? `mp_${paymentId}` : undefined }
+      );
       if (typeof window !== 'undefined' && typeof window.gtag_report_conversion === 'function') {
         window.gtag_report_conversion();
       }

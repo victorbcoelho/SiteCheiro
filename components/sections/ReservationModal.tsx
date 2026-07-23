@@ -7,6 +7,15 @@ import { trackEvent, trackCommerceEvent } from '@/lib/analytics';
 import type { B2BContext } from './StarterKitWizard';
 
 const RESERVA_VALOR = 28.9;
+// Opcional: defina o total REAL do primeiro lote para exibir o número.
+// Deixe 0 para mostrar apenas "vagas limitadas" (sem inventar quantidade).
+const PRIMEIRO_LOTE = 0;
+
+function fmtMMSS(total: number) {
+  const m = Math.floor(total / 60);
+  const s = total % 60;
+  return `${m}:${s.toString().padStart(2, '0')}`;
+}
 
 interface CartSelection {
   planLabel: string;
@@ -41,11 +50,28 @@ export default function ReservationModal({
   const [view, setView] = useState<'form' | 'pix'>('form');
   const [pix, setPix] = useState<PixData | null>(null);
   const [copiado, setCopiado] = useState(false);
+  const [secondsLeft, setSecondsLeft] = useState(0);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const expiresAtRef = useRef<number | null>(null);
 
   const origem = b2bContext ? 'empresas-wizard' : 'starter-kit-wizard';
+  const expirado = view === 'pix' && secondsLeft <= 0;
 
   useEffect(() => () => { if (pollRef.current) clearInterval(pollRef.current); }, []);
+
+  // Cronômetro de expiração do QR Pix
+  useEffect(() => {
+    if (view !== 'pix' || !expiresAtRef.current) return;
+    const t = setInterval(() => {
+      const left = Math.max(0, Math.floor((expiresAtRef.current! - Date.now()) / 1000));
+      setSecondsLeft(left);
+      if (left <= 0) {
+        clearInterval(t);
+        if (pollRef.current) clearInterval(pollRef.current);
+      }
+    }, 1000);
+    return () => clearInterval(t);
+  }, [view]);
 
   const emailValido = /\S+@\S+\.\S+/.test(email);
 
@@ -109,6 +135,8 @@ export default function ReservationModal({
         throw new Error(data?.error || 'Não foi possível gerar o Pix.');
       }
       setPix({ paymentId: data.paymentId, qrCode: data.qrCode, qrCodeBase64: data.qrCodeBase64 });
+      expiresAtRef.current = data.expiration ? new Date(data.expiration).getTime() : Date.now() + 30 * 60 * 1000;
+      setSecondsLeft(Math.max(0, Math.floor((expiresAtRef.current - Date.now()) / 1000)));
       setView('pix');
       setLoading('');
       pollRef.current = setInterval(() => checkStatus(data.paymentId, reservaId), 4000);
@@ -212,12 +240,22 @@ export default function ReservationModal({
               que será integralmente abatida do seu primeiro pagamento.
             </p>
 
-            <ul className="text-sm text-ink/70 space-y-1.5 mb-5">
+            <ul className="text-sm text-ink/70 space-y-1.5 mb-4">
               <li>✓ Preço de fundador travado</li>
               <li>✓ Primeiro lote garantido</li>
               <li>✓ Reembolso 100% a qualquer momento</li>
               <li>✓ Nenhuma mensalidade é cobrada agora</li>
             </ul>
+
+            {/* Escassez */}
+            <div className="flex items-center gap-2 bg-rust/10 text-rust rounded-lg px-3 py-2 mb-4 text-xs font-medium">
+              <span>🔥</span>
+              <span>
+                {PRIMEIRO_LOTE > 0
+                  ? `Primeiro lote limitado a ${PRIMEIRO_LOTE} unidades — por ordem de pagamento`
+                  : 'Vagas limitadas ao primeiro lote de produção — por ordem de pagamento'}
+              </span>
+            </div>
 
             <input
               type="email"
@@ -251,6 +289,9 @@ export default function ReservationModal({
             >
               {loading === 'cartao' ? 'Redirecionando...' : 'Pagar com cartão'}
             </button>
+            <p className="text-[11px] text-ink/40 text-center mt-1.5 leading-relaxed">
+              Seus dados de cartão vão direto para o Mercado Pago — a Sinesia não armazena nada.
+            </p>
 
             {/* Selo de confiança */}
             <div className="mt-3 flex items-center justify-center gap-2 bg-sand/40 rounded-xl py-2.5 px-3">
@@ -277,27 +318,44 @@ export default function ReservationModal({
               confirmado, avançamos <strong>automaticamente</strong> — não feche esta tela.
             </p>
 
-            {pix.qrCodeBase64 && (
-              // eslint-disable-next-line @next/next/no-img-element
-              <img
-                src={`data:image/png;base64,${pix.qrCodeBase64}`}
-                alt="QR Code Pix"
-                className="mx-auto w-56 h-56 rounded-2xl border border-sand p-2"
-              />
+            {expirado ? (
+              <div className="mx-auto w-56 py-10">
+                <p className="text-ink/50 text-sm mb-4">O QR Code expirou.</p>
+                <button
+                  type="button"
+                  onClick={handlePix}
+                  disabled={loading !== ''}
+                  className="w-full bg-rust hover:bg-rustDark disabled:opacity-60 text-white rounded-xl py-3 font-medium transition-colors text-sm"
+                >
+                  {loading === 'pix' ? 'Gerando...' : 'Gerar novo QR Code'}
+                </button>
+              </div>
+            ) : (
+              <>
+                {pix.qrCodeBase64 && (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={`data:image/png;base64,${pix.qrCodeBase64}`}
+                    alt="QR Code Pix"
+                    className="mx-auto w-56 h-56 rounded-2xl border border-sand p-2"
+                  />
+                )}
+
+                <button
+                  type="button"
+                  onClick={copiar}
+                  className="mt-4 w-full border border-sand hover:border-rust text-ink/70 hover:text-rust rounded-xl py-3 font-medium transition-colors text-sm"
+                >
+                  {copiado ? '✓ Código copiado!' : 'Copiar código Pix (copia e cola)'}
+                </button>
+
+                <div className="mt-4 flex items-center justify-center gap-2 text-ink/50 text-sm">
+                  <span className="inline-block h-2 w-2 rounded-full bg-rust animate-pulse" />
+                  Aguardando pagamento...
+                </div>
+                <p className="text-xs text-ink/40 mt-1">Este código expira em {fmtMMSS(secondsLeft)}</p>
+              </>
             )}
-
-            <button
-              type="button"
-              onClick={copiar}
-              className="mt-4 w-full border border-sand hover:border-rust text-ink/70 hover:text-rust rounded-xl py-3 font-medium transition-colors text-sm"
-            >
-              {copiado ? '✓ Código copiado!' : 'Copiar código Pix (copia e cola)'}
-            </button>
-
-            <div className="mt-4 flex items-center justify-center gap-2 text-ink/50 text-sm">
-              <span className="inline-block h-2 w-2 rounded-full bg-rust animate-pulse" />
-              Aguardando pagamento...
-            </div>
 
             <p className="text-[11px] text-ink/40 mt-4 leading-relaxed">
               Reserva de R$28,90 · 100% abatível · reembolso total a qualquer momento.

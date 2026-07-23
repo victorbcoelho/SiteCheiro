@@ -33,10 +33,14 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'E-mail é obrigatório para gerar o Pix.' }, { status: 400 });
   }
 
+  // QR expira em 30 minutos
+  const expiration = new Date(Date.now() + 30 * 60 * 1000).toISOString();
+
   const payment = {
     transaction_amount: RESERVA_VALOR,
     description: `Reserva Sinesia — ${difusor || 'pré-lançamento'}`,
     payment_method_id: 'pix',
+    date_of_expiration: expiration,
     payer: { email },
     external_reference: String(reservaId),
     ...(origin ? { notification_url: `${origin}/api/mp-webhook` } : {}),
@@ -76,6 +80,7 @@ export async function POST(req: NextRequest) {
       qrCode: td?.qr_code,
       qrCodeBase64: td?.qr_code_base64,
       ticketUrl: td?.ticket_url,
+      expiration: data.date_of_expiration || expiration,
     });
   } catch (err) {
     console.error('[MP Pix] Exceção:', err);
