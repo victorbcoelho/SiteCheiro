@@ -57,6 +57,7 @@ export async function POST(req: NextRequest) {
       excluded_payment_types: [
         { id: 'ticket' },        // boleto
         { id: 'bank_transfer' }, // Pix
+        { id: 'account_money' }, // saldo Mercado Pago (deixa só cartão)
       ],
     },
     // Metadados usados pelo webhook para registrar a compra mesmo sem endereço
