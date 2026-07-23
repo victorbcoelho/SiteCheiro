@@ -185,7 +185,24 @@ export default function ReservationModal({
             <h3 className="font-serif text-2xl text-ink mb-0.5">
               Você escolheu o {diffuserName}
             </h3>
-            <p className="text-rust font-medium text-sm mb-4">{cartSelection.planPrice}</p>
+            <p className="text-rust font-medium text-sm mb-3">{cartSelection.planPrice}</p>
+
+            {/* Resumo visual do produto (prova de confiança) */}
+            <div className="flex items-center gap-3 bg-sand/25 rounded-2xl p-3 mb-4">
+              <div className="w-14 h-14 rounded-xl bg-white shrink-0 overflow-hidden border border-sand/50">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img
+                  src={`/images/sinesia-${diffuserId}.jpg`}
+                  alt={diffuserName}
+                  className="w-full h-full object-contain p-1"
+                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-medium text-ink truncate">{diffuserName}</p>
+                <p className="text-xs text-ink/50 truncate">{scentNames.join(' · ')}</p>
+              </div>
+            </div>
 
             <p className="text-ink/60 text-sm leading-relaxed mb-2">
               A Sinesia está em pré-lançamento. As primeiras unidades são limitadas.
