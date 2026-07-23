@@ -1212,6 +1212,10 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
           diffuserId={selectedDiffuser.id}
           diffuserName={selectedDiffuser.name}
           scentNames={selectedScentNames}
+          scentThumbs={state.selectedScentIds.map((id) => {
+            const s = scents.find((sc) => sc.id === id);
+            return { name: s?.name ?? id, image: s?.image, cardColor: s?.cardColor };
+          })}
           b2bContext={b2bContext}
           onClose={() => {
             setShowPreLaunch(false);

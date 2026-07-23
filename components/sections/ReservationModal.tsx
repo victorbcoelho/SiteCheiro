@@ -29,11 +29,18 @@ interface PixData {
   qrCodeBase64?: string;
 }
 
+interface ScentThumb {
+  name: string;
+  image?: string;
+  cardColor?: string;
+}
+
 export default function ReservationModal({
   cartSelection,
   diffuserId,
   diffuserName,
   scentNames,
+  scentThumbs = [],
   b2bContext,
   onClose,
 }: {
@@ -41,6 +48,7 @@ export default function ReservationModal({
   diffuserId: string;
   diffuserName: string;
   scentNames: string[];
+  scentThumbs?: ScentThumb[];
   b2bContext?: B2BContext;
   onClose: () => void;
 }) {
@@ -215,21 +223,49 @@ export default function ReservationModal({
             </h3>
             <p className="text-rust font-medium text-sm mb-3">{cartSelection.planPrice}</p>
 
-            {/* Resumo visual do produto (prova de confiança) */}
-            <div className="flex items-center gap-3 bg-sand/25 rounded-2xl p-3 mb-4">
-              <div className="w-14 h-14 rounded-xl bg-white shrink-0 overflow-hidden border border-sand/50">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  src={`/images/sinesia-${diffuserId}.jpg`}
-                  alt={diffuserName}
-                  className="w-full h-full object-contain p-1"
-                  onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                />
+            {/* Mini-carrinho: difusor + frascos das essências escolhidas */}
+            <div className="bg-sand/25 rounded-2xl p-3 mb-4">
+              <p className="text-[10px] uppercase tracking-widest text-ink/40 mb-2">Seu kit reservado</p>
+
+              {/* Difusor */}
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-14 h-14 rounded-xl bg-white shrink-0 overflow-hidden border border-sand/50">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={`/images/sinesia-${diffuserId}.jpg`}
+                    alt={diffuserName}
+                    className="w-full h-full object-contain p-1"
+                    onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                  />
+                </div>
+                <div className="min-w-0">
+                  <p className="text-[10px] uppercase tracking-widest text-ink/40">Difusor</p>
+                  <p className="text-sm font-medium text-ink truncate">{diffuserName}</p>
+                </div>
               </div>
-              <div className="min-w-0">
-                <p className="text-sm font-medium text-ink truncate">{diffuserName}</p>
-                <p className="text-xs text-ink/50 truncate">{scentNames.join(' · ')}</p>
-              </div>
+
+              {/* Essências */}
+              {(scentThumbs.length > 0 ? scentThumbs : scentNames.map((name) => ({ name }))).length > 0 && (
+                <>
+                  <p className="text-[10px] uppercase tracking-widest text-ink/40 mb-2">Fragrâncias</p>
+                  <div className="flex gap-2 flex-wrap">
+                    {(scentThumbs.length > 0 ? scentThumbs : scentNames.map((name) => ({ name } as ScentThumb))).map((s) => (
+                      <div key={s.name} className="flex flex-col items-center gap-1 w-16">
+                        <div
+                          className="w-14 h-14 rounded-xl overflow-hidden border border-sand/40 relative"
+                          style={{ backgroundColor: s.cardColor ?? '#e5e0d6' }}
+                        >
+                          {s.image && (
+                            // eslint-disable-next-line @next/next/no-img-element
+                            <img src={s.image} alt={s.name} className="absolute inset-0 w-full h-full object-contain p-1" />
+                          )}
+                        </div>
+                        <span className="text-[10px] text-ink/55 text-center leading-tight">{s.name}</span>
+                      </div>
+                    ))}
+                  </div>
+                </>
+              )}
             </div>
 
             <p className="text-ink/60 text-sm leading-relaxed mb-2">
