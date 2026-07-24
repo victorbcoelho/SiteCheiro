@@ -253,7 +253,9 @@ export default function ReservationModal({
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-medium text-ink truncate">{diffuserName}</p>
-                  <p className="text-xs text-ink/50">Difusor · pagamento único</p>
+                  <p className="text-xs text-ink/50">
+                    Difusor · {diffuserFree ? 'grátis na assinatura de 12 meses' : 'pagamento único'}
+                  </p>
                 </div>
                 <div className="text-right shrink-0">
                   {diffuserFree ? (
@@ -315,8 +317,11 @@ export default function ReservationModal({
                 </div>
               )}
 
+              <p className="text-sm text-ink font-semibold border-t border-sand/60 mt-2 pt-2">
+                Hoje você paga apenas a reserva de R$28,90.
+              </p>
               {descontoPct > 0 && (
-                <p className="text-[11px] text-rust font-semibold mt-2">
+                <p className="text-[11px] text-rust font-semibold mt-1.5">
                   Preço mensal travado para sempre — isso mesmo, sem reajuste.
                 </p>
               )}
