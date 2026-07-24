@@ -29,11 +29,9 @@ function planoSlug(plano?: string): string {
   return 'assinatura';
 }
 
-// Desconto por data de cadastro: dia 4–7 → 50%, dia 8 em diante → 30%
-function promoFromDate(ts?: { seconds: number }): string {
-  if (!ts) return '30';
-  const dia = new Date(ts.seconds * 1000).getDate();
-  return dia <= 7 ? '50' : '30';
+// Todos os leads recebem 50% de desconto de fundador
+function promoFromDate(_ts?: { seconds: number }): string {
+  return '50';
 }
 
 function buildLink(lead: Lead): string {

@@ -241,18 +241,18 @@ export default function ReservationModal({
             {/* Selo de desconto em destaque */}
             {descontoPct > 0 && (
               <div className="rounded-2xl bg-rust text-white px-4 py-3 mb-4 shadow-sm">
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 mb-1.5">
                   <span className="text-xl">🎉</span>
                   <p className="text-sm font-bold uppercase tracking-wide">
-                    {descontoPct}% OFF nas essências garantido
+                    {descontoPct}% OFF nas essências{descontoPct >= 30 ? ' — acesso antecipado' : ''}
                   </p>
                 </div>
-                <p className="text-xs text-white/90 mt-1">
-                  De <span className="line-through">{brl(scentFullMonthly)}/mês</span> por{' '}
-                  <strong>{brl(scentMonthlyTotal)}/mês</strong> — você economiza{' '}
-                  <strong>{brl(economiaMes)}/mês</strong>
-                  {descontoPct >= 30 ? ' (exclusivo do acesso antecipado)' : ''}
-                </p>
+                <div className="flex items-center gap-2 flex-wrap">
+                  <span className="text-white/60 line-through text-sm">{brl(scentFullMonthly)}/mês</span>
+                  <span className="font-serif text-2xl font-bold leading-none">{brl(scentMonthlyTotal)}/mês</span>
+                  <span className="text-[11px] font-bold bg-white text-rust rounded px-1.5 py-0.5">-{descontoPct}%</span>
+                </div>
+                <p className="text-xs text-white/85 mt-1">Você economiza {brl(economiaMes)}/mês</p>
               </div>
             )}
 
@@ -318,7 +318,15 @@ export default function ReservationModal({
               {scentMonthlyTotal > 0 && (
                 <div className="flex justify-between items-center border-t border-sand/60 mt-2 pt-2">
                   <span className="text-xs text-ink/60">Total das essências</span>
-                  <span className="text-sm font-semibold text-rust">{brl(scentMonthlyTotal)}/mês</span>
+                  <span className="flex items-center gap-1.5">
+                    {descontoPct > 0 && (
+                      <span className="text-xs text-ink/35 line-through">{brl(scentFullMonthly)}</span>
+                    )}
+                    <span className="text-sm font-semibold text-rust">{brl(scentMonthlyTotal)}/mês</span>
+                    {descontoPct > 0 && (
+                      <span className="text-[10px] font-bold bg-rust text-white rounded px-1">-{descontoPct}%</span>
+                    )}
+                  </span>
                 </div>
               )}
 
