@@ -21,11 +21,11 @@ const SITE_URL = 'https://sinesia.com.br';
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: 'Sinesia — Som + Aroma. O primeiro ecossistema multissensorial.',
+    default: 'Sinesia — Assinatura de essências premium com difusor incluso de graça',
     template: '%s | Sinesia',
   },
   description:
-    'O primeiro sistema integrado de áudio e aroma do mundo. Encaixe seu cartucho magnético, dê o play no app e redesenhe a atmosfera do seu ambiente.',
+    'Assinatura de essências premium com difusor incluso de graça. Seu ambiente sempre perfumado, com refis entregues antes de acabar e frete grátis.',
   keywords: [
     'difusor de aroma inteligente',
     'sistema de aroma e som',
@@ -35,9 +35,9 @@ export const metadata: Metadata = {
     'sinesia',
   ],
   openGraph: {
-    title: 'Sinesia — Transforme sua casa em um santuário de luxo.',
+    title: 'Sinesia — Assinatura de essências premium com difusor incluso de graça',
     description:
-      'O primeiro sistema integrado de áudio e aroma do mundo. Cartucho magnético, controle pelo app.',
+      'Assinatura de essências premium com difusor incluso de graça. Ambiente sempre perfumado, refis com frete grátis.',
     url: SITE_URL,
     siteName: 'Sinesia',
     locale: 'pt_BR',
@@ -53,9 +53,9 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Sinesia — Transforme sua casa em um santuário de luxo.',
+    title: 'Sinesia — Assinatura de essências premium com difusor incluso de graça',
     description:
-      'O primeiro sistema integrado de áudio e aroma do mundo. Cartucho magnético, controle pelo app.',
+      'Assinatura de essências premium com difusor incluso de graça. Ambiente sempre perfumado, refis com frete grátis.',
     images: ['/og-image.svg'],
   },
   icons: {

@@ -7,9 +7,6 @@ import { trackEvent, trackCommerceEvent } from '@/lib/analytics';
 import type { B2BContext } from './StarterKitWizard';
 
 const RESERVA_VALOR = 28.9;
-// Opcional: defina o total REAL do primeiro lote para exibir o número.
-// Deixe 0 para mostrar apenas "vagas limitadas" (sem inventar quantidade).
-const PRIMEIRO_LOTE = 0;
 
 function fmtMMSS(total: number) {
   const m = Math.floor(total / 60);
@@ -33,6 +30,7 @@ interface ScentItem {
   name: string;
   qty: number;
   monthly: number;
+  monthlyFull?: number;
   image?: string;
   cardColor?: string;
 }
@@ -236,25 +234,7 @@ export default function ReservationModal({
             <h3 className="font-serif text-2xl text-ink mb-0.5">
               Você escolheu o {diffuserName}
             </h3>
-            <p className="text-rust font-medium text-sm mb-3">{cartSelection.planPrice}</p>
-
-            {/* Selo de desconto em destaque */}
-            {descontoPct > 0 && (
-              <div className="rounded-2xl bg-rust text-white px-4 py-3 mb-4 shadow-sm">
-                <div className="flex items-center gap-2 mb-1.5">
-                  <span className="text-xl">🎉</span>
-                  <p className="text-sm font-bold uppercase tracking-wide">
-                    {descontoPct}% OFF nas essências{descontoPct >= 30 ? ' — acesso antecipado' : ''}
-                  </p>
-                </div>
-                <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-white/60 line-through text-sm">{brl(scentFullMonthly)}/mês</span>
-                  <span className="font-serif text-2xl font-bold leading-none">{brl(scentMonthlyTotal)}/mês</span>
-                  <span className="text-[11px] font-bold bg-white text-rust rounded px-1.5 py-0.5">-{descontoPct}%</span>
-                </div>
-                <p className="text-xs text-white/85 mt-1">Você economiza {brl(economiaMes)}/mês</p>
-              </div>
-            )}
+            <p className="text-rust font-medium text-sm mb-4">{cartSelection.planPrice}</p>
 
             {/* Mini-carrinho itemizado: difusor (pagamento único) + essências (mensal) */}
             <div className="bg-sand/25 rounded-2xl p-3 mb-4">
@@ -309,7 +289,12 @@ export default function ReservationModal({
                       <p className="text-xs text-ink/45">por mês</p>
                     </div>
                     {s.monthly > 0 && (
-                      <span className="text-xs text-ink/60 shrink-0">{brl(s.monthly)}/mês</span>
+                      <span className="shrink-0 text-right text-xs whitespace-nowrap">
+                        {s.monthlyFull && s.monthlyFull > s.monthly && (
+                          <span className="text-ink/35 line-through mr-1">{brl(s.monthlyFull)}</span>
+                        )}
+                        <span className="text-ink/70 font-medium">{brl(s.monthly)}/mês</span>
+                      </span>
                     )}
                   </div>
                 ))}
@@ -330,9 +315,13 @@ export default function ReservationModal({
                 </div>
               )}
 
-              <p className="text-[11px] text-ink/45 mt-3 leading-relaxed">
-                Hoje você paga só a <strong>reserva de R$28,90</strong> — abatida do primeiro
-                pagamento. As essências só passam a ser cobradas quando o kit for enviado.
+              {descontoPct > 0 && (
+                <p className="text-[11px] text-rust font-semibold mt-2">
+                  Preço mensal travado para sempre — isso mesmo, sem reajuste.
+                </p>
+              )}
+              <p className="text-[11px] text-ink/45 mt-1 leading-relaxed">
+                As essências só passam a ser cobradas quando o kit for enviado.
               </p>
             </div>
 
@@ -348,16 +337,6 @@ export default function ReservationModal({
               <li>✓ Reembolso 100% a qualquer momento</li>
               <li>✓ Nenhuma mensalidade é cobrada agora</li>
             </ul>
-
-            {/* Escassez */}
-            <div className="flex items-center gap-2 bg-rust/10 text-rust rounded-lg px-3 py-2 mb-4 text-xs font-medium">
-              <span>🔥</span>
-              <span>
-                {PRIMEIRO_LOTE > 0
-                  ? `Primeiro lote limitado a ${PRIMEIRO_LOTE} unidades — por ordem de pagamento`
-                  : 'Vagas limitadas ao primeiro lote de produção — por ordem de pagamento'}
-              </span>
-            </div>
 
             <input
               type="email"
