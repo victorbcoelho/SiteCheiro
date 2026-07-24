@@ -1276,6 +1276,7 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
             return { name: s?.name ?? id, qty, monthly: qty * (isSub ? SCENT_SUB_EFF : SCENT_FULL), image: s?.image, cardColor: s?.cardColor };
           })}
           scentMonthlyTotal={(cart.planLabel.toLowerCase().includes('promo') || cart.planLabel.toLowerCase().includes('assine')) ? scentSubTotal : scentFullTotal}
+          scentFullMonthly={scentFullTotal}
           b2bContext={b2bContext}
           onClose={() => {
             setShowPreLaunch(false);

@@ -48,6 +48,7 @@ export default function ReservationModal({
   scentNames,
   scentItems = [],
   scentMonthlyTotal = 0,
+  scentFullMonthly = 0,
   b2bContext,
   onClose,
 }: {
@@ -59,9 +60,12 @@ export default function ReservationModal({
   scentNames: string[];
   scentItems?: ScentItem[];
   scentMonthlyTotal?: number;
+  scentFullMonthly?: number;
   b2bContext?: B2BContext;
   onClose: () => void;
 }) {
+  const economiaMes = Math.max(0, scentFullMonthly - scentMonthlyTotal);
+  const descontoPct = scentFullMonthly > 0 ? Math.round((economiaMes / scentFullMonthly) * 100) : 0;
   const [email, setEmail] = useState('');
   const [loading, setLoading] = useState<'' | 'pix' | 'cartao'>('');
   const [error, setError] = useState('');
@@ -233,6 +237,24 @@ export default function ReservationModal({
               Você escolheu o {diffuserName}
             </h3>
             <p className="text-rust font-medium text-sm mb-3">{cartSelection.planPrice}</p>
+
+            {/* Selo de desconto em destaque */}
+            {descontoPct > 0 && (
+              <div className="rounded-2xl bg-rust text-white px-4 py-3 mb-4 shadow-sm">
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🎉</span>
+                  <p className="text-sm font-bold uppercase tracking-wide">
+                    {descontoPct}% OFF nas essências garantido
+                  </p>
+                </div>
+                <p className="text-xs text-white/90 mt-1">
+                  De <span className="line-through">{brl(scentFullMonthly)}/mês</span> por{' '}
+                  <strong>{brl(scentMonthlyTotal)}/mês</strong> — você economiza{' '}
+                  <strong>{brl(economiaMes)}/mês</strong>
+                  {descontoPct >= 30 ? ' (exclusivo do acesso antecipado)' : ''}
+                </p>
+              </div>
+            )}
 
             {/* Mini-carrinho itemizado: difusor (pagamento único) + essências (mensal) */}
             <div className="bg-sand/25 rounded-2xl p-3 mb-4">
