@@ -7,7 +7,10 @@ type AnalyticsEvent =
   | 'wizard_plan_selected'
   | 'scroll_depth'
   | 'section_view'
-  | 'cart_opened';
+  | 'cart_opened'
+  | 'payment_method_selected'
+  | 'pix_qr_shown'
+  | 'purchase_confirmed';
 
 declare global {
   interface Window {

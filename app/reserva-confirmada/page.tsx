@@ -4,7 +4,7 @@ import { Suspense, useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { upsertReserva } from '@/lib/leads';
-import { trackCommerceEvent } from '@/lib/analytics';
+import { trackEvent, trackCommerceEvent } from '@/lib/analytics';
 
 type Estado = 'loading' | 'aprovado' | 'pendente' | 'recusado';
 
@@ -51,6 +51,8 @@ function ReservaConfirmadaContent() {
     }
 
     if (resolvido === 'aprovado') {
+      // Evento GA4 do funil (compra confirmada)
+      trackEvent('purchase_confirmed', { valor: 28.9, mp_payment_id: paymentId });
       // Meta Pixel Purchase (value 28.90 BRL) + conversão Google Ads
       // eventId deduplica com o Purchase server-side (Conversions API)
       trackCommerceEvent(

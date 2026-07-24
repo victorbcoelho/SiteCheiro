@@ -136,6 +136,7 @@ export default function ReservationModal({
     if (!emailValido) { setError('Informe um e-mail válido.'); return; }
     setError('');
     setLoading('pix');
+    trackEvent('payment_method_selected', { metodo: 'pix', plano: cartSelection.planLabel, origem });
     try {
       const reservaId = await criarReserva();
       const res = await fetch('/api/create-pix', {
@@ -159,6 +160,7 @@ export default function ReservationModal({
       setSecondsLeft(Math.max(0, Math.floor((expiresAtRef.current - Date.now()) / 1000)));
       setView('pix');
       setLoading('');
+      trackEvent('pix_qr_shown', { plano: cartSelection.planLabel, origem });
       pollRef.current = setInterval(() => checkStatus(data.paymentId, reservaId), 4000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao gerar o Pix.');
@@ -170,6 +172,7 @@ export default function ReservationModal({
     if (!emailValido) { setError('Informe um e-mail válido.'); return; }
     setError('');
     setLoading('cartao');
+    trackEvent('payment_method_selected', { metodo: 'cartao', plano: cartSelection.planLabel, origem });
     try {
       const reservaId = await criarReserva();
       const res = await fetch('/api/create-preference', {
