@@ -22,22 +22,41 @@ function scentIdsFromNames(fragrancias?: string): string[] {
     .filter(Boolean) as string[];
 }
 
-function buildLink(difusor?: string, fragrancias?: string): string {
+function planoSlug(plano?: string): string {
+  const p = (plano || '').toLowerCase();
+  if (p.includes('promo')) return 'promocao';
+  if (p.includes('compra') || p.includes('única') || p.includes('unica')) return 'compra_unica';
+  return 'assinatura';
+}
+
+// Desconto por data de cadastro: dia 4–7 → 50%, dia 8 em diante → 30%
+function promoFromDate(ts?: { seconds: number }): string {
+  if (!ts) return '30';
+  const dia = new Date(ts.seconds * 1000).getDate();
+  return dia <= 7 ? '50' : '30';
+}
+
+function buildLink(lead: Lead): string {
   const origin = typeof window !== 'undefined' ? window.location.origin : 'https://sinesia.com.br';
-  const e = scentIdsFromNames(fragrancias);
-  const params = new URLSearchParams({ d: diffuserIdFromName(difusor), promo: '30' });
+  const e = scentIdsFromNames(lead.fragrancias);
+  const params = new URLSearchParams({
+    d: diffuserIdFromName(lead.difusor),
+    plano: planoSlug(lead.plano),
+    promo: promoFromDate(lead.timestamp),
+  });
   if (e.length) params.set('e', e.join(','));
   return `${origin}/starter-kit?${params.toString()}`;
 }
 
-function buildEmailBody(nome?: string, difusor?: string, fragrancias?: string): string {
-  const primeiroNome = (nome || '').trim().split(' ')[0] || '';
-  const link = buildLink(difusor, fragrancias);
+function buildEmailBody(lead: Lead): string {
+  const primeiroNome = (lead.nome || '').trim().split(' ')[0] || '';
+  const promo = promoFromDate(lead.timestamp);
+  const link = buildLink(lead);
   return `Oi ${primeiroNome},
 
 Aqui é o Victor, da Sinesia. Há algumas semanas você deixou seu e-mail pra ser avisado quando abríssemos as primeiras vagas — e eu queria te avisar pessoalmente que chegou a hora.
 
-Estamos abrindo o primeiro lote, que é limitado. Você mantém os 30% de desconto do acesso antecipado no seu primeiro kit, como combinado.
+Estamos abrindo o primeiro lote, que é limitado. Você mantém os ${promo}% de desconto do acesso antecipado no seu primeiro kit, como combinado.
 
 Pra garantir sua vaga é uma reserva de R$28,90, abatida integralmente do primeiro pagamento. O envio está previsto para até 60 dias, e o reembolso é total a qualquer momento — basta responder este e-mail.
 
@@ -350,7 +369,7 @@ export default function AdminPage() {
                               <div className="flex flex-wrap gap-2">
                                 <CopyBtn text={lead.email || ''} label="Copiar e-mail do destinatário" />
                                 <CopyBtn text={EMAIL_ASSUNTO} label="Copiar assunto" />
-                                <CopyBtn text={buildEmailBody(lead.nome, lead.difusor, lead.fragrancias)} label="Copiar corpo do e-mail" />
+                                <CopyBtn text={buildEmailBody(lead)} label="Copiar corpo do e-mail" />
                               </div>
                               <div>
                                 <p className="text-zinc-500 text-[11px] uppercase tracking-widest mb-1">Destinatário</p>
@@ -362,12 +381,12 @@ export default function AdminPage() {
                               </div>
                               <div>
                                 <p className="text-zinc-500 text-[11px] uppercase tracking-widest mb-1">Corpo do e-mail</p>
-                                <pre className="text-zinc-300 text-sm whitespace-pre-wrap font-sans bg-zinc-900 rounded-xl p-4 border border-zinc-800">{buildEmailBody(lead.nome, lead.difusor, lead.fragrancias)}</pre>
+                                <pre className="text-zinc-300 text-sm whitespace-pre-wrap font-sans bg-zinc-900 rounded-xl p-4 border border-zinc-800">{buildEmailBody(lead)}</pre>
                               </div>
                               <div>
-                                <p className="text-zinc-500 text-[11px] uppercase tracking-widest mb-1">Link gerado (carrinho pronto + 30% off)</p>
-                                <a href={buildLink(lead.difusor, lead.fragrancias)} target="_blank" rel="noreferrer" className="text-blue-400 text-xs break-all underline">
-                                  {buildLink(lead.difusor, lead.fragrancias)}
+                                <p className="text-zinc-500 text-[11px] uppercase tracking-widest mb-1">Link gerado (carrinho/pagamento + {promoFromDate(lead.timestamp)}% off)</p>
+                                <a href={buildLink(lead)} target="_blank" rel="noreferrer" className="text-blue-400 text-xs break-all underline">
+                                  {buildLink(lead)}
                                 </a>
                               </div>
                             </div>

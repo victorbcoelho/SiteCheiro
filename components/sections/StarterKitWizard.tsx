@@ -595,13 +595,15 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const [showDiffuserModal, setShowDiffuserModal] = useState(false);
   const [showPromoDetails, setShowPromoDetails] = useState(false);
   const [showSubscribeDetails, setShowSubscribeDetails] = useState(false);
-  const [founderPromo, setFounderPromo] = useState(false);
+  const [founderPct, setFounderPct] = useState(0); // 0 = sem promo; 30 ou 50 via link
+  const [pendingPlan, setPendingPlan] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isB2B) trackEvent('wizard_started', { origem: 'starter-kit-wizard' });
   }, [isB2B]);
 
-  // Deep-link do e-mail: ?d=<difusor>&e=<essencias>&promo=30 → abre o carrinho pronto
+  // Deep-link do e-mail: ?d=<difusor>&e=<essencias>&plano=<slug>&promo=30|50
+  // Abre direto o carrinho/pagamento (Pix ou cartão) com o kit e o desconto.
   useEffect(() => {
     if (isB2B || typeof window === 'undefined') return;
     const p = new URLSearchParams(window.location.search);
@@ -618,7 +620,10 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
         diffuserModelId: d,
         selectedScentIds: ids.length ? ids : s.selectedScentIds,
       }));
-      if (p.get('promo') === '30') setFounderPromo(true);
+      const promo = Number(p.get('promo'));
+      if (promo === 30 || promo === 50) setFounderPct(promo);
+      const plano = p.get('plano') || 'assinatura';
+      setPendingPlan(['promocao', 'assinatura', 'compra_unica'].includes(plano) ? plano : 'assinatura');
       setStep('summary');
     }
   }, [isB2B]);
@@ -653,9 +658,9 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
   const scentQtys = getScentQtys(state.selectedScentIds, state.diffuserModelId, isB2B ? b2bQty : 1);
   const numScentBottles = scentQtys.reduce((sum, s) => sum + s.qty, 0) || diffuserMaxScents;
 
-  // Desconto de fundador (30%) via link do e-mail; senão o padrão de assinante (20%)
-  const scentDiscountPct = founderPromo ? 30 : 20;
-  const SCENT_SUB_EFF = founderPromo ? Number((SCENT_FULL * 0.7).toFixed(2)) : SCENT_SUB;
+  // Desconto de fundador (30% ou 50%) via link do e-mail; senão o padrão de assinante (20%)
+  const scentDiscountPct = founderPct || 20;
+  const SCENT_SUB_EFF = founderPct ? Number((SCENT_FULL * (1 - founderPct / 100)).toFixed(2)) : SCENT_SUB;
   const scentSubTotal = numScentBottles * SCENT_SUB_EFF;
   const scentFullTotal = numScentBottles * SCENT_FULL;
 
@@ -718,6 +723,23 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
       value: valueNumeric,
     });
   };
+
+  // Deep-link: quando o resumo já está montado, abre direto o carrinho/pagamento do plano
+  useEffect(() => {
+    if (!pendingPlan || step !== 'summary' || cart) return;
+    if (pendingPlan === 'promocao') {
+      openCart('Promoção — Difusor de Graça', `R$${fmtBRL(scentSubTotal)}/mês`,
+        `12 meses · difusor R$${fmtBRL(deviceTotal)} incluso grátis`, scentSubTotal);
+    } else if (pendingPlan === 'compra_unica') {
+      openCart('Compra Única — Sem Compromisso', `R$${fmtBRL(deviceTotal + scentFullTotal)}`,
+        'Difusor + essências · preço cheio · sem assinatura', deviceTotal + scentFullTotal);
+    } else {
+      openCart('Assine e Economize', `R$${fmtBRL(deviceTotal)} + R$${fmtBRL(scentSubTotal)}/mês`,
+        `Difusor: pagamento único · Essências: ${scentDiscountPct}% off/mês`, deviceTotal + scentSubTotal);
+    }
+    setPendingPlan(null);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [pendingPlan, step, cart, scentSubTotal, scentFullTotal, deviceTotal]);
 
   return (
     <div className="min-h-[calc(100vh-5rem)] bg-offwhite">
@@ -937,11 +959,11 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
               transition={{ duration: 0.3 }}
               className="max-w-5xl mx-auto"
             >
-              {founderPromo && (
+              {founderPct > 0 && (
                 <div className="mb-5 flex items-center gap-2 bg-rust text-white rounded-2xl px-4 py-3">
                   <span className="text-lg">🎁</span>
                   <p className="text-sm font-medium">
-                    Desconto de fundador ativado: <strong>30% off</strong> nas essências, exclusivo do acesso antecipado.
+                    Desconto de fundador ativado: <strong>{founderPct}% off</strong> nas essências, exclusivo do acesso antecipado.
                   </p>
                 </div>
               )}
