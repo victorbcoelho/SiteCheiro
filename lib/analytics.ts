@@ -33,6 +33,9 @@ export function trackEvent(
 
   if (window.gtag) {
     window.gtag('event', eventName, params);
+    console.log(`[Sinesia GA4] evento → ${eventName}`, params, '✅ enviado ao GA4');
+  } else {
+    console.log(`[Sinesia GA4] ${eventName} — ❌ gtag indisponível`);
   }
 
   if (eventName === 'lead_captured') {
