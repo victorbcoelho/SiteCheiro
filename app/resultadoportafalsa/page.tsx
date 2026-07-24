@@ -320,6 +320,7 @@ export default function AdminPage() {
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-zinc-800 text-zinc-400 text-xs uppercase tracking-widest">
+                      <th className="text-left px-5 py-3">Ação</th>
                       <th className="text-left px-5 py-3">Nome</th>
                       <th className="text-left px-5 py-3">E-mail</th>
                       <th className="text-left px-5 py-3">Plano</th>
@@ -327,7 +328,6 @@ export default function AdminPage() {
                       <th className="text-left px-5 py-3">Fragrâncias</th>
                       <th className="text-left px-5 py-3">Origem</th>
                       <th className="text-left px-5 py-3">Data</th>
-                      <th className="text-left px-5 py-3">E-mail</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -336,6 +336,14 @@ export default function AdminPage() {
                       return (
                       <Fragment key={lead.id}>
                       <tr className={`border-b border-zinc-800/50 hover:bg-zinc-800/40 transition-colors ${i % 2 === 0 ? '' : 'bg-zinc-800/10'}`}>
+                        <td className="px-5 py-3">
+                          <button
+                            onClick={() => setExpandedId(aberto ? null : lead.id)}
+                            className="text-xs bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
+                          >
+                            {aberto ? '▲ Fechar' : '✉ E-mail'}
+                          </button>
+                        </td>
                         <td className="px-5 py-3 font-medium">{lead.nome || '—'}</td>
                         <td className="px-5 py-3 text-zinc-300">{lead.email || '—'}</td>
                         <td className="px-5 py-3">
@@ -351,14 +359,6 @@ export default function AdminPage() {
                           <Badge color="bg-zinc-700 text-zinc-200">{(lead.origem as string) || '—'}</Badge>
                         </td>
                         <td className="px-5 py-3 text-zinc-400 whitespace-nowrap">{formatDate(lead.timestamp)}</td>
-                        <td className="px-5 py-3">
-                          <button
-                            onClick={() => setExpandedId(aberto ? null : lead.id)}
-                            className="text-xs bg-zinc-800 hover:bg-zinc-700 text-white rounded-lg px-3 py-1.5 whitespace-nowrap transition-colors"
-                          >
-                            {aberto ? '▲ Fechar' : '✉ E-mail'}
-                          </button>
-                        </td>
                       </tr>
                       {aberto && (
                         <tr className="bg-zinc-950/70">
