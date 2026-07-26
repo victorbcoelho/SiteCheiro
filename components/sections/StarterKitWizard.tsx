@@ -1038,8 +1038,8 @@ export default function StarterKitWizard({ b2bContext, b2bQty = 1, b2bRecommende
                             <p className="text-xs text-ink/40">{scent.family}</p>
                           </div>
                           <div className="shrink-0 text-right">
-                            <p className="text-sm font-semibold text-ink">{qty}×</p>
-                            <p className="text-[10px] text-ink/35">frasco{qty > 1 ? 's' : ''}</p>
+                            <p className="text-sm font-semibold text-ink">{qty}× · R${fmtBRL(SCENT_FULL)}</p>
+                            <p className="text-[10px] text-ink/35">por frasco{qty > 1 ? ' (×' + qty + ')' : ''}</p>
                           </div>
                         </div>
                       );
