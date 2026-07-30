@@ -27,6 +27,11 @@ function capturarSinaisMeta(): Record<string, string> {
   if (fbc) out.fbc = fbc;
   if (navigator?.userAgent) out.userAgent = navigator.userAgent;
   out.sourceUrl = window.location.href;
+  console.log('[Sinesia Meta] sinais capturados (p/ CAPI):', {
+    fbp: out.fbp || '❌ ausente',
+    fbc: out.fbc || '❌ ausente (normal em visita direta, sem clique de anúncio)',
+    userAgent: out.userAgent ? '✅' : '❌',
+  });
   return out;
 }
 
