@@ -13,6 +13,11 @@ export async function sendMetaPurchase(params: {
   fbc?: string;
   userAgent?: string;
   clientIp?: string;
+  nome?: string;
+  cidade?: string;
+  estado?: string;
+  cep?: string;
+  country?: string;
   value: number;
   eventId: string;
   eventSourceUrl?: string;
@@ -23,6 +28,11 @@ export async function sendMetaPurchase(params: {
 
   // fbp, fbc, client_user_agent e client_ip_address vão SEM hash (só PII é hasheada).
   // São as chaves de correspondência de alta prioridade que melhoram o EMQ.
+  const nome = (params.nome || '').trim();
+  const firstName = nome.split(' ')[0] || '';
+  const lastName = nome.split(' ').slice(1).join(' ');
+  const cepDigits = (params.cep || '').replace(/\D/g, '');
+
   const body = {
     data: [
       {
@@ -33,6 +43,12 @@ export async function sendMetaPurchase(params: {
         ...(params.eventSourceUrl ? { event_source_url: params.eventSourceUrl } : {}),
         user_data: {
           ...(params.email ? { em: [sha256(params.email)] } : {}),
+          ...(firstName ? { fn: [sha256(firstName)] } : {}),
+          ...(lastName ? { ln: [sha256(lastName)] } : {}),
+          ...(params.cidade ? { ct: [sha256(params.cidade)] } : {}),
+          ...(params.estado ? { st: [sha256(params.estado)] } : {}),
+          ...(cepDigits ? { zp: [sha256(cepDigits)] } : {}),
+          ...(params.country ? { country: [sha256(params.country)] } : {}),
           ...(params.fbp ? { fbp: params.fbp } : {}),
           ...(params.fbc ? { fbc: params.fbc } : {}),
           ...(params.userAgent ? { client_user_agent: params.userAgent } : {}),

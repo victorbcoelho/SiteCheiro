@@ -86,7 +86,8 @@ function ReservaConfirmadaContent() {
   const handleSalvarEndereco = async (e: React.FormEvent) => {
     e.preventDefault();
     setSalvando(true);
-    await upsertReserva(ref || `mp_${Date.now()}`, {
+    const reservaRef = ref || `mp_${Date.now()}`;
+    await upsertReserva(reservaRef, {
       nome,
       cep,
       cidade,
@@ -97,6 +98,13 @@ function ReservaConfirmadaContent() {
       bairro,
       enderecoColetado: true,
     });
+    // Reenvia a compra à Meta com nome+endereço (hash) para melhorar o match — sem atrito
+    const paymentId = params.get('payment_id') || params.get('collection_id') || '';
+    fetch('/api/meta-purchase-enrich', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ref: reservaRef, paymentId }),
+    }).catch(() => {});
     setSalvando(false);
     setEnderecoSalvo(true);
   };
