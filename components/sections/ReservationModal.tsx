@@ -8,6 +8,28 @@ import type { B2BContext } from './StarterKitWizard';
 
 const RESERVA_VALOR = 28.9;
 
+// Captura os sinais da Meta (cookies _fbp/_fbc, fbclid, user-agent) no navegador
+// para enviar na Conversions API server-side e melhorar a correspondência (EMQ).
+function capturarSinaisMeta(): Record<string, string> {
+  if (typeof document === 'undefined') return {};
+  const getCookie = (name: string) => {
+    const m = document.cookie.match(new RegExp('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)'));
+    return m ? decodeURIComponent(m[2]) : '';
+  };
+  const out: Record<string, string> = {};
+  const fbp = getCookie('_fbp');
+  if (fbp) out.fbp = fbp;
+  let fbc = getCookie('_fbc');
+  if (!fbc) {
+    const fbclid = new URLSearchParams(window.location.search).get('fbclid');
+    if (fbclid) fbc = `fb.1.${Date.now()}.${fbclid}`;
+  }
+  if (fbc) out.fbc = fbc;
+  if (navigator?.userAgent) out.userAgent = navigator.userAgent;
+  out.sourceUrl = window.location.href;
+  return out;
+}
+
 function fmtMMSS(total: number) {
   const m = Math.floor(total / 60);
   const s = total % 60;
@@ -104,6 +126,7 @@ export default function ReservationModal({
       valorReserva: RESERVA_VALOR,
       status: 'pendente',
       origem,
+      ...capturarSinaisMeta(), // fbp, fbc, userAgent, sourceUrl (melhora EMQ da CAPI)
       ...b2bContext,
     });
     trackEvent('lead_captured', { plano: cartSelection.planLabel, origem });

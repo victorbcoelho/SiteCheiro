@@ -65,15 +65,23 @@ export async function POST(req: NextRequest) {
     const metadata = pay.metadata || {};
     const reservaId: string =
       pay.external_reference || metadata.reserva_id || `mp_${paymentId}`;
-    // Dedup + e-mail real: lê o doc (o e-mail do MP vem mascarado)
+    // Dedup + e-mail real + sinais Meta (fbp/fbc/user-agent): lê o doc
     let jaEstavaPago = false;
     let emailReal = '';
+    let sinais: { fbp?: string; fbc?: string; userAgent?: string; sourceUrl?: string } = {};
     if (db) {
       try {
         const snap = await getDoc(doc(db, 'reservas', reservaId));
         if (snap.exists()) {
-          jaEstavaPago = snap.data()?.status === 'pago';
-          emailReal = (snap.data()?.email as string) || '';
+          const d = snap.data();
+          jaEstavaPago = d?.status === 'pago';
+          emailReal = (d?.email as string) || '';
+          sinais = {
+            fbp: d?.fbp as string | undefined,
+            fbc: d?.fbc as string | undefined,
+            userAgent: d?.userAgent as string | undefined,
+            sourceUrl: d?.sourceUrl as string | undefined,
+          };
         }
       } catch { /* ignora */ }
     }
@@ -99,6 +107,10 @@ export async function POST(req: NextRequest) {
         sendReservaEmail({ to: emailReal, difusor: metadata.difusor, plano: metadata.plano }),
         sendMetaPurchase({
           email: emailReal,
+          fbp: sinais.fbp,
+          fbc: sinais.fbc,
+          userAgent: sinais.userAgent,
+          eventSourceUrl: sinais.sourceUrl,
           value: pay.transaction_amount ?? 28.9,
           eventId: `mp_${paymentId}`,
         }),

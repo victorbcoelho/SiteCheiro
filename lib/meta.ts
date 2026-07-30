@@ -9,6 +9,10 @@ function sha256(value: string): string {
 // (ex.: Pix aprovado sem a pessoa voltar ao site). Deduplicado pelo eventId.
 export async function sendMetaPurchase(params: {
   email?: string;
+  fbp?: string;
+  fbc?: string;
+  userAgent?: string;
+  clientIp?: string;
   value: number;
   eventId: string;
   eventSourceUrl?: string;
@@ -17,6 +21,8 @@ export async function sendMetaPurchase(params: {
   const token = process.env.META_CAPI_TOKEN;
   if (!pixelId || !token) return; // não configurado — ignora silenciosamente
 
+  // fbp, fbc, client_user_agent e client_ip_address vão SEM hash (só PII é hasheada).
+  // São as chaves de correspondência de alta prioridade que melhoram o EMQ.
   const body = {
     data: [
       {
@@ -27,6 +33,10 @@ export async function sendMetaPurchase(params: {
         ...(params.eventSourceUrl ? { event_source_url: params.eventSourceUrl } : {}),
         user_data: {
           ...(params.email ? { em: [sha256(params.email)] } : {}),
+          ...(params.fbp ? { fbp: params.fbp } : {}),
+          ...(params.fbc ? { fbc: params.fbc } : {}),
+          ...(params.userAgent ? { client_user_agent: params.userAgent } : {}),
+          ...(params.clientIp ? { client_ip_address: params.clientIp } : {}),
         },
         custom_data: {
           currency: 'BRL',
