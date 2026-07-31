@@ -65,8 +65,10 @@ export async function POST(req: NextRequest) {
     const metadata = pay.metadata || {};
     const reservaId: string =
       pay.external_reference || metadata.reserva_id || `mp_${paymentId}`;
-    // Dedup + e-mail real + sinais Meta (fbp/fbc/user-agent): lê o doc
-    let jaEstavaPago = false;
+    // Lê o doc: e-mail real, sinais Meta e travas de "já enviado" (idempotência).
+    // Travas dedicadas (não usar status 'pago', que a tela de sucesso também seta).
+    let capiJaEnviado = false;
+    let emailJaEnviado = false;
     let emailReal = '';
     let sinais: { fbp?: string; fbc?: string; userAgent?: string; sourceUrl?: string } = {};
     if (db) {
@@ -74,7 +76,8 @@ export async function POST(req: NextRequest) {
         const snap = await getDoc(doc(db, 'reservas', reservaId));
         if (snap.exists()) {
           const d = snap.data();
-          jaEstavaPago = d?.status === 'pago';
+          capiJaEnviado = d?.metaCapiSent === true;
+          emailJaEnviado = d?.emailSent === true;
           emailReal = (d?.email as string) || '';
           sinais = {
             fbp: d?.fbp as string | undefined,
@@ -85,6 +88,8 @@ export async function POST(req: NextRequest) {
         }
       } catch { /* ignora */ }
     }
+
+    const aprovado = pay.status === 'approved';
 
     // NÃO sobrescrever o e-mail: o Mercado Pago retorna mascarado (XXXX) na API.
     // O e-mail real é o que a pessoa digitou no modal (já salvo no doc).
@@ -99,13 +104,20 @@ export async function POST(req: NextRequest) {
       plano: metadata.plano || undefined,
       difusor: metadata.difusor || undefined,
       fragrancias: metadata.fragrancias || undefined,
+      // marca como enviado ANTES de enviar (evita duplicar em reenvios do MP)
+      ...(aprovado && !capiJaEnviado ? { metaCapiSent: true } : {}),
+      ...(aprovado && !emailJaEnviado ? { emailSent: true } : {}),
     });
 
-    // Só na PRIMEIRA aprovação: e-mail de confirmação + Purchase server-side
-    if (pay.status === 'approved' && !jaEstavaPago) {
-      await Promise.all([
-        sendReservaEmail({ to: emailReal, difusor: metadata.difusor, plano: metadata.plano }),
-        sendMetaPurchase({
+    // Na aprovação, SEMPRE avisa a Meta (independe de endereço / do usuário voltar).
+    // event_id igual ao do pixel/enriquecimento → deduplicado, não conta 2x.
+    if (aprovado) {
+      const tarefas: Promise<void>[] = [];
+      if (!emailJaEnviado) {
+        tarefas.push(sendReservaEmail({ to: emailReal, difusor: metadata.difusor, plano: metadata.plano }));
+      }
+      if (!capiJaEnviado) {
+        tarefas.push(sendMetaPurchase({
           email: emailReal,
           fbp: sinais.fbp,
           fbc: sinais.fbc,
@@ -113,8 +125,9 @@ export async function POST(req: NextRequest) {
           eventSourceUrl: sinais.sourceUrl,
           value: pay.transaction_amount ?? 28.9,
           eventId: `mp_${paymentId}`,
-        }),
-      ]);
+        }));
+      }
+      await Promise.all(tarefas);
     }
 
     console.log('[MP webhook] ✅ Reserva atualizada', reservaId, pay.status);
