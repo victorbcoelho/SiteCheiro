@@ -243,6 +243,9 @@ export default function ComprasPage() {
                     <p className="text-zinc-400 text-xs mt-1">
                       {numAssinantes} assinatura(s) · essências 20% off · R$ {(mrrTotal * 12).toFixed(2).replace('.', ',')}/ano
                     </p>
+                    <p className="text-green-300 text-sm font-medium mt-2 border-t border-green-800/40 pt-2">
+                      Ticket médio: R$ {(numAssinantes ? mrrTotal / numAssinantes : 0).toFixed(2).replace('.', ',')}/mês
+                    </p>
                   </div>
 
                   {/* Faturamento único */}
@@ -253,6 +256,9 @@ export default function ComprasPage() {
                     </p>
                     <p className="text-zinc-400 text-xs mt-1">
                       {numUnicas} pagamento(s) à vista · difusor + compra única (preço cheio)
+                    </p>
+                    <p className="text-blue-300 text-sm font-medium mt-2 border-t border-blue-800/40 pt-2">
+                      Ticket médio: R$ {(numUnicas ? unicoTotal / numUnicas : 0).toFixed(2).replace('.', ',')}
                     </p>
                   </div>
                 </div>
