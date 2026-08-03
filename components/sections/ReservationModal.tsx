@@ -129,6 +129,7 @@ export default function ReservationModal({
       difusor: diffuserName,
       fragrancias: scentNames.join(', '),
       valorReserva: RESERVA_VALOR,
+      mensalidade: scentMonthlyTotal, // valor recorrente das essências (com desconto aplicado)
       status: 'pendente',
       origem,
       ...capturarSinaisMeta(), // fbp, fbc, userAgent, sourceUrl (melhora EMQ da CAPI)

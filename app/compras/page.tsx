@@ -6,6 +6,35 @@ import { db } from '@/lib/firebase';
 
 const SENHA = '112233@';
 
+// Preços/regras para estimar a mensalidade de pedidos antigos (sem o campo salvo)
+const SCENT_FULL = 59.9;
+const SCENT_SUB = 47.92;
+const MAX_SCENTS: Record<string, number> = { room: 2, tower: 3, car: 2 };
+
+function difusorId(name?: string): string {
+  const n = (name || '').toLowerCase();
+  if (n.includes('tower')) return 'tower';
+  if (n.includes('car')) return 'car';
+  return 'room';
+}
+
+function contaFrascos(difId: string, numEssencias: number): number {
+  const max = MAX_SCENTS[difId] || 2;
+  if (numEssencias <= 1) return max;
+  if (numEssencias === 2) return max === 3 ? 3 : 2;
+  return numEssencias;
+}
+
+// Valor mensal das essências de uma reserva (usa o salvo; senão estima)
+function mensalidadeDe(r: Reserva): number {
+  if (typeof r.mensalidade === 'number' && r.mensalidade > 0) return r.mensalidade as number;
+  const essencias = (r.fragrancias || '').split(',').map((s) => s.trim()).filter(Boolean);
+  const frascos = contaFrascos(difusorId(r.difusor), essencias.length);
+  const plano = (r.plano || '').toLowerCase();
+  const comDesconto = plano.includes('promo') || plano.includes('assine');
+  return frascos * (comDesconto ? SCENT_SUB : SCENT_FULL);
+}
+
 interface Reserva {
   id: string;
   nome?: string;
@@ -21,6 +50,7 @@ interface Reserva {
   difusor?: string;
   fragrancias?: string;
   valorReserva?: number;
+  mensalidade?: number;
   status?: string;
   paymentId?: string;
   origem?: string;
@@ -114,6 +144,23 @@ export default function ComprasPage() {
     .filter((r) => r.status === 'pago')
     .reduce((s, r) => s + (Number(r.valorReserva) || 28.9), 0);
 
+  // --- Resumo dos pedidos PAGOS ---
+  const pagasList = reservas.filter((r) => r.status === 'pago' || r.status === 'approved');
+  const mrrTotal = pagasList.reduce((s, r) => s + mensalidadeDe(r), 0);
+
+  const contar = (arr: string[]) => {
+    const m: Record<string, number> = {};
+    arr.forEach((k) => { if (k) m[k] = (m[k] || 0) + 1; });
+    return Object.entries(m).sort((a, b) => b[1] - a[1]);
+  };
+
+  const difusoresPagos = contar(pagasList.map((r) => r.difusor || 'Não informado'));
+  const planosPagos = contar(pagasList.map((r) => r.plano || 'Não informado'));
+  const essenciasList: string[] = [];
+  pagasList.forEach((r) => (r.fragrancias || '').split(',').forEach((f) => { const n = f.trim(); if (n) essenciasList.push(n); }));
+  const essenciasPagas = contar(essenciasList);
+  const totalPicks = essenciasList.length || 1;
+
   const filtradas = reservas.filter((r) => {
     const matchStatus = filtroStatus === 'todos' || r.status === filtroStatus;
     const matchBusca =
@@ -161,6 +208,72 @@ export default function ComprasPage() {
                 </p>
               </div>
             </div>
+
+            {/* Resumo dos pedidos pagos */}
+            {pagasList.length > 0 && (
+              <div className="mb-8">
+                <div className="bg-gradient-to-br from-green-900/40 to-zinc-900 border border-green-800/40 rounded-2xl p-5 mb-4">
+                  <p className="text-green-300/70 text-xs uppercase tracking-widest mb-1">Faturamento recorrente potencial (MRR)</p>
+                  <p className="text-4xl md:text-5xl font-serif font-bold text-green-400">
+                    R$ {mrrTotal.toFixed(2).replace('.', ',')}<span className="text-xl text-green-300/60">/mês</span>
+                  </p>
+                  <p className="text-zinc-400 text-xs mt-1">
+                    Soma das mensalidades das {pagasList.length} venda(s) paga(s) · R$ {(mrrTotal * 12).toFixed(2).replace('.', ',')}/ano
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Difusores */}
+                  <div className="bg-zinc-900 rounded-2xl p-5">
+                    <p className="text-zinc-400 text-xs uppercase tracking-widest mb-4">Difusores vendidos</p>
+                    {difusoresPagos.map(([nome, count]) => (
+                      <div key={nome} className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-zinc-300 truncate max-w-[60%]">{nome}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-zinc-800 rounded-full h-1.5">
+                            <div className="bg-green-400 h-1.5 rounded-full" style={{ width: `${Math.round((count / pagasList.length) * 100)}%` }} />
+                          </div>
+                          <span className="text-white text-sm font-medium w-14 text-right">{count} ({Math.round((count / pagasList.length) * 100)}%)</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Planos */}
+                  <div className="bg-zinc-900 rounded-2xl p-5">
+                    <p className="text-zinc-400 text-xs uppercase tracking-widest mb-4">Planos escolhidos</p>
+                    {planosPagos.map(([nome, count]) => (
+                      <div key={nome} className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-zinc-300 truncate max-w-[55%]">{nome}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-zinc-800 rounded-full h-1.5">
+                            <div className="bg-blue-400 h-1.5 rounded-full" style={{ width: `${Math.round((count / pagasList.length) * 100)}%` }} />
+                          </div>
+                          <span className="text-white text-sm font-medium w-14 text-right">{count} ({Math.round((count / pagasList.length) * 100)}%)</span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Essências */}
+                  <div className="bg-zinc-900 rounded-2xl p-5">
+                    <p className="text-zinc-400 text-xs uppercase tracking-widest mb-4">Essências mais escolhidas</p>
+                    {essenciasPagas.map(([nome, count]) => (
+                      <div key={nome} className="flex items-center justify-between mb-2">
+                        <span className="text-sm text-zinc-300 truncate max-w-[55%]">{nome}</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-16 bg-zinc-800 rounded-full h-1.5">
+                            <div className="bg-amber-400 h-1.5 rounded-full" style={{ width: `${Math.round((count / totalPicks) * 100)}%` }} />
+                          </div>
+                          <span className="text-white text-sm font-medium w-14 text-right">{count} ({Math.round((count / totalPicks) * 100)}%)</span>
+                        </div>
+                      </div>
+                    ))}
+                    {essenciasPagas.length === 0 && <p className="text-zinc-500 text-sm">Sem dados</p>}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Filtros */}
             <div className="flex flex-wrap gap-3 mb-4">
