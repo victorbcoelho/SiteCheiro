@@ -25,14 +25,32 @@ function contaFrascos(difId: string, numEssencias: number): number {
   return numEssencias;
 }
 
-// Valor mensal das essências de uma reserva (usa o salvo; senão estima)
-function mensalidadeDe(r: Reserva): number {
-  if (typeof r.mensalidade === 'number' && r.mensalidade > 0) return r.mensalidade as number;
-  const essencias = (r.fragrancias || '').split(',').map((s) => s.trim()).filter(Boolean);
-  const frascos = contaFrascos(difusorId(r.difusor), essencias.length);
+function difusorPreco(name?: string): number {
+  return difusorId(name) === 'tower' ? 348 : 198;
+}
+
+// Separa cada venda em: mensalidade recorrente (assinatura, 20% off) e
+// faturamento único (compra única + difusor pago à vista). Sem desconto de fundador.
+function valoresDe(r: Reserva): { mensal: number; unico: number } {
   const plano = (r.plano || '').toLowerCase();
-  const comDesconto = plano.includes('promo') || plano.includes('assine');
-  return frascos * (comDesconto ? SCENT_SUB : SCENT_FULL);
+  const isUnica = plano.includes('compra') || plano.includes('única') || plano.includes('unica') || plano.includes('sem compromisso');
+  const isAssine = plano.includes('assine');
+  const isPromo = plano.includes('promo');
+  const numEss = (r.fragrancias || '').split(',').map((s) => s.trim()).filter(Boolean).length;
+  const frascos = contaFrascos(difusorId(r.difusor), numEss);
+  const difPreco = difusorPreco(r.difusor);
+
+  if (isUnica) {
+    // tudo à vista: difusor + essências a preço cheio
+    return { mensal: 0, unico: difPreco + frascos * SCENT_FULL };
+  }
+  if (isAssine) {
+    // essências mensais (20% off) + difusor pago uma vez
+    return { mensal: frascos * SCENT_SUB, unico: difPreco };
+  }
+  // promoção (difusor grátis) — só mensalidade das essências (20% off)
+  void isPromo;
+  return { mensal: frascos * SCENT_SUB, unico: 0 };
 }
 
 interface Reserva {
@@ -146,7 +164,10 @@ export default function ComprasPage() {
 
   // --- Resumo dos pedidos PAGOS ---
   const pagasList = reservas.filter((r) => r.status === 'pago' || r.status === 'approved');
-  const mrrTotal = pagasList.reduce((s, r) => s + mensalidadeDe(r), 0);
+  const mrrTotal = pagasList.reduce((s, r) => s + valoresDe(r).mensal, 0);
+  const unicoTotal = pagasList.reduce((s, r) => s + valoresDe(r).unico, 0);
+  const numAssinantes = pagasList.filter((r) => valoresDe(r).mensal > 0).length;
+  const numUnicas = pagasList.filter((r) => valoresDe(r).unico > 0).length;
 
   const contar = (arr: string[]) => {
     const m: Record<string, number> = {};
@@ -212,14 +233,28 @@ export default function ComprasPage() {
             {/* Resumo dos pedidos pagos */}
             {pagasList.length > 0 && (
               <div className="mb-8">
-                <div className="bg-gradient-to-br from-green-900/40 to-zinc-900 border border-green-800/40 rounded-2xl p-5 mb-4">
-                  <p className="text-green-300/70 text-xs uppercase tracking-widest mb-1">Faturamento recorrente potencial (MRR)</p>
-                  <p className="text-4xl md:text-5xl font-serif font-bold text-green-400">
-                    R$ {mrrTotal.toFixed(2).replace('.', ',')}<span className="text-xl text-green-300/60">/mês</span>
-                  </p>
-                  <p className="text-zinc-400 text-xs mt-1">
-                    Soma das mensalidades das {pagasList.length} venda(s) paga(s) · R$ {(mrrTotal * 12).toFixed(2).replace('.', ',')}/ano
-                  </p>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  {/* Mensalidade recorrente */}
+                  <div className="bg-gradient-to-br from-green-900/40 to-zinc-900 border border-green-800/40 rounded-2xl p-5">
+                    <p className="text-green-300/70 text-xs uppercase tracking-widest mb-1">Mensalidade recorrente (MRR)</p>
+                    <p className="text-4xl md:text-5xl font-serif font-bold text-green-400">
+                      R$ {mrrTotal.toFixed(2).replace('.', ',')}<span className="text-xl text-green-300/60">/mês</span>
+                    </p>
+                    <p className="text-zinc-400 text-xs mt-1">
+                      {numAssinantes} assinatura(s) · essências 20% off · R$ {(mrrTotal * 12).toFixed(2).replace('.', ',')}/ano
+                    </p>
+                  </div>
+
+                  {/* Faturamento único */}
+                  <div className="bg-gradient-to-br from-blue-900/40 to-zinc-900 border border-blue-800/40 rounded-2xl p-5">
+                    <p className="text-blue-300/70 text-xs uppercase tracking-widest mb-1">Faturamento único (à vista)</p>
+                    <p className="text-4xl md:text-5xl font-serif font-bold text-blue-400">
+                      R$ {unicoTotal.toFixed(2).replace('.', ',')}
+                    </p>
+                    <p className="text-zinc-400 text-xs mt-1">
+                      {numUnicas} pagamento(s) à vista · difusor + compra única (preço cheio)
+                    </p>
+                  </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
